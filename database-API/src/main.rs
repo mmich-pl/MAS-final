@@ -1,5 +1,6 @@
 mod entities;
 mod database;
+pub mod utils;
 
 use std::sync::Arc;
 use actix_web::middleware::Logger;
