@@ -29,14 +29,14 @@ impl Address {
     }
 
     pub(crate) async fn get_all(client: &Data<DbClient>) -> Result<Vec<Address>, APIError> {
-        match client.select("address").await {
+        match client.surreal.select("address").await {
             Ok(response) => Ok(response),
             Err(e) => Err(APIError::Surreal(e)),
         }
     }
 
     pub(crate) async fn get_by_id(client: &Data<DbClient>, id: String) -> Result<Address, APIError> {
-        match client.select(("address", id)).await {
+        match client.surreal.select(("address", id)).await {
             Ok(response) => Ok(response),
             Err(e) => Err(APIError::Surreal(e)),
         }

@@ -1,8 +1,9 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use crate::entities::employee::Employee;
+use strum_macros::{EnumString, Display};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize,EnumString, Display, Debug)]
 pub enum AdditionalLicences {
     Flammable,
     Toxic,

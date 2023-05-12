@@ -81,40 +81,32 @@ impl Trailer {
                                date: Option<DateTime<Utc>>, carrying_capacity: i32, trailer_type: String)
                                -> Result<Trailer, APIError> {
         let Ok(t_type) = TrailerType::from_str(&trailer_type) else {
-            return Err(APIError::ValueNotOfType("Unknown trailer type".to_string()));
+            return Err(APIError::ValueNotOfType(format!("Unknown trailer type: {}", trailer_type)));
         };
 
-        let trailer = Trailer::new(plate, axis_num, brand, date, carrying_capacity, trailer_type);
+        let trailer = Trailer::new(plate, axis_num, brand, date,
+                                   carrying_capacity, trailer_type);
+        let mut cargo_types = CargoTypeResponse::get_matching(client, t_type.inner()).await?;
 
-
-        let mut result = match client.surreal
-            .query("SELECT * FROM cargoType where type INSIDE $type")
-            .bind(("type", t_type.inner())).await {
-            Ok(result) => result,
-            Err(e) => return Err(APIError::Surreal(e)),
-        };
-
-
-        let mut types: Vec<CargoTypeResponse> = result.take(0)?;
-        if types.len() == 0 {
+        if cargo_types.len() == 0 {
             for t in t_type.inner() {
                 let res: CargoTypeResponse = client.surreal.create("cargoType")
                     .content(CargoTypeResponse { id: None, cargo_type: t.to_string() })
                     .await?;
-                types.push(res)
+                cargo_types.push(res)
             }
         }
 
         match client.surreal.create(("trailer", &trailer.plate)).content(trailer).await {
-            Ok::<Trailer, _>(address) => {
-                let plate: &str = &address.plate;
-                for t in types {
+            Ok::<Trailer, _>(t) => {
+                let plate: &str = &t.plate;
+                for t in cargo_types {
                     client.surreal
                         .query("RELATE $trailer->can_carry->$type;")
                         .bind(("trailer", Thing { tb: "trailer".to_string(), id: Id::from(plate) }))
                         .bind(("type", t.id)).await?;
                 }
-                Ok(address)
+                Ok(t)
             }
             Err(e) => Err(APIError::Surreal(e)),
         }

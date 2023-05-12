@@ -1,7 +1,11 @@
+use std::str::FromStr;
+use actix_web::web::Data;
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
-use crate::entities::driver::Licences;
+use crate::entities::driver::{AdditionalLicences, Licences};
 use strum_macros::{Display, EnumString};
+use crate::database::DbClient;
+use crate::error::APIError;
 
 #[derive(Serialize, Deserialize, EnumString, Display, Debug, PartialEq)]
 pub enum CargoTypes {
@@ -28,13 +32,75 @@ pub struct CargoTypeResponse {
 }
 
 
+impl CargoTypeResponse {
+    pub(crate) async fn get_matching(client: &Data<DbClient>, list: &Vec<CargoTypes>)
+                                     -> Result<Vec<CargoTypeResponse>, APIError> {
+        match client.surreal
+            .query("SELECT * FROM cargoType where type INSIDE $type")
+            .bind(("type", list)).await {
+            Ok(mut response) => Ok(response.take(0)?),
+            Err(e) => return Err(APIError::Surreal(e)),
+        }
+    }
+
+    pub(crate) async fn get_by_type(client: &Data<DbClient>, c_type: &str)
+                                    -> Result<Option<CargoTypeResponse>, APIError> {
+        match client.surreal
+            .query("SELECT * FROM cargoType where type == $type")
+            .bind(("type", c_type)).await {
+            Ok(mut response) => {
+                let ret: Option<CargoTypeResponse> = response.take(0)?;
+                Ok(ret)
+            }
+            Err(e) => Err(APIError::Surreal(e)),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Cargo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Thing>,
     pub name: String,
-    pub cargo_type: CargoTypes,
     pub unit: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub required_licences: Licences,
+}
+
+impl Cargo {
+    pub fn new(name: String, unit: String, required_licences: Option<Vec<String>>) -> Cargo {
+        let licences: Licences = match required_licences {
+            None => None,
+            Some(required_licences) => Some(
+                required_licences.into_iter().map(|x| AdditionalLicences::from_str(&x))
+                    .flat_map(|x| x.ok()).collect())
+        };
+        Cargo { id: None, name, unit, required_licences: licences }
+    }
+
+    pub async fn create(client: &Data<DbClient>, name: String, unit: String, cargo_type: String,
+                        required_licences: Option<Vec<String>>) -> Result<Cargo, APIError> {
+        let cargo = Cargo::new(name, unit, required_licences);
+        let Some(c_type) = CargoTypeResponse::get_by_type(client, &cargo_type).await? else {
+            return Err(APIError::ValueNotOfType(format!("Unknown cargo type: {}", cargo_type)));
+        };
+
+        match client.surreal.create("cargo").content(cargo).await {
+            Ok::<Cargo, _>(c) => {
+                client.surreal
+                    .query("RELATE $type->contains->$cargo")
+                    .bind(("cargo", &c.id))
+                    .bind(("type", c_type)).await?;
+                Ok(c)
+            }
+            Err(e) => Err(APIError::Surreal(e)),
+        }
+    }
+
+    pub(crate) async fn get_all(client: &Data<DbClient>) -> Result<Vec<Cargo>, SurrealError> {
+        match client.select("cargo").await {
+            Ok(response) => Ok(response),
+            Err(e) => Err(e),
+        }
+    }
 }
