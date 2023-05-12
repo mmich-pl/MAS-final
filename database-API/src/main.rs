@@ -1,8 +1,12 @@
 mod entities;
+mod database;
 
+use std::sync::Arc;
 use actix_web::middleware::Logger;
 use actix_web::{get, App, HttpResponse, HttpServer, Responder};
+use actix_web::web::Data;
 use serde::Serialize;
+use crate::database::{DbClient, init_database};
 
 #[derive(Serialize)]
 pub struct GenericResponse {
@@ -27,11 +31,16 @@ async fn main() -> std::io::Result<()> {
         std::env::set_var("RUST_LOG", "actix_web=info");
     }
     env_logger::init();
+    let db_client = init_database().await;
 
     println!("🚀 Server started successfully");
 
+
     HttpServer::new(move || {
         App::new()
+            .app_data(Data::new(DbClient {
+                surreal: Arc::new(db_client.clone())
+            }))
             .service(health_checker_handler)
             .wrap(Logger::default())
     })
