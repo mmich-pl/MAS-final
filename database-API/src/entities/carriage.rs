@@ -8,7 +8,7 @@ use crate::entities::trailer::Trailer;
 use crate::entities::truck::Truck;
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct TruckSet {
+pub(crate) struct TruckSet {
     pub trailer: Trailer,
     pub truck: Truck,
     pub driver: Driver,
@@ -21,7 +21,7 @@ pub struct CarriageItems {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Carriage {
+pub(crate) struct Carriage {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Thing>,
     pub pickup_time: DateTime<Utc>,

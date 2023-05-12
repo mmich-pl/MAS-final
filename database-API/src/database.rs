@@ -1,4 +1,3 @@
-use std::env;
 use std::sync::Arc;
 use surrealdb::engine::remote::ws::{Client, Ws};
 use surrealdb::opt::auth::Root;

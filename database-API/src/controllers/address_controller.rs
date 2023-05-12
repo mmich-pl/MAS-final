@@ -1,7 +1,6 @@
 use actix_web::{ HttpResponse, Responder, Scope, web};
 use serde::{Deserialize, Serialize};
 use crate::database::DbClient;
-use crate::entities::address;
 use crate::entities::address::Address;
 
 pub fn routes() -> Scope {

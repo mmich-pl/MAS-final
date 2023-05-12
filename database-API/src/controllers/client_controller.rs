@@ -1,7 +1,6 @@
 use actix_web::{HttpResponse, Responder, Scope, web};
 use serde::{Deserialize, Serialize};
 use crate::database::DbClient;
-use crate::entities::{address, client};
 use crate::entities::address::Address;
 use crate::entities::client::Client;
 
@@ -30,14 +29,13 @@ async fn create(body: web::Json<CreateClientRequest>, db: web::Data<DbClient>) -
         Ok(address) => {
             match Client::create(&db, body.0.name, body.0.tax_number, body.0.phone,
                                  body.0.email, address).await {
-                Ok(address) => HttpResponse::Created().json(address),
+                Ok(client) => HttpResponse::Created().json(client),
                 Err(e) => HttpResponse::InternalServerError().json(e.to_string())
             }
         }
         Err(e) => HttpResponse::InternalServerError().json(e.to_string())
     }
 }
-
 
 /// [GET /client] get all clients
 async fn get(db: web::Data<DbClient>) -> impl Responder {

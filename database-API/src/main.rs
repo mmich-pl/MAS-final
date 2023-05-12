@@ -8,7 +8,7 @@ use actix_web::middleware::Logger;
 use actix_web::{get, App, HttpResponse, HttpServer, Responder};
 use actix_web::web::Data;
 use serde::Serialize;
-use crate::controllers::{address_controller, cargo_controller, client_controller, trailer_controller};
+use crate::controllers::{address_controller, cargo_controller, client_controller, trailer_controller, truck_controller};
 use crate::database::{DbClient, init_database, init_env};
 
 #[derive(Serialize)]
@@ -50,6 +50,7 @@ async fn main() -> std::io::Result<()> {
             .service(cargo_controller::routes())
             .service(client_controller::routes())
             .service(trailer_controller::routes())
+            .service(truck_controller::routes())
             .wrap(Logger::default())
     })
         .bind(("127.0.0.1", 8080))?

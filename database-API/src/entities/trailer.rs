@@ -5,10 +5,9 @@ use serde::{Deserialize, Serialize};
 use surrealdb::sql::{Id, Thing};
 use crate::database::DbClient;
 use crate::entities::cargo::{CargoTypeResponse, CargoTypes};
-use crate::entities::carriage::CarriageItems;
 use crate::error::APIError;
 
-pub enum TrailerType {
+pub(crate) enum TrailerType {
     Curtainsider(Vec<CargoTypes>),
     Flatbed(Vec<CargoTypes>),
     Logger(Vec<CargoTypes>),
@@ -31,7 +30,7 @@ impl FromStr for TrailerType {
             "Tank" => Ok(TrailerType::Tank(vec![CargoTypes::BulkLiquid])),
             "DryFreighter" => Ok(TrailerType::DryFreighter(vec![CargoTypes::Pallet])),
             "Silo" => Ok(TrailerType::Silo(vec![CargoTypes::Grain])),
-            "DumbTruck" => Ok(TrailerType::Flatbed(vec![CargoTypes::Grain, CargoTypes::BulkDry])),
+            "DumbTruck" => Ok(TrailerType::DumbTruck(vec![CargoTypes::Grain, CargoTypes::BulkDry])),
             "Refrigerated" => Ok(TrailerType::Refrigerated(vec![CargoTypes::Refrigerated])),
             "LivestockTrailer" => Ok(TrailerType::LivestockTrailer(vec![CargoTypes::Livestock])),
             _ => Err(())
@@ -52,7 +51,7 @@ impl TrailerType {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Trailer {
+pub(crate) struct Trailer {
     pub carrying_capacity: i32,
     pub plate: String,
     pub axis_number: i8,
@@ -64,17 +63,9 @@ pub struct Trailer {
 }
 
 impl Trailer {
-    pub fn new(plate: String, axis_num: i8, brand: String, date: Option<DateTime<Utc>>,
-               carrying_capacity: i32, trailer_type: String) -> Trailer {
-        Trailer {
-            plate,
-            axis_number: axis_num,
-            brand,
-            purchase_date: date,
-            available: true,
-            carrying_capacity,
-            trailer_type,
-        }
+    pub(crate) fn new(plate: String, axis_num: i8, brand: String, date: Option<DateTime<Utc>>,
+                      carrying_capacity: i32, trailer_type: String) -> Trailer {
+        Trailer { plate, axis_number: axis_num, brand, purchase_date: date, available: true, carrying_capacity, trailer_type }
     }
 
     pub(crate) async fn create(client: &Data<DbClient>, plate: String, axis_num: i8, brand: String,
