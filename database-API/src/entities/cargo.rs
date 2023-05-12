@@ -97,10 +97,10 @@ impl Cargo {
         }
     }
 
-    pub(crate) async fn get_all(client: &Data<DbClient>) -> Result<Vec<Cargo>, SurrealError> {
-        match client.select("cargo").await {
+    pub(crate) async fn get_all(client: &Data<DbClient>) -> Result<Vec<Cargo>, APIError> {
+        match client.surreal.select("cargo").await {
             Ok(response) => Ok(response),
-            Err(e) => Err(e),
+            Err(e) => Err(APIError::Surreal(e)),
         }
     }
 }
