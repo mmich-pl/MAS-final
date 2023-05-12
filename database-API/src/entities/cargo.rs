@@ -69,12 +69,7 @@ pub struct Cargo {
 
 impl Cargo {
     pub fn new(name: String, unit: String, required_licences: Option<Vec<String>>) -> Cargo {
-        let licences: Licences = match required_licences {
-            None => None,
-            Some(required_licences) => Some(
-                required_licences.into_iter().map(|x| AdditionalLicences::from_str(&x))
-                    .flat_map(|x| x.ok()).collect())
-        };
+        let licences = AdditionalLicences::map_licences(required_licences);
         Cargo { id: None, name, unit, required_licences: licences }
     }
 

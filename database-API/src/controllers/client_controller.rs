@@ -7,7 +7,7 @@ use crate::entities::client::Client;
 pub fn routes() -> Scope {
     web::scope("/api/client")
         .route("", web::get().to(get))
-        .route("/add", web::post().to(create))
+        .route("", web::post().to(create))
 }
 
 #[derive(Serialize, Deserialize, Debug)]

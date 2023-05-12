@@ -15,7 +15,6 @@ pub struct CreateCargoRequest {
     pub cargo_type: String,
     pub unit: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-
     pub required_licences: Option<Vec<String>>,
 }
 

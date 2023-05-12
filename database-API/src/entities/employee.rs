@@ -17,7 +17,26 @@ pub struct Employee {
     pub address: Address,
 }
 
+impl Employee {
+    pub(crate) fn new(first_name: String, last_name: String, personal_id_number: String, age: i8,
+                      employment_date: DateTime<Utc>, dismissal_date: Option<DateTime<Utc>>, phone:
+                      String, email: String, salary: i32, address: Address) -> Employee {
+        Employee { first_name, last_name, personal_id_number, age, employment_date,
+            dismissal_date, phone, email, salary, address }
+    }
+}
+
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Forwarder {
-    pub person: Employee,
+    pub employee: Employee,
+}
+
+impl Forwarder {
+    pub(crate) fn new(first_name: String, last_name: String, personal_id_number: String, age: i8,
+                      employment_date: DateTime<Utc>, dismissal_date: Option<DateTime<Utc>>, phone:
+                      String, email: String, salary: i32, address: Address) -> Forwarder {
+        Forwarder { employee: Employee::new(first_name, last_name, personal_id_number, age,
+                                          employment_date, dismissal_date, phone, email, salary, address) }
+    }
 }
