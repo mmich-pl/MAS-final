@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  db:
+    image: surrealdb/surrealdb:latest
+    container_name: surrealdb
+    restart: always
+    # You can remove the memory option if you want to run the DB on disk
+    command: start --log debug --user ${DATABASE_USER} --pass ${DATABASE_PASSWORD} file:/data/database.db
+    ports:
+      - '8000:8000'
+    volumes:
+      - db:/var/lib/surrealdb/data
+volumes:
+  db:
+    driver: local
