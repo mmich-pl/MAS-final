@@ -1,13 +1,15 @@
 mod entities;
-mod database;
-pub mod utils;
+mod controllers;
+mod error;
+pub(crate) mod database;
 
 use std::sync::Arc;
 use actix_web::middleware::Logger;
 use actix_web::{get, App, HttpResponse, HttpServer, Responder};
 use actix_web::web::Data;
 use serde::Serialize;
-use crate::database::{DbClient, init_database};
+use crate::controllers::trailer_controller;
+use crate::database::{DbClient, init_database, init_env};
 
 #[derive(Serialize)]
 pub struct GenericResponse {
@@ -32,6 +34,7 @@ async fn main() -> std::io::Result<()> {
         std::env::set_var("RUST_LOG", "actix_web=info");
     }
     env_logger::init();
+    init_env();
     let db_client = init_database().await;
 
     println!("🚀 Server started successfully");
@@ -43,6 +46,7 @@ async fn main() -> std::io::Result<()> {
                 surreal: Arc::new(db_client.clone())
             }))
             .service(health_checker_handler)
+            .service(trailer_controller::routes())
             .wrap(Logger::default())
     })
         .bind(("127.0.0.1", 8080))?

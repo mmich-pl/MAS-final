@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 use crate::entities::address::Address;
-use crate::entities::cargo::Cargo;
+use crate::entities::cargo::{Cargo, CargoTypes};
 use crate::entities::driver::Driver;
 use crate::entities::trailer::Trailer;
 use crate::entities::truck::Truck;
@@ -12,6 +12,12 @@ pub struct TruckSet {
     pub trailer: Trailer,
     pub truck: Truck,
     pub driver: Driver,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CarriageItems {
+    pub cargo_type: CargoTypes,
+    pub amount: i8,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

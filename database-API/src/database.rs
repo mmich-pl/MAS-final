@@ -1,3 +1,4 @@
+use std::env;
 use std::sync::Arc;
 use surrealdb::engine::remote::ws::{Client, Ws};
 use surrealdb::opt::auth::Root;
@@ -17,11 +18,8 @@ fn getenv(key: &str) -> String {
 pub fn init_env() {
     dotenv().ok();
     let env_list = [
-        "DATABASE_URL",
-        "DATABASE_USER",
-        "DATABASE_PASSWORD",
-        "DATABASE_NAMESPACE",
-        "DATABASE_NAME",
+        "DATABASE_URL", "DATABASE_USER", "DATABASE_PASSWORD",
+        "DATABASE_NAMESPACE", "DATABASE_NAME",
     ];
     for env in env_list {
         getenv(env);
