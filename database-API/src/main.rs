@@ -8,7 +8,7 @@ use actix_web::middleware::Logger;
 use actix_web::{get, App, HttpResponse, HttpServer, Responder};
 use actix_web::web::Data;
 use serde::Serialize;
-use crate::controllers::trailer_controller;
+use crate::controllers::{address_controller, trailer_controller};
 use crate::database::{DbClient, init_database, init_env};
 
 #[derive(Serialize)]
@@ -47,6 +47,7 @@ async fn main() -> std::io::Result<()> {
             }))
             .service(health_checker_handler)
             .service(trailer_controller::routes())
+            .service(address_controller::routes())
             .wrap(Logger::default())
     })
         .bind(("127.0.0.1", 8080))?
