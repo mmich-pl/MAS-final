@@ -27,8 +27,8 @@ pub(crate) struct Carriage {
     pub pickup_time: DateTime<Utc>,
     pub pickup_address: Address,
     pub drop_address: Address,
-    pub route_length: i32,
-    pub drive_time: f32,
+    // pub route_length: i32,
+    // pub drive_time: f32,
     pub cargo: Vec<(Cargo, f32)>,
     pub truck_sets: Vec<TruckSet>,
 }

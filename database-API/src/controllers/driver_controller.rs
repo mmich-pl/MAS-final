@@ -26,7 +26,6 @@ pub struct CreateEmployeeRequest {
     pub phone: String,
     pub email: String,
     pub salary: i32,
-    #[serde(rename = "address")]
     pub address: CreateAddressRequest,
 }
 

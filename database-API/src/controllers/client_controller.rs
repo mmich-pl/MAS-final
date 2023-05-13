@@ -1,5 +1,6 @@
 use actix_web::{HttpResponse, Responder, Scope, web};
 use serde::{Deserialize, Serialize};
+use crate::controllers::address_controller::CreateAddressRequest;
 use crate::database::DbClient;
 use crate::entities::address::Address;
 use crate::entities::client::Client;
@@ -16,16 +17,13 @@ pub struct CreateClientRequest {
     pub tax_number: String,
     pub phone: String,
     pub email: String,
-
-    pub zipcode: String,
-    pub city: String,
-    pub country: String,
-    pub street: String,
+    pub address: CreateAddressRequest,
 }
 
 /// [POST /client] create new client
 async fn create(body: web::Json<CreateClientRequest>, db: web::Data<DbClient>) -> impl Responder {
-    match Address::create(&db, body.0.zipcode, body.0.city, body.0.country, body.0.street).await {
+    match Address::create(&db, body.0.address.zipcode, body.0.address.city,
+                          body.0.address.country, body.0.address.street).await {
         Ok(address) => {
             match Client::create(&db, body.0.name, body.0.tax_number, body.0.phone,
                                  body.0.email, address).await {
