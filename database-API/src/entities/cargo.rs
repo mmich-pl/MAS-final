@@ -39,7 +39,7 @@ impl CargoTypeResponse {
             .query("SELECT * FROM cargoType where type INSIDE $type")
             .bind(("type", list)).await {
             Ok(mut response) => Ok(response.take(0)?),
-            Err(e) => return Err(APIError::Surreal(e)),
+            Err(e) => Err(APIError::Surreal(e)),
         }
     }
 

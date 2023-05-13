@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+use std::iter::Map;
 use std::str::FromStr;
 use actix_web::web::Data;
 use chrono::{DateTime, Utc};
@@ -103,10 +105,55 @@ impl Trailer {
         }
     }
 
-    pub(crate) async fn get_all(client: &Data<DbClient>) -> Result<Vec<Trailer>, String> {
+    pub(crate) async fn get_all(client: &Data<DbClient>) -> Result<Vec<Trailer>, APIError> {
         match client.surreal.select("trailer").await {
             Ok(response) => Ok(response),
-            Err(e) => Err(e.to_string()),
+            Err(e) => Err(APIError::Surreal(e)),
         }
+    }
+
+    pub(crate) async fn get_max_capacity_per_type(client: &Data<DbClient>, cargo_type: String)
+                                                  -> Result<i32, APIError> {
+
+        // TODO: add check if trailer is available
+        let query = client.surreal.query(
+            "SELECT math::sum(<-can_carry<-trailer.carrying_capacity) \
+            FROM cargoType \
+            WHERE type == $cargo_type")
+            .bind(("cargo_type", cargo_type));
+
+        match query.await {
+            Ok(mut response) => {
+                let ret: Option<HashMap<String, i32>> = response.take(0)?;
+                Ok(*ret.unwrap().values().next().unwrap())
+            }
+            Err(e) => Err(APIError::Surreal(e)),
+        }
+    }
+}
+
+// Test only on initial values
+#[cfg(test)]
+mod test {
+    use std::fs::create_dir;
+    use std::sync::Arc;
+    use actix_web::web::Data;
+    use crate::database::{DbClient, init_database, init_env};
+    use crate::entities::trailer::Trailer;
+
+    async fn crate_client() -> Data<DbClient> {
+        init_env();
+        let client = init_database().await;
+        Data::new(DbClient { surreal: Arc::new(client).clone() })
+    }
+
+
+    #[actix_rt::test]
+    async fn get_max_capacity() {
+        let client = crate_client().await;
+        let desired_cargo = String::from("Grain");
+        let expected_value = 86;
+        let actual_value = Trailer::get_max_capacity_per_type(&client, desired_cargo).await.unwrap();
+        assert_eq!(expected_value, actual_value);
     }
 }
