@@ -22,11 +22,9 @@ cargo = [
 ]
 
 clients = [
-    {"name": "Tall Tales Craft Ales", "tax_number": "5268672572", "phone": "699604416", "email": "talltalles@gmail.com",
-     "address": {"zipcode": "41-300", "city": "Dąbrowa Górnicza", "country": "Poland",
-                 "street": " ul. Adamieckiego Karola 116"}},
-    {"name": "Tamsack Harbor", "tax_number": "7976065223", "phone": "694025155 ", "email": "tamsack@gmail.com",
-     "address": {"zipcode": "80-014", "city": "Gdańsk", "country": "Poland", "street": "ul. Radwańska 97"}}
+    {"name": "Tall Tales Craft Ales", "tax_number": "5268672572", "phone": "699604416",
+     "email": "talltalles@gmail.com"},
+    {"name": "Tamsack Harbor", "tax_number": "7976065223", "phone": "694025155 ", "email": "tamsack@gmail.com"}
 ]
 
 drivers = [
@@ -212,10 +210,41 @@ trucks = [
 
 ]
 
-datasets = {"cargo": cargo, "client": clients, "driver": drivers, "trailer": trailers, "truck": trucks}
+carriages = [
+    {
+        "client": {
+            "name": "Tall Tales Craft Ales",
+            "tax_number": "5268672572",
+            "phone": "699604416",
+            "email": "talltalles@gmail.com"
+        },
+        "pickup_time": "2023-05-15T07:18:52Z",
+        "pickup_address": {
+            "zipcode": "41-300",
+            "city": "Dąbrowa Górnicza",
+            "country": "Poland",
+            "street": "ul. Adamieckiego Karola 116"
+        },
+        "drop_address": {
+            "zipcode": "80-014",
+            "city": "Gdańsk",
+            "country": "Poland",
+            "street": "ul. Radwańska 97"
+        },
+        "load": [{
+            "cargo_type": "Grain",
+            "amount": 12
+        }],
+        "truck_sets": [["truck:⟨EL-3ZXXC⟩", "trailer:⟨EL-078AV⟩", "driver:⟨90041421993⟩"]]
+    }
+]
+
+datasets = {"cargo": cargo, "client": clients, "driver": drivers,
+            "trailer": trailers, "truck": trucks, "carriage": carriages}
 
 tables = [
     "address", "cargo", "cargoType", "carriage", "client", "driver", "trailer", "truck",
+    "canCarry", "order", "pickup", "drop", "contains"
 ]
 
 
@@ -230,7 +259,7 @@ def drop():
     password = config.get("DATABASE_PASSWORD")
 
     for i in tables:
-        query = f'delete {i}'
+        query = f'remove table {i}'
         r = requests.post(url=db_url,
                           headers=headers,
                           auth=(username, password),
