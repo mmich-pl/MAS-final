@@ -19,7 +19,7 @@ pub struct TruckSet {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CarriageItems {
     pub cargo_type: String,
-    pub amount: i8,
+    pub amount: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -65,15 +65,12 @@ impl Carriage {
             Ok(resp) => {
                 println!("{:?}", resp);
 
-                client.surreal.query("RELATE $client->order->carriage:⟨$carriage⟩;")
-                    .bind(("client", client_id))
-                    .bind(("carriage", &uuid_id)).await?;
-                client.surreal.query("RELATE carriage:⟨$carriage⟩->pickup->$address;")
-                    .bind(("address", pickup_address))
-                    .bind(("carriage", &uuid_id)).await?;
-                client.surreal.query("RELATE  carriage:⟨$carriage⟩->drop->$address;")
-                    .bind(("address", drop_address))
-                    .bind(("carriage", &uuid_id)).await?;
+                client.surreal.query(format!("RELATE $client->order->carriage:⟨{}⟩;", &uuid_id))
+                    .bind(("client", client_id)).await?;
+                client.surreal.query(format!("RELATE carriage:⟨{}⟩->pickup->$address;", &uuid_id))
+                    .bind(("address", pickup_address)).await?;
+                client.surreal.query(format!("RELATE  carriage:⟨{}⟩->drop->$address;", &uuid_id))
+                    .bind(("address", drop_address)).await?;
                 let carriage: Option<Carriage> = client.surreal.select(("carriage", &uuid_id)).await?;
                 Ok(carriage.unwrap())
             }

@@ -10,9 +10,13 @@ use crate::error::APIError;
 #[derive(Serialize, Deserialize, EnumString, Display, Debug, PartialEq)]
 pub enum CargoTypes {
     Grain,
+    #[serde(rename(serialize = "Dry Bulk Cargo", deserialize = "Dry Bulk Cargo"))]
+    #[strum(serialize = "Dry Bulk Cargo")]
     BulkDry,
+    #[serde(rename(serialize = "Liquid Bulk Cargo", deserialize = "Liquid Bulk Cargo"))]
+    #[strum(serialize = "Liquid Bulk Cargo")]
     BulkLiquid,
-    #[serde(rename = "Buildings Materials")]
+    #[serde(rename(serialize = "Buildings Materials", deserialize = "Buildings Materials"))]
     #[strum(serialize = "Buildings Materials")]
     BuildingsMaterials,
     Machines,
@@ -33,7 +37,7 @@ pub struct CargoTypeResponse {
 
 
 impl CargoTypeResponse {
-    pub(crate) async fn get_matching(client: &Data<DbClient>, list: &Vec<CargoTypes>)
+    pub(crate) async fn get_by_types(client: &Data<DbClient>, list: &Vec<CargoTypes>)
                                      -> Result<Vec<CargoTypeResponse>, APIError> {
         match client.surreal
             .query("SELECT * FROM cargoType where type INSIDE $type")
@@ -51,6 +55,27 @@ impl CargoTypeResponse {
             Ok(mut response) => {
                 let ret: Option<CargoTypeResponse> = response.take(0)?;
                 Ok(ret)
+            }
+            Err(e) => Err(APIError::Surreal(e)),
+        }
+    }
+
+    pub(crate) async fn get_or_create(client: &Data<DbClient>, c_type: &str)
+                                      -> Result<CargoTypeResponse, APIError> {
+        match client.surreal
+            .query("SELECT * FROM cargoType where type == $type")
+            .bind(("type", c_type)).await {
+            Ok(mut response) => {
+                let ret: Option<CargoTypeResponse> = response.take(0)?;
+                match ret {
+                    None => {
+                        let res: CargoTypeResponse = client.surreal.create("cargoType")
+                            .content(CargoTypeResponse { id: None, cargo_type: c_type.to_string() })
+                            .await?;
+                        Ok(res)
+                    }
+                    Some(cargo_type) => Ok(cargo_type)
+                }
             }
             Err(e) => Err(APIError::Surreal(e)),
         }
@@ -76,17 +101,18 @@ impl Cargo {
     pub async fn create(client: &Data<DbClient>, name: String, unit: String, cargo_type: String,
                         required_licences: Option<Vec<String>>) -> Result<Cargo, APIError> {
         let cargo = Cargo::new(name, unit, required_licences);
-        let Some(c_type) = CargoTypeResponse::get_by_type(client, &cargo_type).await? else {
-            return Err(APIError::ValueNotOfType(format!("Unknown cargo type: {}", cargo_type)));
-        };
+        let c_type = CargoTypeResponse::get_or_create(client, &cargo_type).await?;
 
         let uuid_id = Uuid::new_v4();
         match client.surreal.create(("cargo", uuid_id)).content(cargo).await {
             Ok::<Cargo, _>(c) => {
+                println!("{:?}", &c.id);
+                println!("{:?}", &c_type.id);
+
                 client.surreal
-                    .query("RELATE cargoType:⟨$type⟩->contains->cargo:⟨$cargo⟩")
+                    .query("RELATE $type->contains->$cargo")
                     .bind(("cargo", &c.id))
-                    .bind(("type", c_type)).await?;
+                    .bind(("type", c_type.id.unwrap())).await?;
                 Ok(c)
             }
             Err(e) => Err(APIError::Surreal(e)),

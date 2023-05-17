@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::collections::HashMap;
 use std::str::FromStr;
 
@@ -7,6 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::database::DbClient;
 use crate::entities::cargo::{CargoTypeResponse, CargoTypes};
+use crate::entities::carriage::CarriageItems;
 use crate::error::APIError;
 
 pub(crate) enum TrailerType {
@@ -79,9 +81,9 @@ impl Trailer {
 
         let trailer = Trailer::new(plate, axis_num, brand, date,
                                    carrying_capacity, trailer_type);
-        let mut cargo_types = CargoTypeResponse::get_matching(client, t_type.inner()).await?;
+        let mut cargo_types = CargoTypeResponse::get_by_types(client, t_type.inner()).await?;
 
-        if cargo_types.len() == 0 {
+        if cargo_types.len() != t_type.inner().len() {
             for t in t_type.inner() {
                 let res: CargoTypeResponse = client.surreal.create("cargoType")
                     .content(CargoTypeResponse { id: None, cargo_type: t.to_string() })
@@ -93,9 +95,9 @@ impl Trailer {
         match client.surreal.create(("trailer", &trailer.plate)).content(trailer).await {
             Ok::<Trailer, _>(trailer) => {
                 for t in cargo_types {
+                    println!("{}", &trailer.plate);
                     client.surreal
-                        .query("RELATE trailer:⟨$plate⟩->canCarry->$type;")
-                        .bind(("trailer", &trailer.plate))
+                        .query(format!("RELATE trailer:⟨{}⟩->canCarry->$type;", &trailer.plate))
                         .bind(("type", t.id)).await?;
                 }
                 Ok(trailer)
@@ -111,7 +113,7 @@ impl Trailer {
         }
     }
 
-    pub(crate) async fn get_max_capacity_per_type(client: &Data<DbClient>, cargo_type: String)
+    pub(crate) async fn get_max_capacity_per_type(client: &Data<DbClient>, cargo_type: &str)
                                                   -> Result<i32, APIError> {
 
         // TODO: add check if trailer is available
@@ -128,6 +130,27 @@ impl Trailer {
             }
             Err(e) => Err(APIError::Surreal(e)),
         }
+    }
+
+    pub(crate) async fn get_best_matching_trailer(client: &Data<DbClient>, load: Vec<CarriageItems>) ->
+    Result<Vec<Trailer>, APIError> {
+        let result = Vec::new();
+
+        for item in load {
+            let response = Trailer::get_max_capacity_per_type(client, &item.cargo_type).await;
+            if let Ok(max_cap) = response {
+                if max_cap < item.amount {
+                    return Err(APIError::CantMatch(format!("No trailers that can carry {} of {}",
+                                                           &item.amount, &item.cargo_type)));
+                }
+            } else if let Err(e) = response {
+                return Err(e);
+            }
+        }
+
+
+        // Other logic after processing all elements
+        Ok(result)
     }
 }
 
@@ -153,7 +176,7 @@ mod test {
         let client = crate_client().await;
         let desired_cargo = String::from("Grain");
         let expected_value = 86;
-        let actual_value = Trailer::get_max_capacity_per_type(&client, desired_cargo).await.unwrap();
+        let actual_value = Trailer::get_max_capacity_per_type(&client, &desired_cargo).await.unwrap();
         assert_eq!(expected_value, actual_value);
     }
 }

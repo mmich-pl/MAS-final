@@ -11,14 +11,14 @@ cargo = [
     {"name": "Atlantic Cod Fillet", "unit": "t", "cargo_type": "Refrigerated"},
     {"name": "Beef", "unit": "t", "cargo_type": "Refrigerated"},
     {"name": "Barley", "unit": "t", "cargo_type": "Grain"},
-    {"name": "Reinforcing Bars", "unit": "t", "cargo_type": "BuildingsMaterials"},
+    {"name": "Reinforcing Bars", "unit": "t", "cargo_type": "Buildings Materials"},
     {"name": "Logs", "unit": "t", "cargo_type": "Wood"},
-    {"name": "Cement", "unit": "t", "cargo_type": "BulkDry"},
-    {"name": "Coal", "unit": "t", "cargo_type": "BulkDry"},
-    {"name": "Diesel", "unit": "hl", "required_licences": "Flammable", "cargo_type": "BulkLiquid"},
-    {"name": "Loaders", "unit": "psc.", "required_licences": "Overdimensional", "cargo_type": "Machines"},
-    {"name": "Fuel Tanker", "unit": "psc. ", "required_licences": "Flammable", "cargo_type": "Pallet"},
-    {"name": "Pigs", "unit": "psc. ", "required_licences": "Livestock", "cargo_type": "Livestock"},
+    {"name": "Cement", "unit": "t", "cargo_type": "Dry Bulk Cargo"},
+    {"name": "Coal", "unit": "t", "cargo_type": "Dry Bulk Cargo"},
+    {"name": "Diesel", "unit": "hl", "required_licences": ["Flammable"], "cargo_type": "Liquid Bulk Cargo"},
+    {"name": "Loaders", "unit": "psc.", "required_licences": ["Overdimensional"], "cargo_type": "Machines"},
+    {"name": "Fuel Tanker", "unit": "psc.", "required_licences": ["Flammable"], "cargo_type": "Pallet"},
+    {"name": "Pigs", "unit": "psc.", "required_licences": ["Livestock"], "cargo_type": "Livestock"},
 ]
 
 clients = [
@@ -187,21 +187,21 @@ trucks = [
         "brand": "MAN",
     },
     {
-        "plate": "EL-3ZXXC",
+        "plate": "EL-3ZXZC",
         "axis_number": 3,
         "mileage": 204353,
         "brand": "Renault",
         "purchase_date": "2022-04-08T18:14:12Z"
     },
     {
-        "plate": "EL-3ZXXC",
+        "plate": "EL-3ZXYC",
         "axis_number": 3,
         "mileage": 760954,
         "brand": "Scania",
         "purchase_date": "2019-02-19T00:57:00Z"
     },
     {
-        "plate": "EL-3ZXXC",
+        "plate": "EL-3ZUXC",
         "axis_number": 3,
         "mileage": 721707,
         "brand": "MAN",
@@ -240,7 +240,7 @@ carriages = [
 ]
 
 datasets = {"cargo": cargo, "client": clients, "driver": drivers,
-            "trailer": trailers, "truck": trucks, "carriage": carriages}
+            "truck": trucks, "trailer": trailers, "carriage": carriages}
 
 tables = [
     "address", "cargo", "cargoType", "carriage", "client", "driver", "trailer", "truck",
@@ -274,7 +274,12 @@ def populate_data():
             r = requests.post(url=f'{BASE_API_URL}/{k}',
                               json=item)
             if r.ok:
-                print(f'Data inserted successfully')
+                print(f'Data inserted successfully to column: {k}')
+            else:
+                try:
+                    print("Error: ", r.json())
+                except:
+                    pass
 
 
 def main():
