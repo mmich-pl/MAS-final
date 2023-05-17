@@ -1,7 +1,6 @@
-use std::str::FromStr;
 use actix_web::web::Data;
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::sql::{Thing, Uuid};
 use crate::entities::driver::{AdditionalLicences, Licences};
 use strum_macros::{Display, EnumString};
 use crate::database::DbClient;
@@ -80,10 +79,11 @@ impl Cargo {
             return Err(APIError::ValueNotOfType(format!("Unknown cargo type: {}", cargo_type)));
         };
 
-        match client.surreal.create("cargo").content(cargo).await {
+        let uuid_id = Uuid::new_v4();
+        match client.surreal.create(("cargo", uuid_id)).content(cargo).await {
             Ok::<Cargo, _>(c) => {
                 client.surreal
-                    .query("RELATE $type->contains->$cargo")
+                    .query("RELATE cargoType:⟨$type⟩->contains->cargo:⟨$cargo⟩")
                     .bind(("cargo", &c.id))
                     .bind(("type", c_type)).await?;
                 Ok(c)

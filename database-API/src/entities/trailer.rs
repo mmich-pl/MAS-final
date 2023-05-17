@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::iter::Map;
 use std::str::FromStr;
 use actix_web::web::Data;
 use chrono::{DateTime, Utc};
@@ -91,15 +90,14 @@ impl Trailer {
         }
 
         match client.surreal.create(("trailer", &trailer.plate)).content(trailer).await {
-            Ok::<Trailer, _>(t) => {
-                let plate: &str = &t.plate;
+            Ok::<Trailer, _>(trailer) => {
                 for t in cargo_types {
                     client.surreal
-                        .query("RELATE $trailer->can_carry->$type;")
-                        .bind(("trailer", Thing { tb: "trailer".to_string(), id: Id::from(plate) }))
+                        .query("RELATE trailer:⟨$plate⟩->canCarry->$type;")
+                        .bind(("trailer", &trailer.plate))
                         .bind(("type", t.id)).await?;
                 }
-                Ok(t)
+                Ok(trailer)
             }
             Err(e) => Err(APIError::Surreal(e)),
         }
@@ -117,7 +115,7 @@ impl Trailer {
 
         // TODO: add check if trailer is available
         let query = client.surreal.query(
-            "SELECT math::sum(<-can_carry<-trailer.carrying_capacity) \
+            "SELECT math::sum(<-canCarry<-trailer.carrying_capacity) \
             FROM cargoType \
             WHERE type == $cargo_type")
             .bind(("cargo_type", cargo_type));
@@ -135,7 +133,6 @@ impl Trailer {
 // Test only on initial values
 #[cfg(test)]
 mod test {
-    use std::fs::create_dir;
     use std::sync::Arc;
     use actix_web::web::Data;
     use crate::database::{DbClient, init_database, init_env};

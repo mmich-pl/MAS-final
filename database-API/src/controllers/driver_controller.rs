@@ -4,9 +4,7 @@ use serde::{Deserialize, Serialize};
 use crate::controllers::address_controller::CreateAddressRequest;
 use crate::database::DbClient;
 use crate::entities::address::Address;
-use crate::entities::client::Client;
-use crate::entities::driver::{AdditionalLicences, Driver, DriverLicence, Licences};
-use crate::entities::employee::Employee;
+use crate::entities::driver::{AdditionalLicences, Driver, DriverLicence};
 
 pub fn routes() -> Scope {
     web::scope("/api/driver")

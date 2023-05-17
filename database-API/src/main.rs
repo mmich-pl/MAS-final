@@ -4,12 +4,11 @@ mod error;
 pub(crate) mod database;
 
 use std::sync::Arc;
-use actix_cors::Cors;
 use actix_web::middleware::Logger;
 use actix_web::{get, App, HttpResponse, HttpServer, Responder};
 use actix_web::web::Data;
 use serde::Serialize;
-use crate::controllers::{address_controller, cargo_controller, client_controller, driver_controller, trailer_controller, truck_controller};
+use crate::controllers::{address_controller, cargo_controller, carriage_controller, client_controller, driver_controller, trailer_controller, truck_controller};
 use crate::database::{DbClient, init_database, init_env};
 
 #[derive(Serialize)]
@@ -49,6 +48,7 @@ async fn main() -> std::io::Result<()> {
             .service(health_checker_handler)
             .service(address_controller::routes())
             .service(cargo_controller::routes())
+            .service(carriage_controller::routes())
             .service(client_controller::routes())
             .service(driver_controller::routes())
             .service(trailer_controller::routes())

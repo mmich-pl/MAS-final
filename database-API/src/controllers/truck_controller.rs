@@ -7,7 +7,7 @@ use crate::entities::truck::Truck;
 pub fn routes() -> Scope {
     web::scope("/api/truck")
         .route("", web::get().to(get))
-        .route("/", web::post().to(create))
+        .route("", web::post().to(create))
 }
 
 #[derive(Serialize, Deserialize, Debug)]

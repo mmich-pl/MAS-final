@@ -62,10 +62,9 @@ impl Driver {
                         dismissal_date: Option<DateTime<Utc>>, phone: String, email: String,
                         salary: i32, address: Address, driver_licence: DriverLicence,
                         owned_licences: Licences) -> Result<Driver, APIError> {
-        let driver = Driver::new(first_name, last_name, personal_id_number, age, employment_date,
+        let driver = Driver::new(first_name, last_name, personal_id_number.clone(), age, employment_date,
                                  dismissal_date, phone, email, salary, address, driver_licence, owned_licences);
-
-        match dbclient.surreal.create("driver").content(driver).await {
+        match dbclient.surreal.create(("driver", &personal_id_number)).content(driver).await {
             Ok(c) => Ok(c),
             Err(e) => Err(APIError::Surreal(e)),
         }

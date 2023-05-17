@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use actix_web::web::Data;
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
+use uuid::Uuid;
 use crate::database::DbClient;
 use crate::error::APIError;
 
@@ -24,7 +25,8 @@ impl Client {
     pub async fn create(dbclient: &Data<DbClient>, name: String, tax_number: String,
                         phone: String, email: String) -> Result<Client, APIError> {
         let client: Client = Client::new(name, tax_number, phone, email);
-        match dbclient.surreal.create("client").content(client).await {
+        let uuid_id = Uuid::new_v4();
+        match dbclient.surreal.create(("client", uuid_id.to_string())).content(client).await {
             Ok(c) => Ok(c),
             Err(e) => Err(APIError::Surreal(e)),
         }
