@@ -1,9 +1,10 @@
 use actix_web::web::Data;
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::{Thing, Uuid};
-use crate::entities::driver::{AdditionalLicences, Licences};
 use strum_macros::{Display, EnumString};
+use surrealdb::sql::{Thing, Uuid};
+
 use crate::database::DbClient;
+use crate::entities::driver::{AdditionalLicences, Licences};
 use crate::error::APIError;
 
 #[derive(Serialize, Deserialize, EnumString, Display, Debug, PartialEq)]

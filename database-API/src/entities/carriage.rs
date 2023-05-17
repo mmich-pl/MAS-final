@@ -3,11 +3,9 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 use uuid::Uuid;
+
 use crate::controllers::carriage_controller::CreateTruckSetRequest;
 use crate::database::DbClient;
-use crate::entities::driver::Driver;
-use crate::entities::trailer::Trailer;
-use crate::entities::truck::Truck;
 use crate::error::APIError;
 
 #[derive(Serialize, Deserialize, Debug)]

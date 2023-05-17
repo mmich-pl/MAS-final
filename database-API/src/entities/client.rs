@@ -1,8 +1,8 @@
-use std::collections::HashMap;
 use actix_web::web::Data;
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 use uuid::Uuid;
+
 use crate::database::DbClient;
 use crate::error::APIError;
 

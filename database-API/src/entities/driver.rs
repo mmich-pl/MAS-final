@@ -1,12 +1,14 @@
 use std::fmt::Debug;
 use std::str::FromStr;
+
 use actix_web::web::Data;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use crate::entities::employee::Employee;
-use strum_macros::{EnumString, Display};
+use strum_macros::{Display, EnumString};
+
 use crate::database::DbClient;
 use crate::entities::address::Address;
+use crate::entities::employee::Employee;
 use crate::error::APIError;
 
 #[derive(Serialize, Deserialize, EnumString, Display, Debug)]

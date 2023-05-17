@@ -1,5 +1,6 @@
 use actix_web::{HttpResponse, Responder, Scope, web};
 use serde::{Deserialize, Serialize};
+
 use crate::database::DbClient;
 use crate::entities::client::Client;
 

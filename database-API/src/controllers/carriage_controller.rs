@@ -2,11 +2,12 @@ use actix_web::{HttpResponse, Responder, Scope, web};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql:: Thing;
+
 use crate::controllers::address_controller::CreateAddressRequest;
 use crate::controllers::client_controller::CreateClientRequest;
-use crate::database::{DbClient};
+use crate::database::DbClient;
 use crate::entities::address::Address;
-use crate::entities::carriage::{Carriage, CarriageItems, TruckSet};
+use crate::entities::carriage::{Carriage, CarriageItems};
 use crate::entities::client::Client;
 
 pub fn routes() -> Scope {

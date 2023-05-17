@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+
 use crate::entities::address::Address;
 
 #[derive(Serialize, Deserialize, Debug)]

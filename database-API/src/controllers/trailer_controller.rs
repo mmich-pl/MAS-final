@@ -1,7 +1,8 @@
 use actix_web::{HttpResponse, Responder, Scope, web};
-use serde::{Deserialize, Serialize};
-use crate::database::DbClient;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+
+use crate::database::DbClient;
 use crate::entities::trailer::Trailer;
 
 pub fn routes() -> Scope {

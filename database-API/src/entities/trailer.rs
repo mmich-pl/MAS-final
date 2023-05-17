@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 use std::str::FromStr;
+
 use actix_web::web::Data;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::{Id, Thing};
+
 use crate::database::DbClient;
 use crate::entities::cargo::{CargoTypeResponse, CargoTypes};
 use crate::error::APIError;
@@ -134,7 +135,9 @@ impl Trailer {
 #[cfg(test)]
 mod test {
     use std::sync::Arc;
+
     use actix_web::web::Data;
+
     use crate::database::{DbClient, init_database, init_env};
     use crate::entities::trailer::Trailer;
 

@@ -1,8 +1,9 @@
 use std::sync::Arc;
+
+use dotenv::dotenv;
 use surrealdb::engine::remote::ws::{Client, Ws};
 use surrealdb::opt::auth::Root;
 use surrealdb::Surreal;
-use dotenv::dotenv;
 
 pub type SurrealClient = Surreal<Client>;
 

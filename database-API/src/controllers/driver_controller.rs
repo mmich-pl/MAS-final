@@ -1,6 +1,7 @@
 use actix_web::{HttpResponse, Responder, Scope, web};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+
 use crate::controllers::address_controller::CreateAddressRequest;
 use crate::database::DbClient;
 use crate::entities::address::Address;
