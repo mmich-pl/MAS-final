@@ -1,6 +1,7 @@
 use actix_web::web::Data;
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::{Thing};
+use uuid::Uuid;
 use crate::database::DbClient;
 use crate::error::APIError;
 
@@ -21,8 +22,9 @@ impl Address {
 
     pub async fn create(client: &Data<DbClient>, zipcode: String, city: String, country: String,
                         street: String) -> Result<Address, APIError> {
+        let uuid_id = Uuid::new_v4();
         let address: Address = Address::new(zipcode, city, country, street);
-        match client.surreal.create("address").content(address).await {
+        match client.surreal.create(("address", uuid_id.to_string())).content(address).await {
             Ok(address) => Ok(address),
             Err(e) => Err(APIError::Surreal(e)),
         }
@@ -39,6 +41,23 @@ impl Address {
         match client.surreal.select(("address", id)).await {
             Ok(response) => Ok(response),
             Err(e) => Err(APIError::Surreal(e)),
+        }
+    }
+
+    pub(crate) async fn get_or_create(client: &Data<DbClient>, zipcode: String, city: String, country: String,
+                                      street: String) -> Result<Address, APIError> {
+        match client.surreal.query("SELECT * FROM address WHERE city == $city AND street == $street")
+            .bind(("city", &city))
+            .bind(("street", &street)).await {
+            Ok(mut response) => {
+                let ret: Option<Address> = response.take(0)?;
+                println!("{:?}",ret);
+                match ret {
+                    None => Address::create(client, zipcode, city, country, street).await,
+                    Some(add) => Ok(add),
+                }
+            }
+            Err(e) => Err(APIError::Surreal(e))
         }
     }
 }
