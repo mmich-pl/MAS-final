@@ -1,8 +1,8 @@
+use std::collections::HashMap;
 use actix_web::web::Data;
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 use crate::database::DbClient;
-use crate::entities::address::Address;
 use crate::error::APIError;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -13,20 +13,17 @@ pub struct Client {
     pub tax_number: String,
     pub phone: String,
     pub email: String,
-    pub address: Address,
 }
 
 impl Client {
     pub fn new(name: String, tax_number: String, phone: String,
-               email: String, address: Address) -> Client {
-        Client { id: None, name, tax_number, phone, email, address }
+               email: String) -> Client {
+        Client { id: None, name, tax_number, phone, email }
     }
 
     pub async fn create(dbclient: &Data<DbClient>, name: String, tax_number: String,
-                        phone: String, email: String, address: Address, )
-                        -> Result<Client, APIError> {
-        let client: Client = Client::new(name, tax_number, phone, email, address);
-
+                        phone: String, email: String) -> Result<Client, APIError> {
+        let client: Client = Client::new(name, tax_number, phone, email);
         match dbclient.surreal.create("client").content(client).await {
             Ok(c) => Ok(c),
             Err(e) => Err(APIError::Surreal(e)),
@@ -37,6 +34,22 @@ impl Client {
         match client.surreal.select("client").await {
             Ok(response) => Ok(response),
             Err(e) => Err(APIError::Surreal(e)),
+        }
+    }
+
+    pub(crate) async fn get_by_tax_number(client: &Data<DbClient>, number: &str)
+                                          -> Result<Option<Client>, APIError> {
+        let query = client.surreal
+            .query("SELECT * FROM client WHERE tax_number == $tax ;")
+            .bind(("tax", number));
+
+        match query.await {
+            Ok(mut response) => {
+                let ret: Option<Client> = response.take(0)?;
+                println!("{:?}",ret);
+                Ok(ret)
+            }
+            Err(e) => Err(APIError::Surreal(e))
         }
     }
 }
