@@ -43,7 +43,6 @@ pub struct DriverLicence {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Driver {
     pub employee: Employee,
-    pub available: bool,
     pub driver_licence: DriverLicence,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub owned_licences: Licences,
@@ -56,7 +55,7 @@ impl Driver {
                       owned_licences: Licences) -> Driver {
         let employee = Employee::new(first_name, last_name, personal_id_number, age,
                                      employment_date, dismissal_date, phone, email, salary, address);
-        Driver { employee, available: true, driver_licence, owned_licences }
+        Driver { employee, driver_licence, owned_licences }
     }
 
     pub async fn create(dbclient: &Data<DbClient>, first_name: String, last_name: String,

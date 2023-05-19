@@ -13,13 +13,12 @@ pub struct Truck {
     pub brand: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub purchase_date: Option<DateTime<Utc>>,
-    pub available: bool,
 }
 
 impl Truck {
     pub(crate) fn new(plate: String, axis_num: i8, mileage: i32, brand: String,
                       date: Option<DateTime<Utc>>) -> Truck {
-        Truck { plate, axis_number: axis_num, mileage, brand, purchase_date: date, available: true }
+        Truck { plate, axis_number: axis_num, mileage, brand, purchase_date: date }
     }
 
 

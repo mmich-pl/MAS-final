@@ -44,37 +44,35 @@ impl Carriage {
                                -> Result<Carriage, APIError> {
         let uuid_id = Uuid::new_v4().to_string();
 
-        let mut transaction = String::from("BEGIN TRANSACTION;");
+        let mut transaction = format!(
+            "BEGIN TRANSACTION;
+            CREATE carriage SET id = $id, pickup_time = type::datetime($date), load = {}, truck_sets={}; \
+            RELATE $client->order->carriage:⟨{}⟩;\
+            RELATE carriage:⟨{}⟩->pickup->$pickup_address;\
+            RELATE carriage:⟨{}⟩->drop->$drop_address;\
+            COMMIT TRANSACTION;",
+            serde_json::to_string(&load).unwrap(),
+            serde_json::to_string(&truck_sets).unwrap(),
+            &uuid_id, &uuid_id, &uuid_id);
 
-        for s in truck_sets.iter() {
-            transaction.push_str(&*format!("UPDATE {} SET available=false;", s.truck));
-            transaction.push_str(&*format!("UPDATE {} SET available=false;", s.trailer));
-            transaction.push_str(&*format!("UPDATE {} SET available=false;", s.driver));
-        }
-
-        transaction.push_str(&*format!("CREATE carriage SET id = $id, \
-        pickup_time = type::datetime($date), load = {}, truck_sets={};",
-                                       serde_json::to_string(&load).unwrap(),
-                                       serde_json::to_string(&truck_sets).unwrap() ));
-        transaction.push_str("COMMIT TRANSACTION;");
 
         match client.surreal.query(transaction)
             .bind(("id", &uuid_id))
             .bind(("date", pickup_time.to_string()))
+            .bind(("client", client_id))
+            .bind(("pickup_address", &pickup_address))
+            .bind(("drop_address", &drop_address))
             .await {
-            Ok(resp) => {
-                println!("{:?}", resp);
-
-                client.surreal.query(format!("RELATE $client->order->carriage:⟨{}⟩;", &uuid_id))
-                    .bind(("client", client_id)).await?;
-                client.surreal.query(format!("RELATE carriage:⟨{}⟩->pickup->$address;", &uuid_id))
-                    .bind(("address", pickup_address)).await?;
-                client.surreal.query(format!("RELATE  carriage:⟨{}⟩->drop->$address;", &uuid_id))
-                    .bind(("address", drop_address)).await?;
-                let carriage: Option<Carriage> = client.surreal.select(("carriage", &uuid_id)).await?;
+            Ok(mut resp) => {
+                let carriage: Option<Carriage> = resp.take(0)?;
+                println!("{:?}", carriage);
                 Ok(carriage.unwrap())
             }
-            Err(e) => { Err(APIError::Surreal(e)) }
+            Err(e) => {
+                client.surreal.delete(("address", &pickup_address.to_string())).await?;
+                client.surreal.delete(("address", &drop_address.to_string())).await?;
+                Err(APIError::Surreal(e))
+            }
         }
     }
 }

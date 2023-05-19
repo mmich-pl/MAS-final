@@ -62,14 +62,13 @@ pub(crate) struct Trailer {
     pub brand: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub purchase_date: Option<DateTime<Utc>>,
-    pub available: bool,
     pub trailer_type: String,
 }
 
 impl Trailer {
     pub(crate) fn new(plate: String, axis_num: i8, brand: String, date: Option<DateTime<Utc>>,
                       carrying_capacity: i32, trailer_type: String) -> Trailer {
-        Trailer { plate, axis_number: axis_num, brand, purchase_date: date, available: true, carrying_capacity, trailer_type }
+        Trailer { plate, axis_number: axis_num, brand, purchase_date: date, carrying_capacity, trailer_type }
     }
 
     pub(crate) async fn create(client: &Data<DbClient>, plate: String, axis_num: i8, brand: String,

@@ -47,12 +47,12 @@ impl Address {
 
     pub(crate) async fn get_or_create(client: &Data<DbClient>, zipcode: String, city: String, country: String,
                                       street: String) -> Result<Address, APIError> {
-        match client.surreal.query("SELECT * FROM address WHERE city == $city AND street == $street;")
+        match client.surreal.query("")
             .bind(("city", &city))
             .bind(("street", &street)).await {
             Ok(mut response) => {
                 let ret: Option<Address> = response.take(0)?;
-                println!("{:?}",ret);
+                println!("{:?}", ret);
                 match ret {
                     None => Address::create(client, zipcode, city, country, street).await,
                     Some(add) => Ok(add),
