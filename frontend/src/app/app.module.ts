@@ -6,6 +6,8 @@ import { AppComponent } from './app.component';
 import { CarriageFormComponent } from './components/sites/carriage-form/carriage-form.component';
 import { StepperComponent } from './components/sites/stepper/stepper.component';
 import { HttpClientModule } from '@angular/common/http';
+import {AutocompleteLibModule} from "angular-ng-autocomplete";
+import {ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -16,7 +18,9 @@ import { HttpClientModule } from '@angular/common/http';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    AutocompleteLibModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

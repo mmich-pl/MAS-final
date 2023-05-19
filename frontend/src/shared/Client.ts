@@ -15,7 +15,9 @@ export class Client {
     this.email = email;
 
     if (!Client.clients_extent.has(this.id)) {
-      Client.clients_extent.set(this.id, this)
+      Client.clients_extent.set(this.name, this)
     }
   }
 }
+
+export type clientInfo = Omit<Client, "name" | "client_extent">
