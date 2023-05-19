@@ -47,7 +47,7 @@ impl Address {
 
     pub(crate) async fn get_or_create(client: &Data<DbClient>, zipcode: String, city: String, country: String,
                                       street: String) -> Result<Address, APIError> {
-        match client.surreal.query("")
+        match client.surreal.query("SELECT * FROM address WHERE city == $city AND street == $street;")
             .bind(("city", &city))
             .bind(("street", &street)).await {
             Ok(mut response) => {

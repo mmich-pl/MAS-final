@@ -50,7 +50,7 @@ drivers = [
             "expiration_date": "2028-10-15T12:00:32.129056200Z",
             "categories": ["C"]
         },
-        "owned_licences": ["Toxic"]
+        "owned_licences": ["Toxic", "Flammable"]
     },
     {
         "employee": {

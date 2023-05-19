@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::str::FromStr;
 
 use actix_web::web::Data;
@@ -124,7 +124,7 @@ impl Trailer {
 
         match query.await {
             Ok(mut response) => {
-                let ret: Option<HashMap<String, i32>> = response.take(0)?;
+                let ret: Option<BTreeMap<String, i32>> = response.take(0)?;
                 Ok(*ret.unwrap().values().next().unwrap())
             }
             Err(e) => Err(APIError::Surreal(e)),
