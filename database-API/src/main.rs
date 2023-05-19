@@ -1,6 +1,8 @@
 use std::sync::Arc;
+use actix_cors::Cors;
 
 use actix_web::{App, get, HttpResponse, HttpServer, Responder};
+use actix_web::http::header;
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use serde::Serialize;
@@ -41,9 +43,20 @@ async fn main() -> std::io::Result<()> {
 
     println!("🚀 Server started successfully");
 
-
     HttpServer::new(move || {
           App::new()
+              .wrap(
+                  Cors::default()
+                      .allowed_origin_fn(|origin, _req_head| {
+                          origin.as_bytes().starts_with(b"http://localhost")
+                      })
+                      .allowed_methods(vec!["GET", "POST"])
+                      .allowed_headers(&[header::AUTHORIZATION, header::ACCEPT])
+                      .allowed_header(header::CONTENT_TYPE)
+                      .expose_headers(&[header::CONTENT_DISPOSITION])
+                      .block_on_origin_mismatch(false)
+                      .max_age(3600),
+              )
             .app_data(Data::new(DbClient {
                 surreal: Arc::new(db_client.clone())
             }))
