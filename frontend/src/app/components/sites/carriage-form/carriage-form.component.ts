@@ -2,6 +2,8 @@ import {Component, OnInit} from '@angular/core';
 import {ClientService} from "../../../../services/client.service";
 import {Client, clientInfo} from "../../../../shared/Client";
 import {FormArray, FormControl, FormGroup, Validators} from "@angular/forms";
+import {CargoService} from "../../../../services/cargo.service";
+import {Cargo} from "../../../../shared/Cargo";
 
 @Component({
   selector: 'app-carriage-form',
@@ -14,7 +16,7 @@ export class CarriageFormComponent implements OnInit {
   last_page = false;
 
   countries: string[] = ["Poland", "Germany", "Czech Republic"];
-  cargo_names: string[] = [];
+  cargo = new Map<string, Cargo>();
   cargo_row = new FormArray([]);
 
   form: FormGroup;
@@ -28,9 +30,8 @@ export class CarriageFormComponent implements OnInit {
     return o[propertyName];
   }
 
-  constructor(private clientService: ClientService) {
+  constructor(private clientService: ClientService, private cargoService: CargoService) {
     this.clients_name = new Array<string>();
-
 
     this.client_section = new FormGroup({
       name: new FormControl(null, [
@@ -71,16 +72,26 @@ export class CarriageFormComponent implements OnInit {
       client_section: this.client_section,
       pickup_address: this.pickup_address,
       destination_address: this.destination_address,
-
+      cargo_row: this.cargo_row,
     })
   }
 
   async ngOnInit() {
-    await this.clientService.getAll().subscribe(data => {
+    this.clientService.getAll().subscribe(data => {
       data.forEach(item => {
-        if (Client.clients_extent.has(item.id)) return;
+        if (Client.clients_extent.has(item.id))
+          return;
         new Client(item.id, item.name, item.tax_number, item.phone, item.email);
         this.clients_name.push(item.name);
+      });
+    });
+
+    this.cargoService.getAll().subscribe(data => {
+      data.forEach(item => {
+        if (Cargo.cargo_extent.has(item.id))
+          return;
+        new Cargo(item.id, item.name, item.type, item.unit, item.required_licences);
+        this.cargo = Cargo.cargo_extent;
       });
     });
 
@@ -100,6 +111,29 @@ export class CarriageFormComponent implements OnInit {
     });
   }
 
+  add_new_row() {
+    const cargo = new FormControl(null, Validators.required);
+    const amount = new FormControl(null, Validators.required);
+    let fg = new FormGroup({cargo: cargo, amount: amount});
+    let cargo_row = this.form.get('cargo_row') as FormArray;
+    cargo_row.push(fg);
+  }
+
+
+  delete_row(index: number) {
+    this.cargo_row.removeAt(index);
+  }
+
+  get getFormControls() {
+    return this.form.get('load')?.value as FormArray;
+  }
+
+  initiateForm(): FormGroup {
+    return new FormGroup({
+      cargo: new FormControl(null, [Validators.required]),
+      amount: new FormControl(null, [Validators.required])
+    })
+  }
 
   change_page(isNextPage: boolean) {
     if (!isNextPage) {
@@ -114,7 +148,7 @@ export class CarriageFormComponent implements OnInit {
   }
 
   submitForm() {
-
+    console.log(this.form);
   }
 }
 

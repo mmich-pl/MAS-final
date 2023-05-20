@@ -6,5 +6,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'frontend';
+  title = 'Transport Company';
+  isList: number = 0;
+  isMenu: boolean = false;
+  isSearch: boolean = false;
+  constructor() {}
+  ngOnInit(): void {}
 }

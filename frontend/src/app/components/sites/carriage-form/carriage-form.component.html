@@ -1,9 +1,10 @@
 <div class="flex items-center justify-center">
-  <div class="xl:w-10/12 w-full px-8">
+
+  <div class="w-full px-8">
     <form [formGroup]="form" (ngSubmit)="submitForm()" autocomplete="off">
     <app-stepper [currentStep]="current_step"></app-stepper>
     <div class="xl:px-24 mx-28">
-
+      <section *ngIf="current_step === 1">
         <div class="mt-16  lg:flex justify-between border-b border-gray-200 pb-16">
           <div class="w-80">
             <div class="flex items-center">
@@ -38,36 +39,108 @@
             </div>
           </div>
         </div>
-        <div class="mt-16 lg:flex justify-between border-b border-gray-200 pb-16">
-          <div class="w-80">
-            <div class="flex items-center">
-              <h1 tabindex="0" class="focus:outline-none text-xl font-medium pr-2 leading-5 text-gray-800">Security</h1>
-            </div>
-            <p tabindex="0" class="focus:outline-none mt-4 text-sm leading-5 text-gray-600">Information about the section could go here and a brief description of how this might be used.</p>
-          </div>
-          <div>
-            <div class="md:flex items-center lg:ml-24 lg:mt-0 mt-4">
-              <div class="md:w-64">
-                <label class="text-sm leading-none text-gray-800" id="password">Password</label>
-                <input type="name" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" aria-labelledby="password" placeholder="Enter your password" />
-              </div>
-              <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
-                <label class="text-sm leading-none text-gray-800" id="securityCode">Security Code</label>
-                <input type="name" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" aria-labelledby="securityCode" placeholder="Enter your security code" />
-              </div>
-            </div>
-            <div class="md:flex items-center lg:ml-24 mt-8">
-              <div class="md:w-64">
-                <label class="text-sm leading-none text-gray-800" id="recoverEmail">Recovery Email address</label>
-                <input type="name" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800"  placeholder="Your recovery email" />
-              </div>
-              <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
-                <label class="text-sm leading-none text-gray-800" id="altPhone">Alternate phone number</label>
-                <input type="name" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" aria-labelledby="altPhone" placeholder="Your alternate phone number" />
-              </div>
-            </div>
-          </div>
+      </section>
+      <section  *ngIf="current_step === 2"><div>
+        <div class="flex items-center">
+          <h1 tabindex="0" class="focus:outline-none text-xl font-medium pr-2 leading-5 text-gray-800">Personal Information</h1>
+        </div>
+        <p tabindex="0" class="focus:outline-none mt-4 text-sm leading-5 text-gray-600">Information about the section could go here and a brief description of how this might be used.</p>
       </div>
+        <div class="mt-16  lg:flex justify-between border-b border-gray-200 pb-16">
+            <div class="container mx-auto grid sm:grid-cols-1 md:grid-cols-2 pt-6 gap-8">
+              <div>
+                <h2 tabindex="0" class="focus:outline-none text-xl mx-auto font-medium pr-2 leading-5 text-gray-800">Pickup Address</h2>
+                <div formGroupName="pickup_address">
+                  <div class="md:flex items-center mt-8">
+                    <div class="md:w-64">
+                      <label class="text-sm leading-none text-gray-800" for="street">Address / Street</label>
+                      <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="street" name="street" id="street" placeholder="ul. Nowa 23" />
+                    </div>
+                    <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
+                      <label class="text-sm leading-none text-gray-800" for="city" >City</label>
+                      <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="city" name="city" id="city" placeholder="Warsaw" />
+                    </div>
+                  </div>
+                  <div class="md:flex items-center  mt-8">
+                    <div class="md:w-64">
+                      <label class="text-sm leading-none text-gray-800" for="zipcode">Zipcode</label>
+                      <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="zipcode" name="zipcode" id="zipcode" placeholder="00-000" />
+                    </div>
+                    <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
+                      <label class="text-sm leading-none text-gray-800" for="countries" >Country</label>
+                      <select tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="country" name="countries" id="countries">
+                        <option *ngFor="let country of countries" [ngValue]="country">{{country}}</option>
+
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h2 tabindex="0" class="focus:outline-none text-xl mx-auto font-medium pr-2 leading-5 text-gray-800">Drop Address</h2>
+                <div formGroupName="destination_address">
+                  <div class="md:flex items-center mt-8">
+                    <div class="md:w-64">
+                      <label class="text-sm leading-none text-gray-800" for="dest_street">Address / Street</label>
+                      <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="street" name="street" id="dest_street" placeholder="ul. Nowa 23" />
+                    </div>
+                    <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
+                      <label class="text-sm leading-none text-gray-800" for="dest_city" >City</label>
+                      <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="city" name="city" id="dest_city" placeholder="Warsaw" />
+                    </div>
+                  </div>
+                  <div class="md:flex items-center  mt-8">
+                    <div class="md:w-64">
+                      <label class="text-sm leading-none text-gray-800" for="dest_zipcode">Zipcode</label>
+                      <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="zipcode" name="zipcode" id="dest_zipcode" placeholder="00-000" />
+                    </div>
+                    <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
+                      <label class="text-sm leading-none text-gray-800" for="dest_countries" >Country</label>
+                      <select tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="country" name="countries" id="dest_countries">
+                        <option *ngFor="let country of countries" [ngValue]="country">{{country}}</option>
+
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </section>
+      <section *ngIf="current_step === 3">
+
+        <div formGroupName="cargo_row">
+
+          <div class="overflow-x-auto my-16">
+            <table class="w-full whitespace-nowrap">
+              <tbody>
+              <tr *ngFor="let _ of cargo_row.controls; let i = index;" [formGroupName]="i">
+                                    <td class="pl-16">
+                    <select tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="cargo" name="cargo" id="cargo">
+                      <option *ngFor="let c of cargo.values()" [ngValue]="c">{{c.name}}</option>
+                    </select>
+                  </td>
+                  <td class="px-16">
+                    <input type="text" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" id="amount" formControlName="amount"/>
+                  </td>
+                  <td >
+                    <button *ngIf="form.controls['cargo_row'].value?.length > 1" (click)="delete_row(i)"
+                            class="bg-red-500 hover:bg-red-500 text-white font-bold py-2 px-4 rounded">Delete
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="action-container">
+          <button type="button" (click)="add_new_row()"
+                  class="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            add row
+          </button>
+        </div>
+      </section>
+
       <div class="mt-2 lg:flex justify-between border-b border-gray-200">
         <div class="w-80"></div>
         <div class="md:flex items-center lg:ml-24">
@@ -93,9 +166,6 @@
           </div>
         </div>
       </div>
-
-
-
     </div>
     </form>
   </div>
