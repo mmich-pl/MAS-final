@@ -36,3 +36,7 @@ func ConnectDB() *mongo.Client {
 	log.Println("connected to MongoDB")
 	return client
 }
+
+func GetCollection(client *mongo.Client, collectionName string) *mongo.Collection {
+	return client.Database(EnvGetValue("MONGODB_DATABASE")).Collection(collectionName)
+}
