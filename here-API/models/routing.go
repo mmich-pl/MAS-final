@@ -14,8 +14,8 @@ type RouteRequest struct {
 }
 
 type Waypoint struct {
+	Time  time.Time `json:"time"`
 	Place struct {
-		Type     string   `json:"type"`
 		Location Location `json:"location"`
 		Waypoint int      `json:"waypoint,omitempty"`
 	} `json:"place"`
@@ -23,7 +23,6 @@ type Waypoint struct {
 
 type Route struct {
 	Sections []struct {
-		Type      string   `json:"type"`
 		Departure Waypoint `json:"departure"`
 		Arrival   Waypoint `json:"arrival"`
 		Polyline  string   `json:"polyline"`

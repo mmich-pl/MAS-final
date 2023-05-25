@@ -4,20 +4,30 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"here-API/client"
+	. "here-API/client"
 	"here-API/config"
+	"here-API/errors"
 	"here-API/models"
-	"html"
 	"io"
 	"net/http"
 )
 
 //var geocodingCollection = config.GetCollection(config.DbClient, "geocoding")
 
-func sendRequestDoAPI(c *gin.Context, params map[string]string) (data struct {
+func sendGeocodingRequest(c *gin.Context, apiUrl string, address *models.AddressRequest) (data *struct {
 	Items []models.Geocoding `json:"items"`
-}) {
-	resp, apiErr := client.Get(config.EnvGetValue("API_BASE_URL"), params)
+}, apiError errors.ApiError) {
+
+	client := NewClient()
+	request, err := http.NewRequest(http.MethodGet, apiUrl, nil)
+	if err != nil {
+		return nil, errors.NewInternalServerError(fmt.Sprintf("%v", err))
+	}
+	q := request.URL.Query()
+	client.AddGeocodingParams(&q, address)
+	request.URL.RawQuery = q.Encode()
+
+	resp, apiErr := client.Get(request)
 	if apiErr != nil {
 		c.JSON(apiErr.Status(), apiErr.Message())
 		return
@@ -28,12 +38,7 @@ func sendRequestDoAPI(c *gin.Context, params map[string]string) (data struct {
 		c.JSON(apiErr.Status(), apiErr.Message())
 		return
 	}
-	return data
-}
-
-func buildQueryString(address models.AddressRequest) string {
-	return html.EscapeString(fmt.Sprintf("%s, %s %s, %s",
-		address.Street, address.PostalCode, address.City, address.County))
+	return data, nil
 }
 
 func GetGeocoding(c *gin.Context) {
@@ -52,7 +57,10 @@ func GetGeocoding(c *gin.Context) {
 		return
 	}
 
-	data := sendRequestDoAPI(c, map[string]string{"q": buildQueryString(address)})
+	data, apiErr := sendGeocodingRequest(c, config.EnvGetValue("API_GEOCODING_URL"), &address)
+	if apiErr != nil {
+		c.JSON(apiErr.Status(), apiErr.Message())
+	}
 
 	//result, err := geocodingCollection.InsertOne(c, data)
 	//if err != nil {

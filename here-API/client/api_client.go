@@ -8,18 +8,46 @@ import (
 	"fmt"
 	"here-API/config"
 	"here-API/errors"
+	"here-API/models"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
+	"time"
 )
+
+type Client struct {
+	client *http.Client
+	key    string
+}
+
+func NewProxyClient() *Client {
+	proxyUrl, _ := url.Parse("http://127.0.0.1:8900")
+	client := &http.Client{Transport: &http.Transport{
+		Proxy:           http.ProxyURL(proxyUrl),
+		TLSClientConfig: createTLSConfig()},
+	}
+
+	return &Client{
+		client: client,
+		key:    config.EnvGetValue("API_KEY"),
+	}
+}
+
+func NewClient() *Client {
+	return &Client{
+		client: &http.Client{},
+		key:    config.EnvGetValue("API_KEY"),
+	}
+}
 
 func UnmarshalJson(target interface{}, r []byte) error {
 	return json.Unmarshal(r, target)
 }
 
-func CreateTLSConfig() *tls.Config {
+func createTLSConfig() *tls.Config {
 	insecure := flag.Bool("insecure-ssl", false, "Accept/Ignore all server SSL certificates")
 	flag.Parse()
 
@@ -44,23 +72,40 @@ func CreateTLSConfig() *tls.Config {
 	}
 }
 
-func Get(apiUrl string, params map[string]string) (*http.Response, errors.ApiError) {
-	proxyUrl, _ := url.Parse("http://127.0.0.1:8900")
-	client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl), TLSClientConfig: CreateTLSConfig()}}
-
-	request, err := http.NewRequest(http.MethodGet, apiUrl, nil)
-	if err != nil {
-		return nil, errors.NewInternalServerError(fmt.Sprintf("%v", err))
+func (c *Client) AddRoutingParams(q *url.Values, route *models.RouteRequest) {
+	q.Add("apiKey", c.key)
+	q.Add("origin", fmt.Sprintf("%f,%f", route.Origin[0], route.Origin[1]))
+	q.Add("destination", fmt.Sprintf("%f,%f", route.Destination[0], route.Destination[1]))
+	q.Add("return", "polyline,summary")
+	q.Add("transportMode", "truck")
+	for _, point := range route.Via {
+		q.Add("via", fmt.Sprintf("%f,%f", point[0], point[1]))
 	}
 
-	q := request.URL.Query()
-	for k, v := range params {
-		q.Add(k, v)
+	if route.Height != 0 {
+		q.Add("vehicle[height]", strconv.FormatInt(route.Height, 10))
 	}
-	q.Add("apiKey", config.EnvGetValue("API_KEY"))
-	request.URL.RawQuery = q.Encode()
+	if route.GrossWeight != 0 {
+		q.Add("vehicle[grossWeight]", strconv.FormatInt(route.GrossWeight, 10))
+	}
 
-	resp, err := client.Do(request)
+	if !route.DepartureTime.IsZero() {
+		q.Add("departureTime", route.DepartureTime.Format(time.RFC3339))
+	}
+	if !route.ArrivalTime.IsZero() {
+		q.Add("departureTime", route.DepartureTime.Format(time.RFC3339))
+	}
+}
+
+func (c *Client) AddGeocodingParams(q *url.Values, address *models.AddressRequest) {
+	q.Add("apiKey", c.key)
+	q.Add("q", fmt.Sprintf("%s, %s %s, %s",
+		address.Street, address.PostalCode, address.City, address.County))
+}
+
+func (c *Client) Get(request *http.Request) (*http.Response, errors.ApiError) {
+
+	resp, err := c.client.Do(request)
 	if err != nil {
 		return nil, errors.NewInternalServerError(fmt.Sprintf("%v", err))
 	}
@@ -69,7 +114,7 @@ func Get(apiUrl string, params map[string]string) (*http.Response, errors.ApiErr
 	case http.StatusOK:
 		return resp, nil
 	case http.StatusBadRequest:
-		return nil, errors.NewBadRequest(fmt.Sprintf("request to %s failed", apiUrl))
+		return nil, errors.NewBadRequest(fmt.Sprintf("request failed"))
 	case http.StatusNotFound:
 		return nil, errors.NewNotFoundError("required resource was not found")
 	default:
@@ -77,13 +122,12 @@ func Get(apiUrl string, params map[string]string) (*http.Response, errors.ApiErr
 	}
 }
 
-func GetDataFromBody(resp *http.Response, target interface{}) errors.ApiError {
+func (c *Client) GetDataFromBody(resp *http.Response, target interface{}) errors.ApiError {
 	respBody, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
 		return errors.NewInternalServerError(fmt.Sprintf("%v", err))
 	}
-	log.Print(respBody)
 	if err = UnmarshalJson(target, respBody); err != nil {
 		return errors.NewInternalServerError(fmt.Sprintf("%v", err))
 

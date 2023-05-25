@@ -1,14 +1,5 @@
 package models
 
-type Address struct {
-	State       string `json:"state"`
-	County      string `json:"county"`
-	City        string `json:"city"`
-	Street      string `json:"street"`
-	PostalCode  string `json:"postalCode"`
-	HouseNumber string `json:"houseNumber"`
-}
-
 type AddressRequest struct {
 	Street     string `json:"street"`
 	PostalCode string `json:"postalCode"`
@@ -16,13 +7,20 @@ type AddressRequest struct {
 	County     string `json:"county"`
 }
 
-type Position struct {
+type Location struct {
 	Lat float64 `json:"lat"`
 	Lng float64 `json:"lng"`
 }
 
 type Geocoding struct {
-	Id       string   `json:"id"`
-	Address  Address  `json:"address"`
-	Position Position `json:"position"`
+	Address struct {
+		City        string `json:"city"`
+		County      string `json:"county"`
+		HouseNumber string `json:"houseNumber"`
+		PostalCode  string `json:"postalCode"`
+		State       string `json:"state"`
+		Street      string `json:"street"`
+	} `json:"address"`
+
+	Location Location `json:"position"`
 }
