@@ -7,4 +7,5 @@ import (
 
 func HereRoute(router *gin.Engine) {
 	router.POST("/geocodes", controllers.GetGeocoding)
+	router.POST("/route", controllers.GetRoute)
 }

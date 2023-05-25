@@ -74,6 +74,59 @@ func (_c *MockHereAPI_Geocode_Call) RunAndReturn(run func() (*http.Response, err
 	return _c
 }
 
+// Route provides a mock function with given fields:
+func (_m *MockHereAPI) Route() (*http.Response, error) {
+	ret := _m.Called()
+
+	var r0 *http.Response
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (*http.Response, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() *http.Response); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Response)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockHereAPI_Route_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Route'
+type MockHereAPI_Route_Call struct {
+	*mock.Call
+}
+
+// Route is a helper method to define mock.On call
+func (_e *MockHereAPI_Expecter) Route() *MockHereAPI_Route_Call {
+	return &MockHereAPI_Route_Call{Call: _e.mock.On("Route")}
+}
+
+func (_c *MockHereAPI_Route_Call) Run(run func()) *MockHereAPI_Route_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockHereAPI_Route_Call) Return(_a0 *http.Response, _a1 error) *MockHereAPI_Route_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockHereAPI_Route_Call) RunAndReturn(run func() (*http.Response, error)) *MockHereAPI_Route_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 type mockConstructorTestingTNewMockHereAPI interface {
 	mock.TestingT
 	Cleanup(func())
