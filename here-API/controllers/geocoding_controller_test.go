@@ -60,7 +60,6 @@ func Test(t *testing.T) {
 				geocoding := data.Items[0]
 				fmt.Println(geocoding.Address)
 				fmt.Println(geocoding.Position)
-				fmt.Println(geocoding.MapView)
 			} else {
 				fmt.Println("No items found in the JSON data")
 			}

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var DbClient *mongo.Client = ConnectDB()
+//var DbClient *mongo.Client = ConnectDB()
 
 func ConnectDB() *mongo.Client {
 	credential := options.Credential{

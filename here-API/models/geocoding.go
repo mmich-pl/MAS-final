@@ -9,21 +9,20 @@ type Address struct {
 	HouseNumber string `json:"houseNumber"`
 }
 
+type AddressRequest struct {
+	Street     string `json:"street"`
+	PostalCode string `json:"postalCode"`
+	City       string `json:"city"`
+	County     string `json:"county"`
+}
+
 type Position struct {
 	Lat float64 `json:"lat"`
 	Lng float64 `json:"lng"`
-}
-
-type MapView struct {
-	West  float64 `json:"west"`
-	South float64 `json:"south"`
-	East  float64 `json:"east"`
-	North float64 `json:"north"`
 }
 
 type Geocoding struct {
 	Id       string   `json:"id"`
 	Address  Address  `json:"address"`
 	Position Position `json:"position"`
-	MapView  MapView  `json:"mapView"`
 }

@@ -34,7 +34,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - '6000:6000'
+      - '8848:8848'
     env_file:
       - .env
     depends_on:
