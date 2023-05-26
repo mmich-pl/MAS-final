@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { GenericCrudService } from './generic-crud.service';
+import { MapService } from './map.service';
 
-describe('GenericCrudService', () => {
-  let service: GenericCrudService<any, any>;
+describe('MapService', () => {
+  let service: MapService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(GenericCrudService);
+    service = TestBed.inject(MapService);
   });
 
   it('should be created', () => {

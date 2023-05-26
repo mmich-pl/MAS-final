@@ -1,14 +1,20 @@
-export class Address{
-  id!:string;
+import {ResourceModel} from "./ResourceModel";
+
+export class Address extends ResourceModel<Address>{
+  static address_extent: Map<string, Address> = new Map<string, Address>();
+
   zipcode!:string;
   city!: string;
   country!:string;
   street!:string;
-  constructor(id: string, zipcode: string, city: string, country: string, street: string) {
-    this.id = id;
-    this.zipcode = zipcode;
-    this.city = city;
-    this.country = country;
-    this.street = street;
+  latitude?:number;
+  longitude?:number;
+
+  constructor(model: Partial<Address>) {
+    super(model)
+
+    if (!Address.address_extent.has(this.id)) {
+      Address.address_extent.set(this.id, this)
+    }
   }
 }

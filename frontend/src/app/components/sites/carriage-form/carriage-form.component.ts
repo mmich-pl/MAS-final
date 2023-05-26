@@ -80,6 +80,8 @@ export class CarriageFormComponent implements OnInit {
     this.clientService.get()
       .forEach(response => response.forEach(client => this.clients_name.push(client.name)))
 
+    console.log(Client.clients_extent);
+
     this.cargoService.getAll().subscribe(data => {
       data.forEach(item => {
         if (Cargo.cargo_extent.has(item.id))

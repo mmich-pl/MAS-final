@@ -8,12 +8,14 @@ import { StepperComponent } from './components/sites/stepper/stepper.component';
 import { HttpClientModule } from '@angular/common/http';
 import {AutocompleteLibModule} from "angular-ng-autocomplete";
 import {ReactiveFormsModule} from "@angular/forms";
+import { MapComponent } from './components/partials/map/map.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     CarriageFormComponent,
-    StepperComponent
+    StepperComponent,
+    MapComponent
   ],
   imports: [
     BrowserModule,
