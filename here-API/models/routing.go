@@ -22,7 +22,9 @@ type Waypoint struct {
 }
 
 type Route struct {
-	Sections []struct {
+	Origin      Location `json:"-"`
+	Destination Location `json:"-"`
+	Sections    []struct {
 		Departure Waypoint `json:"departure"`
 		Arrival   Waypoint `json:"arrival"`
 		Polyline  string   `json:"polyline"`

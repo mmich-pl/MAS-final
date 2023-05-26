@@ -1,16 +1,36 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/bson"
 	. "here-API/client"
 	"here-API/config"
 	"here-API/errors"
 	"here-API/models"
 	"io"
 	"net/http"
+	"time"
 )
+
+var routingCollection = config.GetCollection(config.DbClient, "routes")
+
+func findRoute(route models.RouteRequest) (*models.Route, errors.ApiError) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	var result models.Route
+
+	filter := bson.M{"origin.lat": route.Origin[0], "origin.lng": route.Origin[1],
+		"destination.lat": route.Destination[0], "destination.lng": route.Destination[1]}
+	err := routingCollection.FindOne(ctx, filter).Decode(&result)
+	if err != nil {
+		return nil, errors.NewInternalServerError(fmt.Sprintf("%v", err))
+	}
+	return &result, nil
+}
 
 func sendRouteRequest(c *gin.Context, apiUrl string, route *models.RouteRequest) (data *struct {
 	Routes []models.Route `json:"routes"`
@@ -54,16 +74,28 @@ func GetRoute(c *gin.Context) {
 		return
 	}
 
-	data, apiErr := sendRouteRequest(c, config.EnvGetValue("API_ROUTING_URL"), &route)
-	if apiErr != nil {
-		c.JSON(apiErr.Status(), apiErr.Message())
+	resultRoute, apiErr := findRoute(route)
+	if resultRoute != nil {
+		c.JSON(http.StatusOK, resultRoute)
+		return
+	} else {
+		log.Error().Msg(apiErr.Message())
 	}
 
-	//result, err := geocodingCollection.InsertOne(c, data)
-	//if err != nil {
-	//	c.JSON(http.StatusInternalServerError, err.Error())
-	//	return
-	//}
+	data, apiErr := sendRouteRequest(c, config.EnvGetValue("API_ROUTING_URL"), &route)
+	if apiErr != nil {
+		log.Error().Msg(apiErr.Message())
+	}
+	resultRoute = &data.Routes[0]
+	resultRoute.Origin = resultRoute.Sections[0].Departure.Place.Location
+	resultRoute.Destination = resultRoute.Sections[len(resultRoute.Sections)-1].Arrival.Place.Location
 
-	c.JSON(http.StatusOK, data)
+	result, err := routingCollection.InsertOne(c, resultRoute)
+	log.Info().Msg(fmt.Sprintf("%v", result))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, resultRoute)
 }
