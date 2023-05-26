@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"here-API/config"
+	"here-API/middleware"
 	"here-API/routes"
 	"log"
 )
 
 func main() {
-	router := gin.Default()
+	router := gin.New()
+	router.Use(middleware.DefaultStructuredLogger())
+	router.Use(gin.Recovery())
 
 	routes.HereRoute(router)
 

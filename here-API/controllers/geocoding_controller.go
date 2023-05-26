@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	. "here-API/client"
 	"here-API/config"
 	"here-API/errors"
 	"here-API/models"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -81,17 +81,17 @@ func GetGeocoding(c *gin.Context) {
 		c.JSON(http.StatusOK, codes)
 		return
 	} else {
-		log.Println(apiErr)
+		log.Error().Msg(apiErr.Message())
 	}
 
 	data, apiErr := sendGeocodingRequest(c, config.EnvGetValue("API_GEOCODING_URL"), &address)
 	if apiErr != nil {
-		log.Println(apiErr.Status(), apiErr.Message())
+		log.Error().Msg(apiErr.Message())
 	}
 	codes = &data.Items[0]
 
 	result, err := geocodingCollection.InsertOne(c, codes)
-	log.Println(result)
+	log.Info().Msg(fmt.Sprintf("%v", result))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
