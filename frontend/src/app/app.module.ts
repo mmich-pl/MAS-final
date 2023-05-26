@@ -9,6 +9,7 @@ import { HttpClientModule } from '@angular/common/http';
 import {AutocompleteLibModule} from "angular-ng-autocomplete";
 import {ReactiveFormsModule} from "@angular/forms";
 import { MapComponent } from './components/partials/map/map.component';
+import {CommonModule} from "@angular/common";
 
 @NgModule({
   declarations: [
@@ -18,11 +19,12 @@ import { MapComponent } from './components/partials/map/map.component';
     MapComponent
   ],
   imports: [
+    CommonModule,
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     AutocompleteLibModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

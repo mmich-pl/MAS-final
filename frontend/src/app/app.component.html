@@ -176,9 +176,12 @@
       </div>
 
         <div class="container px-6 mx-auto">
-          <div class="rounded shadow relative bg-white z-10 -mt-8 mb-8 w-full">
+          <div class="rounded shadow relative bg-white z-10 -mt-8 mb-8 w-full" >
 <!--            <app-carriage-form></app-carriage-form>-->
-            <app-map></app-map>
+            <app-map [zoom]="zoom"
+                     [lat]="lat"
+                     [lng]="lng"
+                     (notify)="handleMapChange($event)"></app-map>
           </div>
         </div>
 
