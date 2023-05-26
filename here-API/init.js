@@ -1,3 +1,4 @@
 db = new Mongo().getDB("mas");
 
-db.createCollection('test', { capped: false });
+db.createCollection('geocoding', {capped: true, size: 104857600});
+db.createCollection('routes', {capped: true, size: 104857600});

@@ -1,18 +1,22 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"here-API/config"
 	"here-API/routes"
+	"log"
 )
 
 func main() {
 	router := gin.Default()
 
-	//config.ConnectDB()
 	routes.HereRoute(router)
 
-	err := router.Run(":8848")
+	err := router.Run(fmt.Sprintf(":%s", config.EnvGetValue("PORT")))
 	if err != nil {
+		log.Fatalln(err)
 		return
 	}
+	log.Printf("Application running on port %s", config.EnvGetValue("PORT"))
 }

@@ -15,7 +15,6 @@ type Location struct {
 type Geocoding struct {
 	Address struct {
 		City        string `json:"city"`
-		County      string `json:"county"`
 		HouseNumber string `json:"houseNumber"`
 		PostalCode  string `json:"postalCode"`
 		State       string `json:"state"`

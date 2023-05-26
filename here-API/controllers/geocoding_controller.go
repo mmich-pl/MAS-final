@@ -1,18 +1,23 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 	. "here-API/client"
 	"here-API/config"
 	"here-API/errors"
 	"here-API/models"
 	"io"
+	"log"
 	"net/http"
+	"strings"
+	"time"
 )
 
-//var geocodingCollection = config.GetCollection(config.DbClient, "geocoding")
+var geocodingCollection = config.GetCollection(config.DbClient, "geocoding")
 
 func sendGeocodingRequest(c *gin.Context, apiUrl string, address *models.AddressRequest) (data *struct {
 	Items []models.Geocoding `json:"items"`
@@ -41,6 +46,20 @@ func sendGeocodingRequest(c *gin.Context, apiUrl string, address *models.Address
 	return data, nil
 }
 
+func findGeocodes(address models.AddressRequest) (*models.Geocoding, errors.ApiError) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	var geocodes models.Geocoding
+	number, street, _ := strings.Cut(address.Street, " ")
+	filter := bson.M{"address.street": street,
+		"address.housenumber": number, "address.city": address.City}
+	err := geocodingCollection.FindOne(ctx, filter).Decode(&geocodes)
+	if err != nil {
+		return nil, errors.NewInternalServerError(fmt.Sprintf("%v", err))
+	}
+	return &geocodes, nil
+}
+
 func GetGeocoding(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -57,16 +76,25 @@ func GetGeocoding(c *gin.Context) {
 		return
 	}
 
-	data, apiErr := sendGeocodingRequest(c, config.EnvGetValue("API_GEOCODING_URL"), &address)
-	if apiErr != nil {
-		c.JSON(apiErr.Status(), apiErr.Message())
+	codes, apiErr := findGeocodes(address)
+	if codes != nil {
+		c.JSON(http.StatusOK, codes)
+		return
+	} else {
+		log.Println(apiErr)
 	}
 
-	//result, err := geocodingCollection.InsertOne(c, data)
-	//if err != nil {
-	//	c.JSON(http.StatusInternalServerError, err.Error())
-	//	return
-	//}
+	data, apiErr := sendGeocodingRequest(c, config.EnvGetValue("API_GEOCODING_URL"), &address)
+	if apiErr != nil {
+		log.Println(apiErr.Status(), apiErr.Message())
+	}
+	codes = &data.Items[0]
 
-	c.JSON(http.StatusOK, data)
+	result, err := geocodingCollection.InsertOne(c, codes)
+	log.Println(result)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, codes)
 }

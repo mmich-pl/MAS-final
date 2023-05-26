@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-//var DbClient *mongo.Client = ConnectDB()
+var DbClient = ConnectDB()
 
 func ConnectDB() *mongo.Client {
 	credential := options.Credential{
@@ -21,7 +21,7 @@ func ConnectDB() *mongo.Client {
 		log.Fatalf("failed to create mongo client: %v\n", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	err = client.Connect(ctx)
 	if err != nil {
