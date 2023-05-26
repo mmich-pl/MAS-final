@@ -1,20 +1,17 @@
-export class Client {
+import {ResourceModel} from "./ResourceModel";
+
+export class Client extends ResourceModel<Client>{
   static clients_extent: Map<string, Client> = new Map<string, Client>();
 
-  id!: string;
   name!: string;
   tax_number!: string;
   phone!: string;
   email!: string;
 
-  constructor(id: string, name: string, tax_number: string, phone: string, email: string) {
-    this.id = id;
-    this.name = name;
-    this.tax_number = tax_number;
-    this.phone = phone;
-    this.email = email;
+  constructor(model: Partial<Client>) {
+    super(model);
 
-    if (!Client.clients_extent.has(this.id)) {
+    if (!Client.clients_extent.has(this.name)) {
       Client.clients_extent.set(this.name, this)
     }
   }

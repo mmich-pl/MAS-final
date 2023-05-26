@@ -76,15 +76,9 @@ export class CarriageFormComponent implements OnInit {
     })
   }
 
-  async ngOnInit() {
-    this.clientService.getAll().subscribe(data => {
-      data.forEach(item => {
-        if (Client.clients_extent.has(item.id))
-          return;
-        new Client(item.id, item.name, item.tax_number, item.phone, item.email);
-        this.clients_name.push(item.name);
-      });
-    });
+  ngOnInit() {
+    this.clientService.get()
+      .forEach(response => response.forEach(client => this.clients_name.push(client.name)))
 
     this.cargoService.getAll().subscribe(data => {
       data.forEach(item => {
