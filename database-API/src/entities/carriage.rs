@@ -33,18 +33,13 @@ pub(crate) struct Carriage {
 }
 
 impl Carriage {
-    pub(crate) fn new(pickup_time: DateTime<Utc>, load: Vec<CarriageItems>,
-                      truck_sets: Vec<TruckSet>) -> Carriage {
-        Carriage { id: None, pickup_time, load, truck_sets }
-    }
-
     pub(crate) async fn create(client: &Data<DbClient>, pickup_time: DateTime<Utc>,
                                pickup_address: Thing, drop_address: Thing,
                                load: Vec<CarriageItems>, truck_sets: Vec<CreateTruckSetRequest>, client_id: Thing)
                                -> Result<Carriage, APIError> {
         let uuid_id = Uuid::new_v4().to_string();
 
-        let mut transaction = format!(
+        let transaction = format!(
             "BEGIN TRANSACTION;
             CREATE carriage SET id = $id, pickup_time = type::datetime($date), load = {}, truck_sets={}; \
             RELATE $client->order->carriage:⟨{}⟩;\
@@ -65,7 +60,6 @@ impl Carriage {
             .await {
             Ok(mut resp) => {
                 let carriage: Option<Carriage> = resp.take(0)?;
-                println!("{:?}", carriage);
                 Ok(carriage.unwrap())
             }
             Err(e) => {

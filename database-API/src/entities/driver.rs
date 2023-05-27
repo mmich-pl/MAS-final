@@ -1,13 +1,12 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::fmt::Debug;
-use std::iter::Map;
 use std::str::FromStr;
 
 use actix_web::web::Data;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
-use surrealdb::sql::{Thing, Value};
+use surrealdb::sql::Thing;
 
 use crate::database::DbClient;
 use crate::entities::address::Address;
@@ -85,7 +84,7 @@ impl Driver {
         match client.surreal.query("SELECT id FROM driver WHERE owned_licences CONTAINSALL $licences;")
             .bind(("licences", licences)).await {
             Ok(mut response) => {
-                let mut result: Vec<BTreeMap<String, Thing>> = response.take(0)?;
+                let result: Vec<BTreeMap<String, Thing>> = response.take(0)?;
                 return Ok(result.into_iter()
                     .map(|m| m.into_iter().next().unwrap().1)
                     .collect());

@@ -40,7 +40,8 @@ pub struct CreateDriverRequest {
 /// [POST /driver] create new driver
 async fn create(body: web::Json<CreateDriverRequest>, db: web::Data<DbClient>) -> impl Responder {
     match Address::create(&db, body.0.employee.address.zipcode, body.0.employee.address.city,
-                          body.0.employee.address.country, body.0.employee.address.street).await {
+                          body.0.employee.address.country, body.0.employee.address.street,
+                          body.0.employee.address.latitude, body.0.employee.address.longitude).await {
         Ok(address) => {
             let licence = DriverLicence {
                 document_id: body.0.driver_licence.document_id,

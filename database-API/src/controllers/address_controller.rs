@@ -17,12 +17,14 @@ pub struct CreateAddressRequest {
     pub city: String,
     pub country: String,
     pub street: String,
+    pub longitude: Option<f64>,
+    pub latitude: Option<f64>,
 }
 
 /// [POST /address] create new address
 async fn create(body: web::Json<CreateAddressRequest>, db: web::Data<DbClient>) -> impl Responder {
     match Address::create(&db, body.0.zipcode, body.0.city, body.0.country,
-                          body.0.street).await {
+                          body.0.street, body.0.latitude, body.0.longitude).await {
         Ok(address) => HttpResponse::Created().json(address),
         Err(e) => HttpResponse::InternalServerError().json(e.to_string())
     }

@@ -1,5 +1,4 @@
-use std::any::Any;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::str::FromStr;
 
 use actix_web::web::Data;

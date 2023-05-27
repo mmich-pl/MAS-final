@@ -4,6 +4,7 @@ use surrealdb::sql::Thing;
 use uuid::Uuid;
 
 use crate::database::DbClient;
+use crate::entities::address::Address;
 use crate::error::APIError;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -14,17 +15,17 @@ pub struct Client {
     pub tax_number: String,
     pub phone: String,
     pub email: String,
+    pub address: Address,
 }
 
 impl Client {
-    pub fn new(name: String, tax_number: String, phone: String,
-               email: String) -> Client {
-        Client { id: None, name, tax_number, phone, email }
+    pub fn new(name: String, tax_number: String, phone: String, email: String, address: Address) -> Client {
+        Client { id: None, name, tax_number, phone, email, address }
     }
 
     pub async fn create(dbclient: &Data<DbClient>, name: String, tax_number: String,
-                        phone: String, email: String) -> Result<Client, APIError> {
-        let client: Client = Client::new(name, tax_number, phone, email);
+                        phone: String, email: String, address: Address) -> Result<Client, APIError> {
+        let client: Client = Client::new(name, tax_number, phone, email, address);
         let uuid_id = Uuid::new_v4();
         match dbclient.surreal.create(("client", uuid_id.to_string())).content(client).await {
             Ok(c) => Ok(c),
@@ -48,10 +49,9 @@ impl Client {
         match query.await {
             Ok(mut response) => {
                 let ret: Option<Client> = response.take(0)?;
-                println!("{:?}",ret);
                 Ok(ret)
             }
-            Err(e) => Err(APIError::Surreal(e))
+            Err(e) => Err(APIError::CantMatch(e.to_string()))
         }
     }
 }

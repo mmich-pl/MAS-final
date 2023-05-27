@@ -22,9 +22,11 @@ cargo = [
 ]
 
 clients = [
-    {"name": "Tall Tales Craft Ales", "tax_number": "5268672572", "phone": "699604416",
-     "email": "talltalles@gmail.com"},
-    {"name": "Tamsack Harbor", "tax_number": "7976065223", "phone": "694025155 ", "email": "tamsack@gmail.com"}
+    {"name": "Tall Tales Craft Ales", "tax_number": "5268672572", "phone": "699604416", "email": "talltalles@gmail.com",
+     "address": {"zipcode": "41-300", "city": "Dąbrowa Górnicza", "country": "Poland",
+                 "street": " ul. Adamieckiego Karola 116"}},
+    {"name": "Tamsack Harbor", "tax_number": "7976065223", "phone": "694025155 ", "email": "tamsack@gmail.com",
+     "address": {"zipcode": "80-014", "city": "Gdańsk", "country": "Poland", "street": "ul. Radwańska 97"}}
 ]
 
 drivers = [
