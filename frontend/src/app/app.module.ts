@@ -7,7 +7,7 @@ import { CarriageFormComponent } from './components/sites/carriage-form/carriage
 import { StepperComponent } from './components/sites/stepper/stepper.component';
 import { HttpClientModule } from '@angular/common/http';
 import {AutocompleteLibModule} from "angular-ng-autocomplete";
-import {ReactiveFormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { MapComponent } from './components/partials/map/map.component';
 import {CommonModule} from "@angular/common";
 
@@ -25,6 +25,7 @@ import {CommonModule} from "@angular/common";
     HttpClientModule,
     AutocompleteLibModule,
     ReactiveFormsModule,
+    FormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

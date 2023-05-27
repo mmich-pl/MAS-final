@@ -8,7 +8,7 @@ export class GenericCrudService<T extends ResourceModel<T>, ID> implements CrudO
   constructor(
     protected _http: HttpClient,
     private apiUrl: string,
-    private tConstructor: { new (m: Partial<T>, ...args: unknown[]): T },
+    private tConstructor: { new (m: Partial<T>, ...args: any[]): T },
   ) { }
 
 

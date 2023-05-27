@@ -1,4 +1,5 @@
 import {ResourceModel} from "./ResourceModel";
+import {Address} from "./Address";
 
 export class Client extends ResourceModel<Client>{
   static clients_extent: Map<string, Client> = new Map<string, Client>();
@@ -7,6 +8,7 @@ export class Client extends ResourceModel<Client>{
   tax_number!: string;
   phone!: string;
   email!: string;
+  address!: Address;
 
   constructor(model: Partial<Client>) {
     super(model);
@@ -17,4 +19,5 @@ export class Client extends ResourceModel<Client>{
   }
 }
 
-export type clientInfo = Omit<Client, "name" | "client_extent">
+export type clientInfo = Omit<Client, "name" | "client_extent" | "Address">
+export type clientAddress = Omit <Address, "longitude"| "latitude" | "address_extent">;

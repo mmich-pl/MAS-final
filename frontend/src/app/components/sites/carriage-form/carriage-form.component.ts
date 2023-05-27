@@ -1,9 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import {ClientService} from "../../../../services/client.service";
-import {Client, clientInfo} from "../../../../shared/Client";
+import {Client, clientAddress, clientInfo} from "../../../../shared/Client";
 import {FormArray, FormControl, FormGroup, Validators} from "@angular/forms";
 import {CargoService} from "../../../../services/cargo.service";
 import {Cargo} from "../../../../shared/Cargo";
+import {DriverService} from "../../../../services/driver.service";
+import {Driver} from "../../../../shared/Employee";
+import {TrailerService} from "../../../../services/trailer.service";
+import {Trailer} from "../../../../shared/Truck";
 
 @Component({
   selector: 'app-carriage-form',
@@ -21,6 +25,7 @@ export class CarriageFormComponent implements OnInit {
 
   form: FormGroup;
   client_section: FormGroup;
+  client_address: FormGroup;
   pickup_address: FormGroup;
   destination_address: FormGroup;
 
@@ -30,8 +35,16 @@ export class CarriageFormComponent implements OnInit {
     return o[propertyName];
   }
 
-  constructor(private clientService: ClientService, private cargoService: CargoService) {
+  constructor(private clientService: ClientService, private cargoService: CargoService,
+  private driverService: DriverService, private trailerService: TrailerService) {
     this.clients_name = new Array<string>();
+
+    this.client_address = new FormGroup({
+      street: new FormControl(null, [Validators.required]),
+      city: new FormControl(null, [Validators.required]),
+      zipcode: new FormControl(null, [Validators.required]),
+      country: new FormControl(null, [Validators.required]),
+    })
 
     this.client_section = new FormGroup({
       name: new FormControl(null, [
@@ -51,7 +64,7 @@ export class CarriageFormComponent implements OnInit {
         Validators.minLength(9),
         Validators.maxLength(12),
         Validators.pattern('^[+]?[(]?[0-9]{3}[)]?[-s.]?[0-9]{3}[-s.]?[0-9]{4,6}$')
-      ])
+      ]),
     });
 
     this.pickup_address = new FormGroup({
@@ -70,6 +83,7 @@ export class CarriageFormComponent implements OnInit {
 
     this.form = new FormGroup({
       client_section: this.client_section,
+      client_address : this.client_address,
       pickup_address: this.pickup_address,
       destination_address: this.destination_address,
       cargo_row: this.cargo_row,
@@ -77,10 +91,8 @@ export class CarriageFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.clientService.get()
-      .forEach(response => response.forEach(client => this.clients_name.push(client.name)))
-
-    console.log(Client.clients_extent);
+    this.clientService.get().subscribe(r =>
+      r.forEach(client => this.clients_name.push(client.name)))
 
     this.cargoService.getAll().subscribe(data => {
       data.forEach(item => {
@@ -94,14 +106,21 @@ export class CarriageFormComponent implements OnInit {
     this.form.get("client_section")?.get("name")?.valueChanges.subscribe(client => {
       let c = Client.clients_extent.get(client);
       if (c != undefined) {
+        console.log(c.address);
         Object.keys(this.client_section.controls).forEach(key => {
           if (key != "name") {
             this.client_section.controls[key].setValue(this.getProperty(c!, key as keyof clientInfo));
           }
         });
+        Object.keys(this.client_address.controls).forEach(key => {
+          this.client_address.controls[key].setValue(this.getProperty(c!.address, key as keyof clientAddress));
+        });
       } else {
         Object.keys(this.client_section.controls).forEach(key => {
           if (key != "name") this.client_section.controls[key].setValue('');
+        });
+        Object.keys(this.client_address.controls).forEach(key => {
+          this.client_address.controls[key].setValue('');
         });
       }
     });
@@ -144,7 +163,12 @@ export class CarriageFormComponent implements OnInit {
   }
 
   submitForm() {
-    console.log(this.form);
+    this.driverService.get().subscribe();
+    this.trailerService.get().subscribe();
+
+    console.log(Driver.driver_extents);
+    console.log(Trailer.trailer_extent);
+
   }
 }
 

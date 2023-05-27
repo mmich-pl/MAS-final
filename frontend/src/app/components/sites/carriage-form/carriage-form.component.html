@@ -23,7 +23,7 @@
                 <ng-template #notFoundTemplate let-notFound><div [innerHTML]="notFound"></div></ng-template>
                 </div>
               <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
-                <label class="text-sm leading-none text-gray-800" or="tax_number">Tax Number</label>
+                <label class="text-sm leading-none text-gray-800" for="tax_number">Tax Number</label>
                 <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800"  formControlName="tax_number" name="tax_number" id="tax_number" placeholder="0000000000" />
               </div>
             </div>
@@ -38,6 +38,41 @@
               </div>
             </div>
           </div>
+        </div>
+        <div class="mt-16  lg:flex justify-between border-b border-gray-200 pb-16">
+          <div class="w-80">
+            <div class="flex items-center">
+              <h1 tabindex="0" class="focus:outline-none text-xl font-medium pr-2 leading-5 text-gray-800">Personal Information</h1>
+            </div>
+            <p tabindex="0" class="focus:outline-none mt-4 text-sm leading-5 text-gray-600">Information about the section could go here and a brief description of how this might be used.</p>
+          </div>
+            <div>
+              <div formGroupName="client_address">
+                <div class="md:flex items-center mt-4">
+                  <div class="md:w-64">
+                    <label class="text-sm leading-none text-gray-800" for="street">Address / Street</label>
+                    <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="street" name="street" id="client_street" placeholder="ul. Nowa 23" />
+                  </div>
+                  <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
+                    <label class="text-sm leading-none text-gray-800" for="city" >City</label>
+                    <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="city" name="city" id="client_city" placeholder="Warsaw" />
+                  </div>
+                </div>
+                <div class="md:flex items-center  mt-8">
+                  <div class="md:w-64">
+                    <label class="text-sm leading-none text-gray-800" for="zipcode">Zipcode</label>
+                    <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="zipcode" name="zipcode" id="client_zipcode" placeholder="00-000" />
+                  </div>
+                  <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
+                    <label class="text-sm leading-none text-gray-800" for="client_countries" >Country</label>
+                    <select tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="country" name="countries" id="client_countries">
+                      <option *ngFor="let country of countries" [ngValue]="country">{{country}}</option>
+
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
         </div>
       </section>
       <section  *ngIf="current_step === 2"><div>
