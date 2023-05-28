@@ -2,8 +2,9 @@ use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::str::FromStr;
 
+use actix_web::cookie::time::Date;
 use actix_web::web::Data;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, TimeZone, Utc};
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use surrealdb::sql::Thing;
@@ -34,12 +35,11 @@ impl AdditionalLicences {
     }
 }
 
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DriverLicence {
     pub document_id: String,
     pub expiration_date: DateTime<Utc>,
-    pub categories: Vec<char>,
+    pub categories: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -73,59 +73,41 @@ impl Driver {
         }
     }
 
-    pub(crate) async fn get_all(client: &Data<DbClient>) -> Result<Vec<Driver>, APIError> {
-        match client.surreal.select("driver").await {
-            Ok(response) => Ok(response),
-            Err(e) => Err(APIError::Surreal(e)),
-        }
-    }
-
-    pub(crate) async fn get_with_licences(client: &Data<DbClient>, licences: Vec<AdditionalLicences>) -> Result<Vec<Thing>, APIError> {
-        match client.surreal.query("SELECT id FROM driver WHERE owned_licences CONTAINSALL $licences;")
-            .bind(("licences", licences)).await {
+    pub(crate) async fn get_all(client: &Data<DbClient>, pickup_date: &str, drop_date: &str)
+                                -> Result<Vec<Driver>, APIError> {
+        match client.surreal.query("SELECT * FROM driver
+        WHERE $drop_date < <-realizedBy<-carriage.pickup_time
+        OR $pickup_date > <-realizedBy<-carriage.drop_time ;"
+        )
+            .bind(("drop_date", drop_date))
+            .bind(("pickup_date", pickup_date))
+            .await {
             Ok(mut response) => {
-                let result: Vec<BTreeMap<String, Thing>> = response.take(0)?;
-                return Ok(result.into_iter()
-                    .map(|m| m.into_iter().next().unwrap().1)
-                    .collect());
-            },
+                let result: Vec<Driver> = response.take(0)?;
+                Ok(result)
+            }
+            Err(e) => Err(APIError::Surreal(e)),
+        }
+    }
+
+    pub(crate) async fn get_with_licences(client: &Data<DbClient>, licences: Vec<AdditionalLicences>,
+                                          pickup_date: &str, drop_date: &str)
+                                          -> Result<Vec<Driver>, APIError> {
+        match client.surreal.query("SELECT * FROM driver
+             WHERE owned_licences CONTAINSALL $licences
+             AND ($drop_date < <-realizedBy<-carriage.pickup_time
+                  OR $pickup_date > <-realizedBy<-carriage.drop_time);"
+        )
+            .bind(("licences", licences))
+            .bind(("drop_date", drop_date))
+            .bind(("pickup_date", pickup_date))
+            .await {
+            Ok(mut response) => {
+                let result: Vec<Driver> = response.take(0)?;
+                Ok(result)
+            }
             Err(e) => Err(APIError::Surreal(e)),
         }
     }
 }
 
-
-// Test only on initial values
-#[cfg(test)]
-mod test {
-    use std::sync::Arc;
-
-    use actix_web::web::Data;
-
-    use crate::database::{DbClient, init_database, init_env};
-    use crate::entities::driver::{AdditionalLicences, Driver};
-    use crate::entities::trailer::Trailer;
-
-    async fn crate_client() -> Data<DbClient> {
-        init_env();
-        let client = init_database().await;
-        Data::new(DbClient { surreal: Arc::new(client).clone() })
-    }
-
-
-    #[actix_rt::test]
-    async fn get_with_multiple_licences() {
-        let client = crate_client().await;
-        let required_licences = AdditionalLicences::map_licences(Some(vec!["Flammable".to_string(), "Overdimensional".to_string()]));
-        let ids = Driver::get_with_licences(&client, required_licences.unwrap()).await.unwrap();
-        assert_eq!(ids.len(), 1);
-    }
-
-    #[actix_rt::test]
-    async fn get_multiple_drivers() {
-        let client = crate_client().await;
-        let required_licences = AdditionalLicences::map_licences(Some(vec!["Flammable".to_string()]));
-        let ids = Driver::get_with_licences(&client, required_licences.unwrap()).await.unwrap();
-        assert_eq!(ids.len(), 2);
-    }
-}

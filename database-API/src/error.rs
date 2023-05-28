@@ -8,4 +8,7 @@ pub enum APIError {
 
     #[error(transparent)]
     Surreal(#[from] surrealdb::Error),
+
+    #[error("Lacking parameter: '{0}'")]
+    ParameterError(String),
 }

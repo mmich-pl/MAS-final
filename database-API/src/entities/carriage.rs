@@ -27,13 +27,14 @@ pub(crate) struct Carriage {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Thing>,
     pub pickup_time: DateTime<Utc>,
+    pub drop_time: DateTime<Utc>,
 
     pub load: Vec<CarriageItems>,
     pub truck_sets: Vec<TruckSet>,
 }
 
 impl Carriage {
-    pub(crate) async fn create(client: &Data<DbClient>, pickup_time: DateTime<Utc>,
+    pub(crate) async fn create(client: &Data<DbClient>, pickup_time: DateTime<Utc>, drop_time: DateTime<Utc>,
                                pickup_address: Thing, drop_address: Thing,
                                load: Vec<CarriageItems>, truck_sets: Vec<CreateTruckSetRequest>, client_id: Thing)
                                -> Result<Carriage, APIError> {
@@ -41,7 +42,8 @@ impl Carriage {
 
         let transaction = format!(
             "BEGIN TRANSACTION;
-            CREATE carriage SET id = $id, pickup_time = type::datetime($date), load = {}, truck_sets={}; \
+            CREATE carriage SET id = $id, pickup_time =$pickup_date,
+            drop_time = $drop_date, load = {}, truck_sets={}; \
             RELATE $client->order->carriage:⟨{}⟩;\
             RELATE carriage:⟨{}⟩->pickup->$pickup_address;\
             RELATE carriage:⟨{}⟩->drop->$drop_address;\
@@ -53,13 +55,19 @@ impl Carriage {
 
         match client.surreal.query(transaction)
             .bind(("id", &uuid_id))
-            .bind(("date", pickup_time.to_string()))
+            .bind(("pickup_date", pickup_time.to_string()))
+            .bind(("drop_date", drop_time.to_string()))
             .bind(("client", client_id))
             .bind(("pickup_address", &pickup_address))
             .bind(("drop_address", &drop_address))
             .await {
             Ok(mut resp) => {
                 let carriage: Option<Carriage> = resp.take(0)?;
+                for s in truck_sets {
+                    println!("{:?}", s.driver);
+                    client.surreal.query(format!("RELATE carriage:⟨{}⟩->realizedBy->{};", &uuid_id, s.driver))
+                        .await?;
+                }
                 Ok(carriage.unwrap())
             }
             Err(e) => {

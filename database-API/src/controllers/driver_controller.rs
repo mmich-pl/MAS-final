@@ -1,4 +1,8 @@
+use std::collections::HashMap;
+use std::io::BufRead;
+
 use actix_web::{HttpResponse, Responder, Scope, web};
+use actix_web::web::Query;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
@@ -6,6 +10,7 @@ use crate::controllers::address_controller::CreateAddressRequest;
 use crate::database::DbClient;
 use crate::entities::address::Address;
 use crate::entities::driver::{AdditionalLicences, Driver, DriverLicence};
+use crate::error::APIError;
 
 pub fn routes() -> Scope {
     web::scope("/api/driver")
@@ -67,8 +72,27 @@ async fn create(body: web::Json<CreateDriverRequest>, db: web::Data<DbClient>) -
 }
 
 /// [GET /driver] get all driver
-async fn get(db: web::Data<DbClient>) -> impl Responder {
-    match Driver::get_all(&db).await {
+async fn get(params: Query<HashMap<String, String>>, db: web::Data<DbClient>) -> impl Responder {
+    let param = params.0.get("licence");
+    let Some(pickup) = params.0.get("pickup_date") else {
+        let err = APIError::ParameterError(String::from("pickup_date"));
+        return HttpResponse::InternalServerError().json(err.to_string());
+    };
+    let Some(drop) = params.0.get("drop_date") else {
+        let err = APIError::ParameterError(String::from("drop_date"));
+        return HttpResponse::InternalServerError().json(err.to_string());
+    };
+
+    let f = match param.is_none() {
+        true => Driver::get_all(&db, pickup, drop).await,
+        false => {
+            let l = param.unwrap().split(',').map(str::to_string).collect();
+            let licences = AdditionalLicences::map_licences(Some(l)).unwrap();
+            Driver::get_with_licences(&db, licences, pickup, drop).await
+        }
+    };
+
+    match f {
         Ok(clients) => HttpResponse::Ok().json(clients),
         Err(e) => HttpResponse::InternalServerError().json(e.to_string()),
     }

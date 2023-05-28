@@ -26,6 +26,7 @@ pub struct CreateTruckSetRequest {
 pub struct CreateCarriageRequest {
     pub client: CreateClientRequest,
     pub pickup_time: DateTime<Utc>,
+    pub drop_time: DateTime<Utc>,
     pub pickup_address: CreateAddressRequest,
     pub drop_address: CreateAddressRequest,
     pub load: Vec<CarriageItems>,
@@ -72,7 +73,7 @@ async fn create(body: web::Json<CreateCarriageRequest>, db: web::Data<DbClient>)
         Err(e) => return HttpResponse::InternalServerError().json(e.to_string()),
     };
 
-    match Carriage::create(&db, body.0.pickup_time, pickup_address, drop_address, body.0.load,
+    match Carriage::create(&db, body.0.pickup_time, body.0.drop_time, pickup_address, drop_address, body.0.load,
                            body.0.truck_sets, client_id).await {
         Ok(c) => HttpResponse::Created().json(c),
         Err(e) => HttpResponse::InternalServerError().json(e.to_string())
