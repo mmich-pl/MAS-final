@@ -1,0 +1,37 @@
+<div class="container mx-auto">
+  <table class="w-full bg-white shadow-md rounded my-4">
+    <thead>
+    <tr class="bg-gray-200">
+      <th class="text-left py-3 px-4 font-semibold uppercase">Cargo Type</th>
+      <th class="text-left py-3 px-4 font-semibold uppercase">Amount</th>
+      <th class="text-left py-3 px-4 font-semibold uppercase">Trailer</th>
+      <th class="text-left py-3 px-4 font-semibold uppercase">Driver</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor = "let c of this.cargo|keyvalue">
+
+      <td class="border-t px-4 py-3">
+        <p class="text-gray-700">{{c.key.name}}</p>
+      </td>
+      <td class="border-t px-4 py-3">
+        <p class="text-gray-700">{{c.value}} {{c.key.unit}}</p>
+      </td>
+      <td class="border-t px-4 py-3">
+        <select class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200">
+          <option *ngFor="let trailer of getMatchingTrailer(c.key)" [ngValue]="trailer">{{trailer.plate}}, ({{trailer.carrying_capacity}} {{c.key.unit}})</option>
+        </select>
+      </td>
+      <td class="border-t px-4 py-3">
+        <select class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200">
+          <!-- Add options for select box 2 -->
+          <option value="option1">Option 1</option>
+          <option value="option2">Option 2</option>
+          <option value="option3">Option 3</option>
+        </select>
+      </td>
+    </tr>
+    <!-- Add more rows as needed -->
+    </tbody>
+  </table>
+</div>

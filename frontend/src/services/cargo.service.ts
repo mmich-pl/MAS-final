@@ -2,17 +2,15 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {Cargo} from "../shared/Cargo";
+import {GenericCrudService} from "./generic-crud.service";
+import {Driver} from "../shared/Employee";
 
 @Injectable({
   providedIn: 'root'
 })
-export class CargoService {
-  constructor(private httpclient: HttpClient) {
-  }
+export class CargoService extends  GenericCrudService<Cargo,string>{
 
-  getAll(): Observable<Cargo[]> {
-    return this.httpclient.get<Cargo[]>(
-      import.meta.env['NG_APP_DATABASE_API'] + 'cargo'
-    );
+  constructor(private httpclient: HttpClient) {
+    super(httpclient, `${import.meta.env['NG_APP_DATABASE_API']}cargo`, Cargo );
   }
 }

@@ -5,6 +5,7 @@ use actix_web::web::Data;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+use crate::controllers::trailer_controller::CreateTrailerRequest;
 use crate::database::DbClient;
 use crate::entities::cargo::{CargoTypeResponse, CargoTypes};
 use crate::entities::carriage::CarriageItems;
@@ -104,9 +105,12 @@ impl Trailer {
         }
     }
 
-    pub(crate) async fn get_all(client: &Data<DbClient>) -> Result<Vec<Trailer>, APIError> {
-        match client.surreal.select("trailer").await {
-            Ok(response) => Ok(response),
+    pub(crate) async fn get_all(client: &Data<DbClient>) -> Result<Vec<CreateTrailerRequest>, APIError> {
+        match client.surreal.query("SELECT *, ->canCarry->cargoType.type AS cargo_type_name FROM trailer;").await {
+            Ok(mut response) => {
+                let ret : Vec<CreateTrailerRequest> = response.take(0)?;
+                Ok(ret)
+            },
             Err(e) => Err(APIError::Surreal(e)),
         }
     }
@@ -130,6 +134,50 @@ impl Trailer {
         }
     }
 
+    // fn find_combination(coins: &mut Vec<(u32, u32)>, target: u32) -> Option<Vec<u32>> {
+    //     let mut best_combination = None;
+    //     let mut remaining = target;
+    //
+    //     // Helper function for backtracking
+    //     fn backtrack(
+    //         coins: &mut Vec<(u32, u32)>,
+    //         target: u32,
+    //         combination: &mut Vec<u32>,
+    //         best_combination: &mut Option<Vec<u32>>,
+    //         remaining: &mut u32,
+    //         start_index: usize,
+    //     ) {
+    //         if *remaining == 0 {
+    //             *best_combination = Some(combination.clone());
+    //             return;
+    //         }
+    //
+    //         for i in start_index..coins.len() {
+    //             let (value, quantity) = coins[i];
+    //             if *remaining >= value && quantity > 0 {
+    //                 combination.push(value);
+    //                 *remaining -= value;
+    //                 coins[i].1 -= 1; // Reduce quantity of used coin
+    //                 backtrack(
+    //                     coins,
+    //                     target,
+    //                     combination,
+    //                     best_combination,
+    //                     remaining,
+    //                     i,
+    //                 );
+    //                 *remaining += value;
+    //                 coins[i].1 += 1; // Restore quantity of used coin
+    //                 combination.pop();
+    //             }
+    //         }
+    //     }
+    //
+    //     backtrack(coins, target, &mut Vec::new(), &mut best_combination, &mut remaining, 0);
+    //
+    //     best_combination
+    // }
+
     pub(crate) async fn get_best_matching_trailer(client: &Data<DbClient>, load: Vec<CarriageItems>) ->
     Result<Vec<Trailer>, APIError> {
         let result = Vec::new();
@@ -146,6 +194,25 @@ impl Trailer {
             }
         }
 
+
+        // if let Some(combination) = find_combination(&mut coins, target) {
+        //     println!("Combination: {:?}", combination);
+        // } else {
+        //     println!("No exact combination found. Finding next smallest combination...");
+        //     let mut next_smallest = target + 1;
+        //
+        //     while next_smallest <= limit {
+        //         if let Some(combination) = find_combination(&mut coins, next_smallest) {
+        //             println!("Next smallest combination: {:?}", combination);
+        //             break;
+        //         }
+        //         next_smallest += 1;
+        //     }
+        //
+        //     if next_smallest > limit {
+        //         println!("No combination possible.");
+        //     }
+        // }
 
         // Other logic after processing all elements
         Ok(result)

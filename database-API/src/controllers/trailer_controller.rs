@@ -20,6 +20,8 @@ pub struct CreateTrailerRequest {
     pub purchase_date: Option<DateTime<Utc>>,
     pub carrying_capacity: i32,
     pub trailer_type: String,
+    #[serde(skip_serializing_if = "Option::is_none", rename(serialize="cargo_type_name", deserialize="cargo_type_name"))]
+    pub cargo_type:Option<Vec<String>>
 }
 
 /// [POST /trailer] create new trailer

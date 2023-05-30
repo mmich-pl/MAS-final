@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use surrealdb::sql::{Thing, Uuid};
 
+use crate::controllers::cargo_controller::CreateCargoRequest;
 use crate::database::DbClient;
 use crate::entities::driver::{AdditionalLicences, Licences};
 use crate::error::APIError;
@@ -106,9 +107,6 @@ impl Cargo {
         let uuid_id = Uuid::new_v4();
         match client.surreal.create(("cargo", uuid_id)).content(cargo).await {
             Ok::<Cargo, _>(c) => {
-                println!("{:?}", &c.id);
-                println!("{:?}", &c_type.id);
-
                 client.surreal
                     .query("RELATE $type->contains->$cargo")
                     .bind(("cargo", &c.id))
@@ -119,9 +117,12 @@ impl Cargo {
         }
     }
 
-    pub(crate) async fn get_all(client: &Data<DbClient>) -> Result<Vec<Cargo>, APIError> {
-        match client.surreal.select("cargo").await {
-            Ok(response) => Ok(response),
+    pub(crate) async fn get_all(client: &Data<DbClient>) -> Result<Vec<CreateCargoRequest>, APIError> {
+        match client.surreal.query("SELECT * , array::pop(<-contains<-cargoType.type) AS type_name FROM cargo;").await {
+            Ok(mut response) => {
+                let ret: Vec<CreateCargoRequest> = response.take(0)?;
+                Ok(ret)
+            },
             Err(e) => Err(APIError::Surreal(e)),
         }
     }

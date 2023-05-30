@@ -6,19 +6,19 @@ from dotenv import dotenv_values
 BASE_API_URL = "http://127.0.0.1:8080/api"
 
 cargo = [
-    {"name": "Apples", "unit": "psc.", "cargo_type": "Pallet"},
-    {"name": "Big-Bags of Seeds ", "unit": "psc.", "cargo_type": "Pallet"},
-    {"name": "Atlantic Cod Fillet", "unit": "t", "cargo_type": "Refrigerated"},
-    {"name": "Beef", "unit": "t", "cargo_type": "Refrigerated"},
-    {"name": "Barley", "unit": "t", "cargo_type": "Grain"},
-    {"name": "Reinforcing Bars", "unit": "t", "cargo_type": "Buildings Materials"},
-    {"name": "Logs", "unit": "t", "cargo_type": "Wood"},
-    {"name": "Cement", "unit": "t", "cargo_type": "Dry Bulk Cargo"},
-    {"name": "Coal", "unit": "t", "cargo_type": "Dry Bulk Cargo"},
-    {"name": "Diesel", "unit": "hl", "required_licences": ["Flammable"], "cargo_type": "Liquid Bulk Cargo"},
-    {"name": "Loaders", "unit": "psc.", "required_licences": ["Overdimensional"], "cargo_type": "Machines"},
-    {"name": "Fuel Tanker", "unit": "psc.", "required_licences": ["Flammable"], "cargo_type": "Pallet"},
-    {"name": "Pigs", "unit": "psc.", "required_licences": ["Livestock"], "cargo_type": "Livestock"},
+    {"name": "Apples", "unit": "psc.", "type_name": "Pallet"},
+    {"name": "Big-Bags of Seeds ", "unit": "psc.", "type_name": "Pallet"},
+    {"name": "Atlantic Cod Fillet", "unit": "t", "type_name": "Refrigerated"},
+    {"name": "Beef", "unit": "t", "type_name": "Refrigerated"},
+    {"name": "Barley", "unit": "t", "type_name": "Grain"},
+    {"name": "Reinforcing Bars", "unit": "t", "type_name": "Buildings Materials"},
+    {"name": "Logs", "unit": "t", "type_name": "Wood"},
+    {"name": "Cement", "unit": "t", "type_name": "Dry Bulk Cargo"},
+    {"name": "Coal", "unit": "t", "type_name": "Dry Bulk Cargo"},
+    {"name": "Diesel", "unit": "hl", "required_licences": ["Flammable"], "type_name": "Liquid Bulk Cargo"},
+    {"name": "Loaders", "unit": "psc.", "required_licences": ["Overdimensional"], "type_name": "Machines"},
+    {"name": "Fuel Tanker", "unit": "psc.", "required_licences": ["Flammable"], "type_name": "Pallet"},
+    {"name": "Pigs", "unit": "psc.", "required_licences": ["Livestock"], "type_name": "Livestock"},
 ]
 
 clients = [
@@ -50,6 +50,30 @@ drivers = [
         "driver_licence": {
             "document_id": "P8676449",
             "expiration_date": "2028-10-15T12:00:32.129056200Z",
+            "categories": ["C"]
+        },
+        "owned_licences": ["Toxic", "Flammable"]
+    },
+    {
+        "employee": {
+            "first_name": "William",
+            "last_name": "Black",
+            "personal_id_number": "89031214633",
+            "age": 34,
+            "employment_date": "2023-01-15T12:00:32.129056200Z",
+            "phone": "661006871",
+            "email": "william@gmail.com",
+            "salary": 5000,
+            "address": {
+                "zipcode": "52-051",
+                "city": "Wrocław",
+                "country": "Polska",
+                "street": "ul. Mokry Dwór 5"
+            }
+        },
+        "driver_licence": {
+            "document_id": "P2751088",
+            "expiration_date": "2025-12-05T12:00:32.129056200Z",
             "categories": ["C"]
         },
         "owned_licences": ["Toxic", "Flammable"]
@@ -93,12 +117,12 @@ drivers = [
                 "city": "Łódź",
                 "country": "Poland",
                 "street": "ul. Białych Róż 43"
-            },
+            }
         },
         "driver_licence": {
             "document_id": "P3084568",
             "expiration_date": "2025-07-11T14:05:30Z",
-            "categories": ["C, CE"]
+            "categories": ["C", "CE"]
         }
     }
 ]
@@ -214,13 +238,79 @@ trucks = [
 
 carriages = [
     {
+        "client": {"name": "Tamsack Harbor", "tax_number": "7976065223", "phone": "694025155 ", "email": "tamsack@gmail.com",
+         "address": {"zipcode": "80-014", "city": "Gdańsk", "country": "Poland", "street": "ul. Radwańska 97"}},
+        "pickup_time": "2023-06-22T22:18:52Z",
+        "drop_time": "2023-06-23T03:44:52Z",
+        "pickup_address": {
+            "zipcode": "41-300",
+            "city": "Dąbrowa Górnicza",
+            "country": "Poland",
+            "street": "ul. Adamieckiego Karola 116"
+        },
+        "drop_address": {
+            "zipcode": "80-014",
+            "city": "Gdańsk",
+            "country": "Poland",
+            "street": "ul. Radwańska 97"
+        },
+        "load": [{
+            "cargo_type": "Grain",
+            "amount": 12
+        }],
+        "truck_sets": [["truck:⟨EL-3ZXXC⟩", "trailer:⟨EL-078AV⟩", "driver:⟨93022779964⟩"]]
+    },
+    {
         "client": {
             "name": "Tall Tales Craft Ales",
             "tax_number": "5268672572",
             "phone": "699604416",
-            "email": "talltalles@gmail.com"
+            "email": "talltalles@gmail.com",
+            "address": {
+                "zipcode": "41-300",
+                "city": "Dąbrowa Górnicza",
+                "country": "Poland",
+                "street": " ul. Adamieckiego Karola 116"
+            }
         },
         "pickup_time": "2023-05-15T07:18:52Z",
+        "drop_time": "2023-05-15T12:44:52Z",
+        "pickup_address": {
+            "zipcode": "41-300",
+            "city": "Dąbrowa Górnicza",
+            "country": "Poland",
+            "street": "ul. Adamieckiego Karola 116"
+        },
+        "drop_address": {
+            "zipcode": "80-014",
+            "city": "Gdańsk",
+            "country": "Poland",
+            "street": "ul. Radwańska 97"
+        },
+        "load": [{
+            "cargo_type": "Grain",
+            "amount": 12
+        }],
+
+
+        "truck_sets": [["truck:⟨EL-3ZXXC⟩", "trailer:⟨EL-078AV⟩", "driver:⟨90041421993⟩"],["truck:⟨EL-3ZXXC⟩", "trailer:⟨EL-078AV⟩", "driver:⟨93022779964⟩"]]
+
+    },
+    {
+        "client": {
+            "name": "Tall Tales Craft Ales",
+            "tax_number": "5268672572",
+            "phone": "699604416",
+            "email": "talltalles@gmail.com",
+            "address": {
+                "zipcode": "41-300",
+                "city": "Dąbrowa Górnicza",
+                "country": "Poland",
+                "street": " ul. Adamieckiego Karola 116"
+            }
+        },
+        "pickup_time": "2023-05-20T11:18:52Z",
+        "drop_time": "2023-05-20T16:44:52Z",
         "pickup_address": {
             "zipcode": "41-300",
             "city": "Dąbrowa Górnicza",
@@ -278,10 +368,7 @@ def populate_data():
             if r.ok:
                 print(f'Data inserted successfully to column: {k}')
             else:
-                try:
-                    print("Error: ", r.json())
-                except:
-                    pass
+                print("Error: ", r.reason)
 
 
 def main():

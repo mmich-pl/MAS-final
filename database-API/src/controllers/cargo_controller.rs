@@ -14,6 +14,7 @@ pub fn routes() -> Scope {
 pub struct CreateCargoRequest {
     pub name: String,
     pub unit: String,
+    #[serde(rename(serialize = "type_name", deserialize = "type_name"))]
     pub cargo_type: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub required_licences: Option<Vec<String>>,
