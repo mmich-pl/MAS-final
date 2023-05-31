@@ -14,7 +14,6 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"time"
 )
 
 var geocodingCollection = config.GetCollection(config.DbClient, "geocoding")
@@ -47,13 +46,13 @@ func sendGeocodingRequest(c *gin.Context, apiUrl string, address *models.Address
 }
 
 func findGeocodes(address models.AddressRequest) (*models.Geocoding, errors.ApiError) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
 	var geocodes models.Geocoding
-	number, street, _ := strings.Cut(address.Street, " ")
-	filter := bson.M{"address.street": street,
-		"address.housenumber": number, "address.city": address.City}
-	err := geocodingCollection.FindOne(ctx, filter).Decode(&geocodes)
+	index := strings.LastIndex(address.Street, " ")
+	street := address.Street[:index]
+	number := address.Street[index+1:]
+	filter := bson.M{"address.street": street, "address.housenumber": number, "address.city": address.City}
+	log.Print(filter)
+	err := geocodingCollection.FindOne(context.Background(), filter).Decode(&geocodes)
 	if err != nil {
 		return nil, errors.NewInternalServerError(fmt.Sprintf("%v", err))
 	}
@@ -89,6 +88,8 @@ func GetGeocoding(c *gin.Context) {
 		log.Error().Msg(apiErr.Message())
 	}
 	codes = &data.Items[0]
+	codes.Address.Street = strings.ReplaceAll(codes.Address.Street, "ulica ", "")
+	codes.Address.Street = strings.ReplaceAll(codes.Address.Street, "aleja ", "")
 
 	result, err := geocodingCollection.InsertOne(c, codes)
 	log.Info().Msg(fmt.Sprintf("%v", result))

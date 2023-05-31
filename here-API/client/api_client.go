@@ -14,7 +14,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -80,13 +79,6 @@ func (c *Client) AddRoutingParams(q *url.Values, route *models.RouteRequest) {
 	q.Add("transportMode", "truck")
 	for _, point := range route.Via {
 		q.Add("via", fmt.Sprintf("%f,%f", point[0], point[1]))
-	}
-
-	if route.Height != 0 {
-		q.Add("vehicle[height]", strconv.FormatInt(route.Height, 10))
-	}
-	if route.GrossWeight != 0 {
-		q.Add("vehicle[grossWeight]", strconv.FormatInt(route.GrossWeight, 10))
 	}
 
 	if !route.DepartureTime.IsZero() {

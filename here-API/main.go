@@ -2,17 +2,27 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"here-API/config"
 	"here-API/middleware"
 	"here-API/routes"
 	"log"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	router := gin.New()
 	router.Use(middleware.DefaultStructuredLogger())
 	router.Use(gin.Recovery())
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:4200"},
+		AllowMethods:     []string{"GET", "POST"},
+		AllowHeaders:     []string{"Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	routes.HereRoute(router)
 

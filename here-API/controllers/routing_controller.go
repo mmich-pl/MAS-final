@@ -87,8 +87,8 @@ func GetRoute(c *gin.Context) {
 		log.Error().Msg(apiErr.Message())
 	}
 	resultRoute = &data.Routes[0]
-	resultRoute.Origin = resultRoute.Sections[0].Departure.Place.Location
-	resultRoute.Destination = resultRoute.Sections[len(resultRoute.Sections)-1].Arrival.Place.Location
+	resultRoute.Origin = &resultRoute.Sections[0].Departure.Place.Location
+	resultRoute.Destination = &resultRoute.Sections[len(resultRoute.Sections)-1].Arrival.Place.Location
 
 	result, err := routingCollection.InsertOne(c, resultRoute)
 	log.Info().Msg(fmt.Sprintf("%v", result))
