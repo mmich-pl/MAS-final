@@ -132,14 +132,19 @@ impl<'a> Trailer {
     }
 
 
-    pub(crate) async fn get_max_capacity_per_type(client: &Data<DbClient>, cargo_type: &str, pickup_date: &str, drop_date: &str)
-                                                  -> Result<Vec<Trailer>, APIError> {
+    pub(crate) async fn get_witch_mathing_cargo(client: &Data<DbClient>, cargo_type: &str, pickup_date: &str, drop_date: &str)
+                                                -> Result<Vec<Trailer>, APIError> {
         let query = client.surreal.query(
             "let $a = SELECT truck_sets.trailer.id as trailers FROM carriage
-             WHERE $drop_date > pickup_time AND $pickup_date < drop_time;
-            SELECT * FROM (SELECT VALUE t[WHERE id NOTINSIDE array::flatten($a.trailers).id]
-            FROM (SELECT <-canCarry<-trailer.* as t FROM cargoType WHERE type == $cargo_type))[0] ORDER BY carrying_capacity ASC;")
-            .bind(("cargo_type", cargo_type))
+                 WHERE $drop_date > pickup_time
+                 AND $pickup_date < drop_time;
+            SELECT * FROM
+                (SELECT value t[WHERE id notinside array::flatten($a.trailers).id] FROM
+                    (SELECT <-canCarry<-trailer.* as t FROM cargoType
+                        WHERE $cargo_name inside ->contains->cargo.name)
+                )[0]
+                ORDER BY carrying_capacity ASC;")
+            .bind(("cargo_name", cargo_type))
             .bind(("drop_date", drop_date))
             .bind(("pickup_date", pickup_date));
 
@@ -199,7 +204,7 @@ impl<'a> Trailer {
         let mut result = BTreeMap::new();
 
         for item in load {
-            let response = Trailer::get_max_capacity_per_type(client, &item.cargo_type, pickup_date, drop_date).await;
+            let response = Trailer::get_witch_mathing_cargo(client, &item.cargo_type, pickup_date, drop_date).await;
             if let Ok(trailers) = response {
                 let max_capacity: u16 = trailers.iter().map(|t| t.carrying_capacity as u16).sum();
                 if item.amount > max_capacity {

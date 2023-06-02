@@ -1,14 +1,18 @@
+use std::collections::HashMap;
+
 use actix_web::{HttpResponse, Responder, Scope, web};
+use actix_web::web::Query;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::database::DbClient;
 use crate::entities::truck::Truck;
+use crate::error::APIError;
 
 pub fn routes() -> Scope {
     web::scope("/api/truck")
-        .route("", web::get().to(get))
         .route("", web::post().to(create))
+        .route("", web::get().to(get_available))
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -30,10 +34,19 @@ async fn create(body: web::Json<CreateTruckRequest>, db: web::Data<DbClient>) ->
     }
 }
 
-/// [GET /truck] get all trucks
-async fn get(db: web::Data<DbClient>) -> impl Responder {
-    match Truck::get_all(&db).await {
-        Ok(trucks) => HttpResponse::Ok().json(trucks),
+/// [GET /truck] get all trucks that can be assigned to new carriage between given dates
+async fn get_available(params: Query<HashMap<String, String>>, db: web::Data<DbClient>) -> impl Responder {
+    let Some(pickup) = params.0.get("pickup_date") else {
+        let err = APIError::ParameterError(String::from("pickup_date"));
+        return HttpResponse::InternalServerError().json(err.to_string());
+    };
+    let Some(drop) = params.0.get("drop_date") else {
+        let err = APIError::ParameterError(String::from("drop_date"));
+        return HttpResponse::InternalServerError().json(err.to_string());
+    };
+
+    match Truck::get_within_date_limit(&db, pickup, drop).await {
+        Ok(clients) => HttpResponse::Ok().json(clients),
         Err(e) => HttpResponse::InternalServerError().json(e.to_string()),
     }
 }
