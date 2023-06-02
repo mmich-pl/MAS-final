@@ -1,9 +1,11 @@
+use std::cmp::Ordering;
 use std::collections::btree_map::BTreeMap;
 use std::str::FromStr;
 
 use actix_web::web::Data;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use surrealdb::channel::new;
 use surrealdb::method::Query;
 
 use crate::controllers::trailer_controller::CreateTrailerRequest;
@@ -57,23 +59,36 @@ impl TrailerType {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct Trailer {
-    pub carrying_capacity: i32,
+    pub carrying_capacity: u8,
     pub plate: String,
-    pub axis_number: i8,
+    pub axis_number: u8,
     pub brand: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub purchase_date: Option<DateTime<Utc>>,
     pub trailer_type: String,
 }
 
+impl PartialOrd for Trailer {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.carrying_capacity.partial_cmp(&other.carrying_capacity)
+    }
+}
+
+impl PartialEq for Trailer {
+    fn eq(&self, other: &Self) -> bool {
+        self.carrying_capacity == other.carrying_capacity
+    }
+}
+
+
 impl<'a> Trailer {
-    pub(crate) fn new(plate: String, axis_num: i8, brand: String, date: Option<DateTime<Utc>>,
-                      carrying_capacity: i32, trailer_type: String) -> Trailer {
+    pub(crate) fn new(plate: String, axis_num: u8, brand: String, date: Option<DateTime<Utc>>,
+                      carrying_capacity: u8, trailer_type: String) -> Trailer {
         Trailer { plate, axis_number: axis_num, brand, purchase_date: date, carrying_capacity, trailer_type }
     }
 
-    pub(crate) async fn create(client: &Data<DbClient>, plate: String, axis_num: i8, brand: String,
-                               date: Option<DateTime<Utc>>, carrying_capacity: i32, trailer_type: String)
+    pub(crate) async fn create(client: &Data<DbClient>, plate: String, axis_num: u8, brand: String,
+                               date: Option<DateTime<Utc>>, carrying_capacity: u8, trailer_type: String)
                                -> Result<Trailer, APIError> {
         let Ok(t_type) = TrailerType::from_str(&trailer_type) else {
             return Err(APIError::ValueNotOfType(format!("Unknown trailer type: {}", trailer_type)));
@@ -123,7 +138,7 @@ impl<'a> Trailer {
             "let $a = SELECT truck_sets.trailer.id as trailers FROM carriage
              WHERE $drop_date > pickup_time AND $pickup_date < drop_time;
             SELECT * FROM (SELECT VALUE t[WHERE id NOTINSIDE array::flatten($a.trailers).id]
-            FROM (SELECT <-canCarry<-trailer.* as t FROM cargoType WHERE type == $cargo_type))[0];")
+            FROM (SELECT <-canCarry<-trailer.* as t FROM cargoType WHERE type == $cargo_type))[0] ORDER BY carrying_capacity ASC;")
             .bind(("cargo_type", cargo_type))
             .bind(("drop_date", drop_date))
             .bind(("pickup_date", pickup_date));
@@ -137,89 +152,67 @@ impl<'a> Trailer {
         }
     }
 
-    // fn find_combination(coins: &mut Vec<(u32, u32)>, target: u32) -> Option<Vec<u32>> {
-    //     let mut best_combination = None;
-    //     let mut remaining = target;
-    //
-    //     // Helper function for backtracking
-    //     fn backtrack(
-    //         coins: &mut Vec<(u32, u32)>,
-    //         target: u32,
-    //         combination: &mut Vec<u32>,
-    //         best_combination: &mut Option<Vec<u32>>,
-    //         remaining: &mut u32,
-    //         start_index: usize,
-    //     ) {
-    //         if *remaining == 0 {
-    //             *best_combination = Some(combination.clone());
-    //             return;
-    //         }
-    //
-    //         for i in start_index..coins.len() {
-    //             let (value, quantity) = coins[i];
-    //             if *remaining >= value && quantity > 0 {
-    //                 combination.push(value);
-    //                 *remaining -= value;
-    //                 coins[i].1 -= 1; // Reduce quantity of used coin
-    //                 backtrack(
-    //                     coins,
-    //                     target,
-    //                     combination,
-    //                     best_combination,
-    //                     remaining,
-    //                     i,
-    //                 );
-    //                 *remaining += value;
-    //                 coins[i].1 += 1; // Restore quantity of used coin
-    //                 combination.pop();
-    //             }
-    //         }
-    //     }
-    //
-    //     backtrack(coins, target, &mut Vec::new(), &mut best_combination, &mut remaining, 0);
-    //
-    //     best_combination
-    // }
+
+    fn find_best_combination(desired_capacity: u16, max_capacity: u16, trailers: Vec<Trailer>) -> Vec<Trailer> {
+        // Initialize the dynamic programming table with zeros
+        let num_trailers = trailers.len();
+        let mut dp = vec![vec![0; (max_capacity + 1) as usize]; num_trailers + 1];
+
+        // Fill the dynamic programming table using the given trailers and their capacities
+        for i in 1..=num_trailers {
+            for j in 1..=max_capacity as usize {
+                if trailers[i - 1].carrying_capacity as usize <= j {
+                    dp[i][j] = std::cmp::max(
+                        trailers[i - 1].carrying_capacity as u16 + dp[i - 1][j - trailers[i - 1].carrying_capacity as usize],
+                        dp[i - 1][j],
+                    );
+                } else {
+                    dp[i][j] = dp[i - 1][j];
+                }
+            }
+        }
+
+        // Find the target capacity that minimizes the difference between target_capacity and desired_capacity
+        // while keeping target_capacity >= desired_capacity
+        let target_capacity = (desired_capacity as usize..=max_capacity as usize)
+            .filter(|&i| dp[num_trailers][i] as u16 >= desired_capacity)
+            .min_by_key(|&i| desired_capacity.abs_diff(dp[num_trailers][i] as u16))
+            .unwrap_or(desired_capacity as usize) as u16;
+
+        let mut result = Vec::new();
+        let mut capacity = target_capacity;
+
+        for i in (1..=num_trailers).rev() {
+            if capacity == 0 { break; }
+            if dp[i][capacity as usize] != dp[i - 1][capacity as usize] {
+                result.push(trailers[i - 1].clone());
+                capacity -= trailers[i - 1].carrying_capacity as u16;
+            }
+        }
+
+        result
+    }
+
 
     pub(crate) async fn get_best_matching_trailer(client: &Data<DbClient>, load: Vec<CarriageItems>, pickup_date: &str, drop_date: &str) ->
-    Result<Vec<Trailer>, APIError> {
-        let result = Vec::new();
+    Result<BTreeMap<String, Vec<Trailer>>, APIError> {
+        let mut result = BTreeMap::new();
 
         for item in load {
             let response = Trailer::get_max_capacity_per_type(client, &item.cargo_type, pickup_date, drop_date).await;
             if let Ok(trailers) = response {
-                let max_capacity: i32 = trailers.iter().map(|t| t.carrying_capacity).sum();
-
-                if max_capacity < item.amount {
-                    return Err(APIError::CantMatch(format!("No trailers that can carry {} of {}",
-                                                           &item.amount, &item.cargo_type)));
+                let max_capacity: u16 = trailers.iter().map(|t| t.carrying_capacity as u16).sum();
+                if item.amount > max_capacity {
+                    return Err(APIError::CantMatch(format!("No there are not enough trailers to carry {} of {}. At the moment we can transport only {}",
+                                                           &item.amount, &item.cargo_type, max_capacity)));
                 }
+                result.insert(item.cargo_type, Trailer::find_best_combination(item.amount, max_capacity, trailers));
             } else if let Err(e) = response {
                 return Err(e);
             }
         }
 
 
-        // if let Some(combination) = find_combination(&mut coins, target) {
-        //     println!("Combination: {:?}", combination);
-        // } else {
-        //     println!("No exact combination found. Finding next smallest combination...");
-        //     let mut next_smallest = target + 1;
-        //
-        //     while next_smallest <= limit {
-        //         if let Some(combination) = find_combination(&mut coins, next_smallest) {
-        //             println!("Next smallest combination: {:?}", combination);
-        //             break;
-        //         }
-        //         next_smallest += 1;
-        //     }
-        //
-        //     if next_smallest > limit {
-        //         println!("No combination possible.");
-        //     }
-        // }
-
-        // Other logic after processing all elements
         Ok(result)
     }
 }
@@ -227,27 +220,109 @@ impl<'a> Trailer {
 // Test only on initial values
 #[cfg(test)]
 mod test {
-    use std::sync::Arc;
-
-    use actix_web::web::Data;
-
-    use crate::database::{DbClient, init_database, init_env};
     use crate::entities::trailer::Trailer;
 
-    async fn crate_client() -> Data<DbClient> {
-        init_env();
-        let client = init_database().await;
-        Data::new(DbClient { surreal: Arc::new(client).clone() })
+    fn create_trailers<'a>() -> Vec<Trailer> {
+        let t1 = Trailer::new("EL-1YLTP".to_string(), 3, "Wielton".to_string(),
+                              None, 24, "DumbTruck".to_string());
+        let t2 = Trailer::new("EL-2EWU8".to_string(), 3, "Schwarzmüeller".to_string(),
+                              None, 16, "DumbTruck".to_string());
+        let t3 = Trailer::new("EL-3ZXXC".to_string(), 3, "Feldbinder".to_string(),
+                              None, 20, "DumbTruck".to_string());
+        let t4 = Trailer::new("EL-3ZXXU".to_string(), 3, "Feldbinder".to_string(),
+                              None, 24, "DumbTruck".to_string());
+        let t5 = Trailer::new("EL-3ZXWE".to_string(), 2, "Feldbinder".to_string(),
+                              None, 10, "DumbTruck".to_string());
+        vec![t5, t2, t3, t4, t1]
     }
 
+    #[test]
+    fn test_find_combination_1() {
+        let mut trailers = create_trailers();
+        let mut combination: Vec<u8> = Trailer::find_best_combination(40, 94, trailers)
+            .iter().map(|t| t.carrying_capacity).collect();
+        combination.sort();
+        assert_eq!(combination, vec![16, 24]);
+    }
 
-    #[actix_rt::test]
-    async fn get_max_capacity() {
-        let client = crate_client().await;
-        let desired_cargo = String::from("Grain");
-        let drop_date = "2023-05-20 12:44:52 UTC";
-        let pickup_date = "2023-05-20 09:30:00 UTC";
-        let actual_value = Trailer::get_max_capacity_per_type(&client, &desired_cargo, pickup_date, drop_date).await.unwrap();
-        assert_eq!(3, actual_value.len());
+    #[test]
+    fn test_find_combination_2() {
+        let mut trailers = create_trailers();
+        let mut combination: Vec<u8> = Trailer::find_best_combination(42, 94, trailers)
+            .iter().map(|t| t.carrying_capacity).collect();
+        combination.sort();
+        assert_eq!(combination, vec![20, 24]);
+    }
+
+    #[test]
+    fn test_find_combination_3() {
+        let mut trailers = create_trailers();
+        let mut combination: Vec<u8> = Trailer::find_best_combination(44, 94, trailers)
+            .iter().map(|t| t.carrying_capacity).collect();
+        combination.sort();
+        assert_eq!(combination, vec![20, 24]);
+    }
+
+    #[test]
+    fn test_find_combination_4() {
+        let mut trailers = create_trailers();
+        let mut combination: Vec<u8> = Trailer::find_best_combination(48, 94, trailers)
+            .iter().map(|t| t.carrying_capacity).collect();
+        combination.sort();
+        assert_eq!(combination, vec![24, 24]);
+    }
+
+    #[test]
+    fn test_find_combination_5() {
+        let mut trailers = create_trailers();
+        let mut combination: Vec<u8> = Trailer::find_best_combination(60, 94, trailers)
+            .iter().map(|t| t.carrying_capacity).collect();
+        combination.sort();
+        assert_eq!(combination, vec![16, 20, 24]);
+    }
+
+    #[test]
+    fn test_find_combination_6() {
+        let mut trailers = create_trailers();
+        let mut combination: Vec<u8> = Trailer::find_best_combination(16, 94, trailers)
+            .iter().map(|t| t.carrying_capacity).collect();
+        combination.sort();
+        assert_eq!(combination, vec![16]);
+    }
+
+    #[test]
+    fn test_find_combination_7() {
+        let mut trailers = create_trailers();
+        let mut combination: Vec<u8> = Trailer::find_best_combination(38, 94, trailers)
+            .iter().map(|t| t.carrying_capacity).collect();
+        combination.sort();
+        assert_eq!(combination, vec![16, 24]);
+    }
+
+    #[test]
+    fn test_find_combination_8() {
+        let mut trailers = create_trailers();
+        let mut combination: Vec<u8> = Trailer::find_best_combination(80, 94, trailers)
+            .iter().map(|t| t.carrying_capacity).collect();
+        combination.sort();
+        assert_eq!(combination, vec![16, 20, 24, 24]);
+    }
+
+    #[test]
+    fn test_find_combination_9() {
+        let mut trailers = create_trailers();
+        let mut combination: Vec<u8> = Trailer::find_best_combination(94, 94, trailers)
+            .iter().map(|t| t.carrying_capacity).collect();
+        combination.sort();
+        assert_eq!(combination, vec![10, 16, 20, 24, 24]);
+    }
+
+    #[test]
+    fn test_find_combination_10() {
+        let mut trailers = create_trailers();
+        let mut combination: Vec<u8> = Trailer::find_best_combination(50, 94, trailers)
+            .iter().map(|t| t.carrying_capacity).collect();
+        combination.sort();
+        assert_eq!(combination, vec![10, 16, 24]);
     }
 }
