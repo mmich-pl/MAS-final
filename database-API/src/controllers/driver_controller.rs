@@ -83,16 +83,13 @@ async fn get(params: Query<HashMap<String, String>>, db: web::Data<DbClient>) ->
         return HttpResponse::InternalServerError().json(err.to_string());
     };
 
-    let f = match param.is_none() {
-        true => Driver::get_all(&db, pickup, drop).await,
-        false => {
-            let l = param.unwrap().split(',').map(str::to_string).collect();
-            let licences = AdditionalLicences::map_licences(Some(l)).unwrap();
-            Driver::get_with_licences(&db, licences, pickup, drop).await
-        }
-    };
+    let mut licences = Vec::new();
+    if param.is_some() {
+        let l = param.unwrap().split(',').map(str::to_string).collect();
+        licences = AdditionalLicences::map_licences(Some(l)).unwrap();
+    }
 
-    match f {
+    match Driver::get_with_licences(&db, licences, pickup, drop).await {
         Ok(clients) => HttpResponse::Ok().json(clients),
         Err(e) => HttpResponse::InternalServerError().json(e.to_string()),
     }

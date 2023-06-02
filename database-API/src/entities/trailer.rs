@@ -1,9 +1,10 @@
-use std::collections::BTreeMap;
+use std::collections::btree_map::BTreeMap;
 use std::str::FromStr;
 
 use actix_web::web::Data;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use surrealdb::method::Query;
 
 use crate::controllers::trailer_controller::CreateTrailerRequest;
 use crate::database::DbClient;
@@ -54,7 +55,7 @@ impl TrailerType {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct Trailer {
     pub carrying_capacity: i32,
     pub plate: String,
@@ -65,7 +66,7 @@ pub(crate) struct Trailer {
     pub trailer_type: String,
 }
 
-impl Trailer {
+impl<'a> Trailer {
     pub(crate) fn new(plate: String, axis_num: i8, brand: String, date: Option<DateTime<Utc>>,
                       carrying_capacity: i32, trailer_type: String) -> Trailer {
         Trailer { plate, axis_number: axis_num, brand, purchase_date: date, carrying_capacity, trailer_type }
@@ -108,27 +109,29 @@ impl Trailer {
     pub(crate) async fn get_all(client: &Data<DbClient>) -> Result<Vec<CreateTrailerRequest>, APIError> {
         match client.surreal.query("SELECT *, ->canCarry->cargoType.type AS cargo_type_name FROM trailer;").await {
             Ok(mut response) => {
-                let ret : Vec<CreateTrailerRequest> = response.take(0)?;
+                let ret: Vec<CreateTrailerRequest> = response.take(0)?;
                 Ok(ret)
-            },
+            }
             Err(e) => Err(APIError::Surreal(e)),
         }
     }
 
-    pub(crate) async fn get_max_capacity_per_type(client: &Data<DbClient>, cargo_type: &str)
-                                                  -> Result<i32, APIError> {
 
-        // TODO: add check if trailer is available
+    pub(crate) async fn get_max_capacity_per_type(client: &Data<DbClient>, cargo_type: &str, pickup_date: &str, drop_date: &str)
+                                                  -> Result<Vec<Trailer>, APIError> {
         let query = client.surreal.query(
-            "SELECT math::sum(<-canCarry<-trailer.carrying_capacity) \
-            FROM cargoType \
-            WHERE type == $cargo_type")
-            .bind(("cargo_type", cargo_type));
+            "let $a = SELECT truck_sets.trailer.id as trailers FROM carriage
+             WHERE $drop_date > pickup_time AND $pickup_date < drop_time;
+            SELECT * FROM (SELECT VALUE t[WHERE id NOTINSIDE array::flatten($a.trailers).id]
+            FROM (SELECT <-canCarry<-trailer.* as t FROM cargoType WHERE type == $cargo_type))[0];")
+            .bind(("cargo_type", cargo_type))
+            .bind(("drop_date", drop_date))
+            .bind(("pickup_date", pickup_date));
 
         match query.await {
             Ok(mut response) => {
-                let ret: Option<BTreeMap<String, i32>> = response.take(0)?;
-                Ok(*ret.unwrap().values().next().unwrap())
+                let ret: Vec<Trailer> = response.take(1)?;
+                Ok(ret)
             }
             Err(e) => Err(APIError::Surreal(e)),
         }
@@ -178,14 +181,16 @@ impl Trailer {
     //     best_combination
     // }
 
-    pub(crate) async fn get_best_matching_trailer(client: &Data<DbClient>, load: Vec<CarriageItems>) ->
+    pub(crate) async fn get_best_matching_trailer(client: &Data<DbClient>, load: Vec<CarriageItems>, pickup_date: &str, drop_date: &str) ->
     Result<Vec<Trailer>, APIError> {
         let result = Vec::new();
 
         for item in load {
-            let response = Trailer::get_max_capacity_per_type(client, &item.cargo_type).await;
-            if let Ok(max_cap) = response {
-                if max_cap < item.amount {
+            let response = Trailer::get_max_capacity_per_type(client, &item.cargo_type, pickup_date, drop_date).await;
+            if let Ok(trailers) = response {
+                let max_capacity: i32 = trailers.iter().map(|t| t.carrying_capacity).sum();
+
+                if max_capacity < item.amount {
                     return Err(APIError::CantMatch(format!("No trailers that can carry {} of {}",
                                                            &item.amount, &item.cargo_type)));
                 }
@@ -240,8 +245,9 @@ mod test {
     async fn get_max_capacity() {
         let client = crate_client().await;
         let desired_cargo = String::from("Grain");
-        let expected_value = 86;
-        let actual_value = Trailer::get_max_capacity_per_type(&client, &desired_cargo).await.unwrap();
-        assert_eq!(expected_value, actual_value);
+        let drop_date = "2023-05-20 12:44:52 UTC";
+        let pickup_date = "2023-05-20 09:30:00 UTC";
+        let actual_value = Trailer::get_max_capacity_per_type(&client, &desired_cargo, pickup_date, drop_date).await.unwrap();
+        assert_eq!(3, actual_value.len());
     }
 }

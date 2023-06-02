@@ -73,37 +73,21 @@ impl Driver {
         }
     }
 
-    pub(crate) async fn get_all(client: &Data<DbClient>, pickup_date: &str, drop_date: &str)
-                                -> Result<Vec<Driver>, APIError> {
-        match client.surreal.query("SELECT * FROM driver
-        WHERE $drop_date < <-realizedBy<-carriage.pickup_time
-        OR $pickup_date > <-realizedBy<-carriage.drop_time ;"
-        )
-            .bind(("drop_date", drop_date))
-            .bind(("pickup_date", pickup_date))
-            .await {
-            Ok(mut response) => {
-                let result: Vec<Driver> = response.take(0)?;
-                Ok(result)
-            }
-            Err(e) => Err(APIError::Surreal(e)),
-        }
-    }
 
     pub(crate) async fn get_with_licences(client: &Data<DbClient>, licences: Vec<AdditionalLicences>,
                                           pickup_date: &str, drop_date: &str)
                                           -> Result<Vec<Driver>, APIError> {
-        match client.surreal.query("SELECT * FROM driver
-             WHERE owned_licences CONTAINSALL $licences
-             AND ($drop_date < <-realizedBy<-carriage.pickup_time
-                  OR $pickup_date > <-realizedBy<-carriage.drop_time);"
-        )
+        match client.surreal.query(
+            "let $a = SELECT truck_sets.driver.id AS drivers FROM carriage
+             WHERE $drop_date > pickup_time AND $pickup_date < drop_time;
+             let $arr = SELECT id FROM array::flatten($a.drivers);
+             SELECT * FROM driver WHERE id NOTINSIDE $arr.id and owned_licences CONTAINSALL $licences;")
             .bind(("licences", licences))
             .bind(("drop_date", drop_date))
             .bind(("pickup_date", pickup_date))
             .await {
             Ok(mut response) => {
-                let result: Vec<Driver> = response.take(0)?;
+                let result: Vec<Driver> = response.take(2)?;
                 Ok(result)
             }
             Err(e) => Err(APIError::Surreal(e)),
