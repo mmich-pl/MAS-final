@@ -3,22 +3,26 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { CarriageFormComponent } from './components/sites/carriage-form/carriage-form.component';
-import { StepperComponent } from './components/partials/stepper/stepper.component';
-import { HttpClientModule } from '@angular/common/http';
+import { DatePickerComponent } from './home/components/partials/date-picker/date-picker.component';
+import { MapComponent } from './home/components/partials/map/map.component';
+import { StepperComponent } from './home/components/partials/stepper/stepper.component';
+import { CarriageFormComponent } from './home/components/sites/carriage-form/carriage-form.component';
+import { TrucksetSetupComponent } from './home/components/sites/truckset-setup/truckset-setup.component';
+import {CommonModule} from "@angular/common";
+import {HttpClientModule} from "@angular/common/http";
 import {AutocompleteLibModule} from "angular-ng-autocomplete";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import { MapComponent } from './components/partials/map/map.component';
-import {CommonModule} from "@angular/common";
-import { TrucksetSetupComponent } from './components/sites/truckset-setup/truckset-setup.component';
+import { AddressFormGroupComponent } from './home/components/partials/address-form-group/address-form-group.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    CarriageFormComponent,
-    StepperComponent,
+    DatePickerComponent,
     MapComponent,
+    StepperComponent,
+    CarriageFormComponent,
     TrucksetSetupComponent,
+    AddressFormGroupComponent
   ],
   imports: [
     CommonModule,

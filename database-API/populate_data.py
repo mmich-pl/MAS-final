@@ -15,18 +15,18 @@ cargo = [
     {"name": "Logs", "unit": "t", "type_name": "Wood"},
     {"name": "Cement", "unit": "t", "type_name": "Dry Bulk Cargo"},
     {"name": "Coal", "unit": "t", "type_name": "Dry Bulk Cargo"},
-    {"name": "Diesel", "unit": "hl", "required_licences": ["Flammable"], "type_name": "Liquid Bulk Cargo"},
-    {"name": "Loaders", "unit": "psc.", "required_licences": ["Overdimensional"], "type_name": "Machines"},
-    {"name": "Fuel Tanker", "unit": "psc.", "required_licences": ["Flammable"], "type_name": "Pallet"},
-    {"name": "Pigs", "unit": "psc.", "required_licences": ["Livestock"], "type_name": "Livestock"},
+    {"name": "Diesel", "unit": "hl", "required_licences": "Flammable", "type_name": "Liquid Bulk Cargo"},
+    {"name": "Loaders", "unit": "psc.", "required_licences": "Overdimensional", "type_name": "Machines"},
+    {"name": "Fuel Tanker", "unit": "psc.", "required_licences": "Flammable", "type_name": "Pallet"},
+    {"name": "Pigs", "unit": "psc.", "required_licences": "Livestock", "type_name": "Livestock"},
 ]
 
 clients = [
     {"name": "Tall Tales Craft Ales", "tax_number": "5268672572", "phone": "699604416", "email": "talltalles@gmail.com",
-     "address": {"zipcode": "41-300", "city": "Dąbrowa Górnicza", "country": "Poland",
+     "address": {"postalCode": "41-300", "city": "Dąbrowa Górnicza", "country": "Poland",
                  "street": " ul. Adamieckiego Karola 116"}},
     {"name": "Tamsack Harbor", "tax_number": "7976065223", "phone": "694025155 ", "email": "tamsack@gmail.com",
-     "address": {"zipcode": "80-014", "city": "Gdańsk", "country": "Poland", "street": "ul. Radwańska 97"}}
+     "address": {"postalCode": "80-014", "city": "Gdańsk", "country": "Poland", "street": "ul. Radwańska 97"}}
 ]
 
 drivers = [
@@ -41,7 +41,7 @@ drivers = [
             "email": "alexander@gmail.com",
             "salary": 7300,
             "address": {
-                "zipcode": "60-009",
+                "postalCode": "60-009",
                 "city": "Poznań",
                 "country": "Polska",
                 "street": "Legionów Polskich 56/2"
@@ -65,7 +65,7 @@ drivers = [
             "email": "william@gmail.com",
             "salary": 5000,
             "address": {
-                "zipcode": "52-051",
+                "postalCode": "52-051",
                 "city": "Wrocław",
                 "country": "Polska",
                 "street": "ul. Mokry Dwór 5"
@@ -89,7 +89,7 @@ drivers = [
             "email": "erathke0@sun.com",
             "salary": 8212,
             "address": {
-                "zipcode": "90-540",
+                "postalCode": "90-540",
                 "city": "Łódź",
                 "country": "Poland",
                 "street": "ul. Radwańska 97"
@@ -113,7 +113,7 @@ drivers = [
             "email": "dgilman1@fc2.com",
             "salary": 8992,
             "address": {
-                "zipcode": "91-179",
+                "postalCode": "91-179",
                 "city": "Łódź",
                 "country": "Poland",
                 "street": "ul. Białych Róż 43"
@@ -239,17 +239,40 @@ trucks = [
 carriages = [
     {
         "client": {"name": "Tamsack Harbor", "tax_number": "7976065223", "phone": "694025155 ", "email": "tamsack@gmail.com",
-         "address": {"zipcode": "80-014", "city": "Gdańsk", "country": "Poland", "street": "ul. Radwańska 97"}},
+         "address": {"postalCode": "80-014", "city": "Gdańsk", "country": "Poland", "street": "ul. Radwańska 97"}},
         "pickup_time": "2023-06-22T22:18:52Z",
         "drop_time": "2023-06-23T03:44:52Z",
         "pickup_address": {
-            "zipcode": "41-300",
+            "postalCode": "41-300",
             "city": "Dąbrowa Górnicza",
             "country": "Poland",
             "street": "ul. Adamieckiego Karola 116"
         },
         "drop_address": {
-            "zipcode": "80-014",
+            "postalCode": "80-014",
+            "city": "Gdańsk",
+            "country": "Poland",
+            "street": "ul. Radwańska 97"
+        },
+        "load": [{
+            "cargo_type": "Grain",
+            "amount": 12
+        }],
+        "truck_sets": [["truck:⟨EL-3ZXZC⟩", "trailer:⟨EL-078AV⟩", "driver:⟨93022779964⟩"]]
+    },
+    {
+        "client": {"name": "Tamsack Harbor", "tax_number": "7976065223", "phone": "694025155 ", "email": "tamsack@gmail.com",
+         "address": {"postalCode": "80-014", "city": "Gdańsk", "country": "Poland", "street": "ul. Radwańska 97"}},
+        "pickup_time": "2023-05-18T22:18:52Z",
+        "drop_time": "2023-05-19T03:44:52Z",
+        "pickup_address": {
+            "postalCode": "41-300",
+            "city": "Dąbrowa Górnicza",
+            "country": "Poland",
+            "street": "ul. Adamieckiego Karola 116"
+        },
+        "drop_address": {
+            "postalCode": "80-014",
             "city": "Gdańsk",
             "country": "Poland",
             "street": "ul. Radwańska 97"
@@ -267,7 +290,7 @@ carriages = [
             "phone": "699604416",
             "email": "talltalles@gmail.com",
             "address": {
-                "zipcode": "41-300",
+                "postalCode": "41-300",
                 "city": "Dąbrowa Górnicza",
                 "country": "Poland",
                 "street": " ul. Adamieckiego Karola 116"
@@ -276,13 +299,13 @@ carriages = [
         "pickup_time": "2023-05-15T07:18:52Z",
         "drop_time": "2023-05-15T12:44:52Z",
         "pickup_address": {
-            "zipcode": "41-300",
+            "postalCode": "41-300",
             "city": "Dąbrowa Górnicza",
             "country": "Poland",
             "street": "ul. Adamieckiego Karola 116"
         },
         "drop_address": {
-            "zipcode": "80-014",
+            "postalCode": "80-014",
             "city": "Gdańsk",
             "country": "Poland",
             "street": "ul. Radwańska 97"
@@ -293,7 +316,7 @@ carriages = [
         }],
 
 
-        "truck_sets": [["truck:⟨EL-3ZXXC⟩", "trailer:⟨EL-078AV⟩", "driver:⟨90041421993⟩"],["truck:⟨EL-3ZXXC⟩", "trailer:⟨EL-078AV⟩", "driver:⟨93022779964⟩"]]
+        "truck_sets": [["truck:⟨EL-3ZXYC⟩", "trailer:⟨EL-078AV⟩", "driver:⟨90041421993⟩"],["truck:⟨EL-3ZXXC⟩", "trailer:⟨EL-2EWU8⟩", "driver:⟨93022779964⟩"]]
 
     },
     {
@@ -303,7 +326,7 @@ carriages = [
             "phone": "699604416",
             "email": "talltalles@gmail.com",
             "address": {
-                "zipcode": "41-300",
+                "postalCode": "41-300",
                 "city": "Dąbrowa Górnicza",
                 "country": "Poland",
                 "street": " ul. Adamieckiego Karola 116"
@@ -312,13 +335,13 @@ carriages = [
         "pickup_time": "2023-05-20T11:18:52Z",
         "drop_time": "2023-05-20T16:44:52Z",
         "pickup_address": {
-            "zipcode": "41-300",
+            "postalCode": "41-300",
             "city": "Dąbrowa Górnicza",
             "country": "Poland",
             "street": "ul. Adamieckiego Karola 116"
         },
         "drop_address": {
-            "zipcode": "80-014",
+            "postalCode": "80-014",
             "city": "Gdańsk",
             "country": "Poland",
             "street": "ul. Radwańska 97"
