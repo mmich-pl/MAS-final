@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, Input, OnInit, Output} from '@angular/core';
 import {FormGroup} from "@angular/forms";
 
 @Component({
@@ -9,7 +9,6 @@ import {FormGroup} from "@angular/forms";
 export class DatePickerComponent implements OnInit {
 
   @Input() form!: FormGroup;
-  @Output() next:EventEmitter<any> = new EventEmitter<any>();
 
   MONTH_NAMES = [
     'January',
@@ -39,7 +38,6 @@ export class DatePickerComponent implements OnInit {
 
   ngOnInit(): void {
     this.form.get('pickup_date')?.valueChanges.subscribe(date => {
-      console.log(this.datepickerValue);
       console.log(date);
     });
 

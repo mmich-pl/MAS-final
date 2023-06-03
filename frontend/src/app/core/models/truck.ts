@@ -23,7 +23,7 @@ const TRAILER_TYPES = {
 type TrailerType = keyof typeof TRAILER_TYPES;
 
 export class Trailer extends BaseModel<Trailer> {
-  static trailer_extent = new Map<string, Trailer>();
+
 
   plate!: string;
   axis_number!: number;
@@ -34,9 +34,33 @@ export class Trailer extends BaseModel<Trailer> {
   cargo_type_name!: Array<CargoTypeKey>;
   cargo_type: Array<CargoType> = new Array<CargoType>();
 
+  static arrayFromJSON(json: any): Trailer[] {
+    let res = new Array<Trailer>();
+    let obj = JSON.parse(JSON.stringify(json))
+    Object.keys(obj).forEach(key => {
+      obj[key].forEach((d: Partial<Trailer>) => {
+        let trailer = new Trailer(d);
+        let type: CargoType | null = null;
+
+        for (let t of CargoType.cargoTypes) {
+          let mapped = t.mapCargoNameToType(key);
+          if (mapped != null) {
+            type = mapped;
+            break;
+          }
+        }
+
+        type?.addTrailer(trailer);
+        res.push(trailer)
+      })
+    })
+    console.log(res);
+    return res;
+  }
+
   constructor(model: Partial<Trailer>) {
     super(model);
-    if (model.cargo_type_name!.length>0) {
+    if (model.cargo_type_name != undefined && model.cargo_type_name!.length > 0) {
       model.cargo_type_name!.forEach((t) => {
         const cargoType = CargoType.getOrCreate(t);
         console.log(cargoType);
@@ -45,8 +69,6 @@ export class Trailer extends BaseModel<Trailer> {
       });
     }
 
-    if (!Trailer.trailer_extent.has(this.plate)) {
-      Trailer.trailer_extent.set(this.plate, this);
-    }
+
   }
 }

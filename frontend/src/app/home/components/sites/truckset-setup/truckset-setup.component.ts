@@ -17,11 +17,11 @@ export class TrucksetSetupComponent implements OnInit {
   @Input() cargo!: Map<Cargo, number>;
   @Input() route: Route | null = null;
   @Input() startDate!: string;
+  endDate = "";
   trailers: Array<Trailer> | undefined;
   drivers = new Map<LicencesKey, Driver[]>();
 
   constructor(private driverService: DriverService, private trailerService: TrailerService) {
-    this.trailerService.get().subscribe((t) => this.trailers = t);
   }
 
   getMatchingTrailer(cargo: Cargo): Trailer[] | undefined {
@@ -29,14 +29,13 @@ export class TrucksetSetupComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    let endDate = new Date(new Date(this.startDate).getTime() + this.route!.duration * 1000);
+    this.endDate = new Date(new Date(this.startDate).getTime() + this.route!.duration * 1000).toISOString();
     this.cargo.forEach((value, key) => {
-      this.driverService.getMatchingDrivers(this.startDate, endDate.toISOString(), key.required_licence).subscribe((a) => {
+      this.driverService.getMatchingDrivers(this.startDate, this.endDate, key.required_licence).subscribe((a) => {
         this.drivers.set(key.required_licence!, a);
-        console.log(this.drivers);
-        console.log(this.drivers.get(key.required_licence!));
       })
     })
+    this.trailerService.getMatchingTrailers(this.startDate, this.endDate, this.cargo).subscribe((t) => this.trailers = t);
   }
 
 }

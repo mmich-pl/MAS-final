@@ -18,7 +18,7 @@ pub struct TruckSet {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CarriageItems {
-    pub cargo_type: String,
+    pub cargo_name: String,
     pub amount: u16,
 }
 

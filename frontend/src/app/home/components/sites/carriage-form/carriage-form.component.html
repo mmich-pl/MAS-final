@@ -47,31 +47,7 @@
               <p tabindex="0" class="focus:outline-none mt-4 text-sm leading-5 text-gray-600">Information about the section could go here and a brief description of how this might be used.</p>
             </div>
             <div>
-              <div formGroupName="client_address">
-                <div class="md:flex items-center mt-4">
-                  <div class="md:w-64">
-                    <label class="text-sm leading-none text-gray-800" for="street">Address / Street</label>
-                    <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="street" name="street" id="client_street" placeholder="ul. Nowa 23" />
-                  </div>
-                  <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
-                    <label class="text-sm leading-none text-gray-800" for="city" >City</label>
-                    <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="city" name="city" id="client_city" placeholder="Warsaw" />
-                  </div>
-                </div>
-                <div class="md:flex items-center  mt-8">
-                  <div class="md:w-64">
-                    <label class="text-sm leading-none text-gray-800" for="postalCode">Zipcode</label>
-                    <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="postalCode" name="postalCode" id="client_postalCode" placeholder="00-000" />
-                  </div>
-                  <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
-                    <label class="text-sm leading-none text-gray-800" for="client_countries" >Country</label>
-                    <select tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="country" name="countries" id="client_countries">
-                      <option *ngFor="let country of countries" [ngValue]="country">{{country}}</option>
-
-                    </select>
-                  </div>
-                </div>
-              </div>
+            <app-address-form-group [countries]="countries" [form]="client_address"></app-address-form-group>
             </div>
           </div>
         </section>
@@ -94,59 +70,11 @@
             <div class="container mx-auto grid sm:grid-cols-1 md:grid-cols-2 pt-6 gap-8">
               <div>
                 <h2 tabindex="0" class="focus:outline-none text-xl mx-auto font-medium pr-2 leading-5 text-gray-800">Pickup Address</h2>
-                <div formGroupName="pickup_address">
-                  <div class="md:flex items-center mt-8">
-                    <div class="md:w-64">
-                      <label class="text-sm leading-none text-gray-800" for="street">Address / Street</label>
-                      <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="street" name="street" id="street" placeholder="ul. Nowa 23" />
-                    </div>
-                    <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
-                      <label class="text-sm leading-none text-gray-800" for="city" >City</label>
-                      <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="city" name="city" id="city" placeholder="Warsaw" />
-                    </div>
-                  </div>
-                  <div class="md:flex items-center  mt-8">
-                    <div class="md:w-64">
-                      <label class="text-sm leading-none text-gray-800" for="postalCode">Zipcode</label>
-                      <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="postalCode" name="postalCode" id="postalCode" placeholder="00-000" />
-                    </div>
-                    <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
-                      <label class="text-sm leading-none text-gray-800" for="countries" >Country</label>
-                      <select tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="country" name="countries" id="countries">
-                        <option *ngFor="let country of countries" [ngValue]="country">{{country}}</option>
-
-                      </select>
-                    </div>
-                  </div>
-                </div>
+                <app-address-form-group [countries]="countries" [form]="pickup_address_form"></app-address-form-group>
               </div>
               <div>
                 <h2 tabindex="0" class="focus:outline-none text-xl mx-auto font-medium pr-2 leading-5 text-gray-800">Drop Address</h2>
-                <div formGroupName="destination_address">
-                  <div class="md:flex items-center mt-8">
-                    <div class="md:w-64">
-                      <label class="text-sm leading-none text-gray-800" for="dest_street">Address / Street</label>
-                      <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="street" name="street" id="dest_street" placeholder="ul. Nowa 23" />
-                    </div>
-                    <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
-                      <label class="text-sm leading-none text-gray-800" for="dest_city" >City</label>
-                      <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="city" name="city" id="dest_city" placeholder="Warsaw" />
-                    </div>
-                  </div>
-                  <div class="md:flex items-center  mt-8">
-                    <div class="md:w-64">
-                      <label class="text-sm leading-none text-gray-800" for="dest_postalCode">Zipcode</label>
-                      <input type="text" tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="postalCode" name="postalCode" id="dest_postalCode" placeholder="00-000" />
-                    </div>
-                    <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
-                      <label class="text-sm leading-none text-gray-800" for="dest_countries" >Country</label>
-                      <select tabindex="0" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" formControlName="country" name="countries" id="dest_countries">
-                        <option *ngFor="let country of countries" [ngValue]="country">{{country}}</option>
-
-                      </select>
-                    </div>
-                  </div>
-                </div>
+                <app-address-form-group [countries]="countries" [form]="destination_address_form"></app-address-form-group>
               </div>
             </div>
           </div>
@@ -165,7 +93,7 @@
                     </select>
                   </td>
                   <td class="px-16">
-                    <input type="text" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" id="amount" formControlName="amount"/>
+                    <input type="number" class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800" id="amount" formControlName="amount"/>
                   </td>
                   <td >
                     <button *ngIf="form.controls['cargo_row'].value?.length > 1" (click)="delete_row(i)"

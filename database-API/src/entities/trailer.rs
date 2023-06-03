@@ -190,14 +190,14 @@ impl<'a> Trailer {
         let mut result = BTreeMap::new();
 
         for item in load {
-            let response = Trailer::get_witch_mathing_cargo(client, &item.cargo_type, pickup_date, drop_date).await;
+            let response = Trailer::get_witch_mathing_cargo(client, &item.cargo_name, pickup_date, drop_date).await;
             if let Ok(trailers) = response {
                 let max_capacity: u16 = trailers.iter().map(|t| t.carrying_capacity as u16).sum();
                 if item.amount > max_capacity {
                     return Err(APIError::CantMatch(format!("No there are not enough trailers to carry {} of {}. At the moment we can transport only {}",
-                                                           &item.amount, &item.cargo_type, max_capacity)));
+                                                           &item.amount, &item.cargo_name, max_capacity)));
                 }
-                result.insert(item.cargo_type, Trailer::find_best_combination(item.amount, max_capacity, trailers));
+                result.insert(item.cargo_name, Trailer::find_best_combination(item.amount, max_capacity, trailers));
             } else if let Err(e) = response {
                 return Err(e);
             }

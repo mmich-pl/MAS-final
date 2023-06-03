@@ -50,6 +50,10 @@ export class CargoType {
   getTrailers(): Array<Trailer> {
     return this._trailers;
   }
+
+  mapCargoNameToType(cargo_name: string): CargoType | null | undefined {
+    return this._cargo.find((cargo) => cargo.name === cargo_name)?.type;
+  }
 }
 
 
