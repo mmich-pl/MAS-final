@@ -31,13 +31,6 @@ impl Truck {
         }
     }
 
-    pub(crate) async fn get_all(client: &Data<DbClient>) -> Result<Vec<Truck>, APIError> {
-        match client.surreal.select("truck").await {
-            Ok(response) => Ok(response),
-            Err(e) => Err(APIError::Surreal(e)),
-        }
-    }
-
     pub(crate) async fn get_within_date_limit(client: &Data<DbClient>, pickup_date: &str, drop_date: &str)
                                               -> Result<Vec<Truck>, APIError> {
         let query = client.surreal.query(

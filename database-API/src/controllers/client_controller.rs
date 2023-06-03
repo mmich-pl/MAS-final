@@ -23,7 +23,7 @@ pub struct CreateClientRequest {
 
 /// [POST /client] create new client
 async fn create(body: web::Json<CreateClientRequest>, db: web::Data<DbClient>) -> impl Responder {
-    match Address::create(&db, body.0.address.zipcode, body.0.address.city, body.0.address.country,
+    match Address::create(&db, body.0.address.postal_code, body.0.address.city, body.0.address.country,
                           body.0.address.street, body.0.address.latitude, body.0.address.longitude).await {
         Ok(address) => {
             match Client::create(&db, body.0.name, body.0.tax_number, body.0.phone,

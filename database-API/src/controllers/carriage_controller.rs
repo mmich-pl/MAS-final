@@ -38,7 +38,7 @@ async fn create(body: web::Json<CreateCarriageRequest>, db: web::Data<DbClient>)
     let client_id: Thing = match Client::get_by_tax_number(&db, &body.client.tax_number).await {
         Ok(id) => match id {
             None => {
-                let address = match Address::get_or_create(&db, body.0.client.address.zipcode,
+                let address = match Address::get_or_create(&db, body.0.client.address.postal_code,
                                                            body.0.client.address.city, body.0.client.address.country, body.0.client.address.street,
                                                            body.0.client.address.latitude, body.0.client.address.longitude).await {
                     Ok(address) => address,
@@ -57,7 +57,7 @@ async fn create(body: web::Json<CreateCarriageRequest>, db: web::Data<DbClient>)
         Err(e) => return HttpResponse::InternalServerError().json(e.to_string()),
     };
 
-    let pickup_address = match Address::get_or_create(&db, body.0.pickup_address.zipcode,
+    let pickup_address = match Address::get_or_create(&db, body.0.pickup_address.postal_code,
                                                       body.0.pickup_address.city, body.0.pickup_address.country,
                                                       body.0.pickup_address.street, body.0.pickup_address.latitude,
                                                       body.0.pickup_address.longitude).await {
@@ -65,7 +65,7 @@ async fn create(body: web::Json<CreateCarriageRequest>, db: web::Data<DbClient>)
         Err(e) => return HttpResponse::InternalServerError().json(e.to_string()),
     };
 
-    let drop_address = match Address::get_or_create(&db, body.0.drop_address.zipcode,
+    let drop_address = match Address::get_or_create(&db, body.0.drop_address.postal_code,
                                                     body.0.drop_address.city, body.0.drop_address.country,
                                                     body.0.drop_address.street, body.0.drop_address.latitude,
                                                     body.0.drop_address.longitude).await {

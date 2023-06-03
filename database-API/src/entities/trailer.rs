@@ -5,10 +5,7 @@ use std::str::FromStr;
 use actix_web::web::Data;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use surrealdb::channel::new;
-use surrealdb::method::Query;
 
-use crate::controllers::trailer_controller::CreateTrailerRequest;
 use crate::database::DbClient;
 use crate::entities::cargo::{CargoTypeResponse, CargoTypes};
 use crate::entities::carriage::CarriageItems;
@@ -120,17 +117,6 @@ impl<'a> Trailer {
             Err(e) => Err(APIError::Surreal(e)),
         }
     }
-
-    pub(crate) async fn get_all(client: &Data<DbClient>) -> Result<Vec<CreateTrailerRequest>, APIError> {
-        match client.surreal.query("SELECT *, ->canCarry->cargoType.type AS cargo_type_name FROM trailer;").await {
-            Ok(mut response) => {
-                let ret: Vec<CreateTrailerRequest> = response.take(0)?;
-                Ok(ret)
-            }
-            Err(e) => Err(APIError::Surreal(e)),
-        }
-    }
-
 
     pub(crate) async fn get_witch_mathing_cargo(client: &Data<DbClient>, cargo_type: &str, pickup_date: &str, drop_date: &str)
                                                 -> Result<Vec<Trailer>, APIError> {

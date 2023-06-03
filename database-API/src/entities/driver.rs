@@ -1,13 +1,10 @@
-use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::str::FromStr;
 
-use actix_web::cookie::time::Date;
 use actix_web::web::Data;
-use chrono::{DateTime, TimeZone, Utc};
+use chrono::{DateTime,  Utc};
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
-use surrealdb::sql::Thing;
 
 use crate::database::DbClient;
 use crate::entities::address::Address;
@@ -15,7 +12,7 @@ use crate::entities::employee::Employee;
 use crate::error::APIError;
 
 #[derive(Serialize, Deserialize, EnumString, Display, Debug)]
-pub enum AdditionalLicences {
+pub enum AdditionalLicence {
     Flammable,
     Toxic,
     Delicate,
@@ -23,13 +20,17 @@ pub enum AdditionalLicences {
     Overdimensional,
 }
 
-pub type Licences = Option<Vec<AdditionalLicences>>;
+pub type Licences = Option<Vec<AdditionalLicence>>;
 
-impl AdditionalLicences {
-    pub(crate) fn map_licences(l: Option<Vec<String>>) -> Licences {
+impl AdditionalLicence {
+    pub(crate) fn map_single(l: Option<String>) -> Option<AdditionalLicence> {
+        let Some(licence) = l else { return None; };
+        Some(AdditionalLicence::from_str(&licence).unwrap())
+    }
+    pub(crate) fn map_list(l: Option<Vec<String>>) -> Licences {
         let Some(licences) = l else { return None; };
         Some(licences.into_iter()
-            .map(|x| AdditionalLicences::from_str(&x))
+            .map(|x| AdditionalLicence::from_str(&x))
             .flat_map(|x| x.ok()).collect()
         )
     }
@@ -74,7 +75,7 @@ impl Driver {
     }
 
 
-    pub(crate) async fn get_with_licences(client: &Data<DbClient>, licences: Vec<AdditionalLicences>,
+    pub(crate) async fn get_with_licences(client: &Data<DbClient>, licences: Vec<AdditionalLicence>,
                                           pickup_date: &str, drop_date: &str)
                                           -> Result<Vec<Driver>, APIError> {
         match client.surreal.query(

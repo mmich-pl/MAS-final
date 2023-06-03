@@ -5,7 +5,7 @@ use surrealdb::sql::{Thing, Uuid};
 
 use crate::controllers::cargo_controller::CreateCargoRequest;
 use crate::database::DbClient;
-use crate::entities::driver::{AdditionalLicences, Licences};
+use crate::entities::driver::{AdditionalLicence};
 use crate::error::APIError;
 
 #[derive(Serialize, Deserialize, EnumString, Display, Debug, PartialEq)]
@@ -48,19 +48,6 @@ impl CargoTypeResponse {
         }
     }
 
-    pub(crate) async fn get_by_type(client: &Data<DbClient>, c_type: &str)
-                                    -> Result<Option<CargoTypeResponse>, APIError> {
-        match client.surreal
-            .query("SELECT * FROM cargoType where type == $type")
-            .bind(("type", c_type)).await {
-            Ok(mut response) => {
-                let ret: Option<CargoTypeResponse> = response.take(0)?;
-                Ok(ret)
-            }
-            Err(e) => Err(APIError::Surreal(e)),
-        }
-    }
-
     pub(crate) async fn get_or_create(client: &Data<DbClient>, c_type: &str)
                                       -> Result<CargoTypeResponse, APIError> {
         match client.surreal
@@ -90,17 +77,17 @@ pub struct Cargo {
     pub name: String,
     pub unit: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub required_licences: Licences,
+    pub required_licence: Option<AdditionalLicence>,
 }
 
 impl Cargo {
-    pub fn new(name: String, unit: String, required_licences: Option<Vec<String>>) -> Cargo {
-        let licences = AdditionalLicences::map_licences(required_licences);
-        Cargo { id: None, name, unit, required_licences: licences }
+    pub fn new(name: String, unit: String, required_licences: Option<String>) -> Cargo {
+        let licences = AdditionalLicence::map_single(required_licences);
+        Cargo { id: None, name, unit, required_licence: licences }
     }
 
     pub async fn create(client: &Data<DbClient>, name: String, unit: String, cargo_type: String,
-                        required_licences: Option<Vec<String>>) -> Result<Cargo, APIError> {
+                        required_licences: Option<String>) -> Result<Cargo, APIError> {
         let cargo = Cargo::new(name, unit, required_licences);
         let c_type = CargoTypeResponse::get_or_create(client, &cargo_type).await?;
 

@@ -10,7 +10,8 @@ use crate::error::APIError;
 pub struct Address {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Thing>,
-    pub zipcode: String,
+    #[serde(rename(serialize="postalCode", deserialize="postalCode"))]
+    pub postal_code: String,
     pub city: String,
     pub country: String,
     pub street: String,
@@ -23,7 +24,7 @@ pub struct Address {
 impl Address {
     pub fn new(zipcode: String, city: String, country: String, street: String,
                latitude: Option<f64>, longitude: Option<f64>) -> Address {
-        Address { id: None, zipcode, city, country, street, latitude, longitude }
+        Address { id: None, postal_code: zipcode, city, country, street, latitude, longitude }
     }
 
     pub async fn create(client: &Data<DbClient>, zipcode: String, city: String, country: String,

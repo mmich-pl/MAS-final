@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::io::BufRead;
 
 use actix_web::{HttpResponse, Responder, Scope, web};
 use actix_web::web::Query;
@@ -9,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use crate::controllers::address_controller::CreateAddressRequest;
 use crate::database::DbClient;
 use crate::entities::address::Address;
-use crate::entities::driver::{AdditionalLicences, Driver, DriverLicence};
+use crate::entities::driver::{AdditionalLicence, Driver, DriverLicence};
 use crate::error::APIError;
 
 pub fn routes() -> Scope {
@@ -44,7 +43,7 @@ pub struct CreateDriverRequest {
 
 /// [POST /driver] create new driver
 async fn create(body: web::Json<CreateDriverRequest>, db: web::Data<DbClient>) -> impl Responder {
-    match Address::create(&db, body.0.employee.address.zipcode, body.0.employee.address.city,
+    match Address::create(&db, body.0.employee.address.postal_code, body.0.employee.address.city,
                           body.0.employee.address.country, body.0.employee.address.street,
                           body.0.employee.address.latitude, body.0.employee.address.longitude).await {
         Ok(address) => {
@@ -53,7 +52,7 @@ async fn create(body: web::Json<CreateDriverRequest>, db: web::Data<DbClient>) -
                 expiration_date: body.0.driver_licence.expiration_date,
                 categories: body.0.driver_licence.categories,
             };
-            let licences = AdditionalLicences::map_licences(body.0.owned_licences);
+            let licences = AdditionalLicence::map_list(body.0.owned_licences);
 
             let create_statement =
                 Driver::create(&db, body.0.employee.first_name, body.0.employee.last_name,
@@ -86,7 +85,7 @@ async fn get(params: Query<HashMap<String, String>>, db: web::Data<DbClient>) ->
     let mut licences = Vec::new();
     if param.is_some() {
         let l = param.unwrap().split(',').map(str::to_string).collect();
-        licences = AdditionalLicences::map_licences(Some(l)).unwrap();
+        licences = AdditionalLicence::map_list(Some(l)).unwrap();
     }
 
     match Driver::get_with_licences(&db, licences, pickup, drop).await {
