@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CarriageSummaryComponent } from './carriage-summary.component';
+import { SetSelectionComponent } from './set-selection.component';
 
 describe('TrucksetSetupComponent', () => {
-  let component: CarriageSummaryComponent;
-  let fixture: ComponentFixture<CarriageSummaryComponent>;
+  let component: SetSelectionComponent;
+  let fixture: ComponentFixture<SetSelectionComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [CarriageSummaryComponent]
+      declarations: [SetSelectionComponent]
     });
-    fixture = TestBed.createComponent(CarriageSummaryComponent);
+    fixture = TestBed.createComponent(SetSelectionComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

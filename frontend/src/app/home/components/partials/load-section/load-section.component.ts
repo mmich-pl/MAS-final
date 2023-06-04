@@ -59,9 +59,4 @@ export class LoadSectionComponent implements OnInit {
   delete_row(index: number) {
     this.formArray.removeAt(index);
   }
-
-  get getFormControls() {
-    return this.form.get('load')?.value as FormArray;
-  }
-
 }

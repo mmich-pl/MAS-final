@@ -1,7 +1,7 @@
 <div [formGroup]="form" class="mx-auto bg-white dark:bg-gray-800 px-3">
-  <div formGroupName="cargo_row">
+  <div formGroupName="address_row">
     <div class="flex flex-col lg:flex-row p-4 lg:p-8 justify-end items-start lg:items-stretch w-full">
-      <button type="button" (click)="add_new_row()"
+      <button type="button" (click)="addNewRow()"
               class="text-white ml-4 cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-indigo-700 transition duration-150 ease-in-out hover:bg-indigo-600 w-8 h-8 rounded flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="28"
              height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none"
@@ -16,10 +16,14 @@
       <table class="min-w-full bg-white dark:bg-gray-800">
         <thead>
         <tr class="w-full h-16 border-gray-300 border-b py-8">
-          <th class="text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4 mx-auto">
-            Cargo</th>
-          <th class="text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4 mx-auto">
-            Amount</th>
+          <th class="md:w-64 text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4 mx-auto">
+            Street</th>
+          <th class="md:w-64 text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4 mx-auto">
+            City</th>
+          <th class="md:w-64 text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4 mx-auto">
+            Postal Code</th>
+          <th class="md:w-64 text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4 mx-auto">
+            Country</th>
           <th class="text-gray-600 dark:text-gray-400 font-normal pr-8 text-left text-sm tracking-normal leading-4 mx-auto">
             Delete</th>
         </tr>
@@ -29,18 +33,28 @@
             class="border-b border-gray-300 h-24 ">
           <td
             class="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4 mx-auto">
-            <select aria-label="Selected tab" formControlName="cargo"
-                    class="focus:outline-none border border-gray-200 focus:border-gray-800 focus:shadow-outline-gray text-base form-select block w-full py-2 px-2 xl:px-3 rounded text-gray-600 dark:text-gray-400 appearance-none bg-transparent">
-              <option *ngFor="let c of cargo" [ngValue]="c">{{c.name}}</option>
-            </select>
+            <input type="text" tabindex="0" formControlName="street" name="street" id="street" placeholder="ul. Nowa 23"
+                   class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800"/>
           </td>
           <td
             class="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4 mx-auto">
-            <input type="number"
-                   class="focus:outline-none border border-gray-200 focus:border-gray-800 focus:shadow-outline-gray text-base form-select block w-full py-2 px-2 xl:px-3 rounded text-gray-600 dark:text-gray-400 appearance-none bg-transparent"
-                   id="amount" formControlName="amount"/>
+            <input type="text" tabindex="0" formControlName="city" name="city" id="city" placeholder="Warsaw"
+                   class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800"/>
           </td>
-          <td class="pr-8 relative mx-auto" *ngIf="formArray.length > 1" (click)="delete_row(i)">
+          <td
+            class="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4 mx-auto">
+            <input type="text" tabindex="0" name="postalCode" id="postalCode" placeholder="00-000"
+                   class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800"
+                   formControlName="postalCode"/>
+          </td>
+          <td
+            class="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4 mx-auto">
+            <select tabindex="0" formControlName="country" name="countries" id="countries"
+                    class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800">
+              <option *ngFor="let country of countries" [ngValue]="country">{{country}}</option>
+            </select>
+          </td>
+          <td class="pr-8 relative mx-auto" *ngIf="formArray.length > 1" (click)="deleteRow(i)">
             <button
               class="text-red-500 p-2 border-transparent border bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-gray-200 cursor-pointer rounded focus:outline-none focus:border-gray-800 focus:shadow-outline-gray"
               href="javascript: void(0)">

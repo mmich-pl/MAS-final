@@ -84,17 +84,47 @@
               section could go here and a brief description of how this might be used.</p>
           </div>
           <div class="mt-8 lg:flex justify-between border-b border-gray-200 pb-6">
-            <div class="container mx-auto grid sm:grid-cols-1 md:grid-cols-2 pt-6 gap-8">
-              <div>
-                <h2 tabindex="0" class="focus:outline-none text-xl mx-auto font-medium pr-2 leading-5 text-gray-800">
-                  Pickup Address</h2>
-                <app-address-form-group [countries]="countries" [form]="pickup_address_form"></app-address-form-group>
-              </div>
-              <div>
-                <h2 tabindex="0" class="focus:outline-none text-xl mx-auto font-medium pr-2 leading-5 text-gray-800">
-                  Drop Address</h2>
-                <app-address-form-group [countries]="countries"
-                                        [form]="destination_address_form"></app-address-form-group>
+
+            <div class="flex flex-wrap">
+              <div class="w-full">
+                <ul class="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row">
+                  <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+                    <a class="text-xs font-bold uppercase px-5 py-3 rounded block leading-normal cursor-pointer" (click)="toggleTabs(1)"
+                       [ngClass]="{'text-indigo-700 bg-white border border-indigo-700': currentTab !== 1, 'text-white bg-indigo-700': currentTab === 1}">
+                      <i class="fas fa-space-shuttle text-base mr-1"></i> Origin and destination
+                    </a>
+                  </li>
+                  <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+                    <a class="text-xs font-bold uppercase px-5 py-3 rounded block leading-normal cursor-pointer" (click)="toggleTabs(2)"
+                       [ngClass]="{'text-indigo-700 bg-white border border-indigo-700': currentTab !== 2, 'text-white bg-indigo-700': currentTab === 2}">
+                      <i class="fas fa-cog text-base mr-1"></i> Additional stops
+                    </a>
+                  </li>
+                </ul>
+                <div class="relative flex flex-col bg-white w-full mb-6 rounded">
+                  <div class="px-4 py-5 flex-auto">
+                    <div class="tab-content tab-space">
+                      <div [ngClass]="{'hidden': currentTab !== 1, 'block': currentTab === 1}">
+                        <div class="container mx-auto grid sm:grid-cols-1 md:grid-cols-2 pt-6 gap-8">
+                          <div>
+                            <h2 tabindex="0" class="focus:outline-none text-xl mx-auto font-medium pr-2 leading-5 text-gray-800">
+                              Pickup Address</h2>
+                            <app-address-form-group [countries]="countries" [form]="pickup_address_form"></app-address-form-group>
+                          </div>
+                          <div>
+                            <h2 tabindex="0" class="focus:outline-none text-xl mx-auto font-medium pr-2 leading-5 text-gray-800">
+                              Drop Address</h2>
+                            <app-address-form-group [countries]="countries"
+                                                    [form]="destination_address_form"></app-address-form-group>
+                          </div>
+                        </div>
+                      </div>
+                      <div [ngClass]="{'hidden': currentTab !== 2, 'block': currentTab === 2}">
+                        <app-address-form-array [form]="form" [formArray]="address_row" [countries]="countries"></app-address-form-array>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -105,8 +135,8 @@
         <section *ngIf="current_step === 4">
           <div *ngIf="route | async as route">
             <!--            <app-map [route]="route"></app-map>-->
-            <app-carriage-summary [cargo]="selectedCargo" [route]="route" [startDate]="carriageStartTime"
-                                  [changePage]="change_page"></app-carriage-summary>
+            <app-set-selection [cargo]="selectedCargo" [route]="route" [startDate]="carriageStartTime"
+                                  [changePage]="change_page"></app-set-selection>
           </div>
         </section>
 

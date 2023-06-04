@@ -19,6 +19,8 @@ import {SelectedCargoService} from "../../../../core/services/selected-cargo.ser
 })
 export class CarriageFormComponent implements OnInit, OnDestroy {
   current_step = 1;
+  currentTab = 1;
+
   max_step = 5
   last_page = false;
 
@@ -27,6 +29,7 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
 
   selectedCargo = new Map<Cargo, number>();
   cargo_row: FormArray;
+  address_row: FormArray;
 
   form: FormGroup;
   client_section: FormGroup;
@@ -41,6 +44,8 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
   route?: Observable<Route>;
   carriageStartTime = "";
 
+
+
   private selectedCargoSubscription?: Subscription;
   private eventSubscription?: Subscription;
 
@@ -53,13 +58,7 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
               private modalService: ModalService) {
     this.clients_name = new Array<string>();
     this.cargo_row = new FormArray<any>([]);
-
-    this.client_address = new FormGroup({
-      street: new FormControl(null),
-      city: new FormControl(null),
-      postalCode: new FormControl(null),
-      country: new FormControl(null),
-    });
+    this.address_row = new FormArray<any>([]);
 
     this.client_section = new FormGroup({
       name: new FormControl(null),
@@ -68,19 +67,9 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
       phone: new FormControl(null),
     });
 
-    this.pickup_address_form = new FormGroup({
-      street: new FormControl(null),
-      city: new FormControl(null),
-      postalCode: new FormControl(null),
-      country: new FormControl(null),
-    });
-
-    this.destination_address_form = new FormGroup({
-      street: new FormControl(null),
-      city: new FormControl(null),
-      postalCode: new FormControl(null),
-      country: new FormControl(null),
-    });
+    this.client_address = this.createAddressFormGroup();
+    this.pickup_address_form = this.createAddressFormGroup();
+    this.destination_address_form = this.createAddressFormGroup();
 
     this.time_section = new FormGroup({
       pickup_date: new FormControl(null),
@@ -92,6 +81,7 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
       client_address: this.client_address,
       time_section: this.time_section,
       pickup_address: this.pickup_address_form,
+      address_row: this.address_row,
       destination_address: this.destination_address_form,
       cargo_row: this.cargo_row,
     });
@@ -101,6 +91,15 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
       r.forEach(client => this.clients.set(client.name, client));
       this.clients_name = r.map(c => c.name)
     })
+  }
+
+  createAddressFormGroup() : FormGroup {
+    return new FormGroup({
+      street: new FormControl(null),
+      city: new FormControl(null),
+      postalCode: new FormControl(null),
+      country: new FormControl(null),
+    });
   }
 
   ngOnInit() {
@@ -149,6 +148,10 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
       }
       return this.current_step++;
     }
+  }
+
+  toggleTabs(tabNumber: number){
+    this.currentTab = tabNumber;
   }
 
   submitForm() {

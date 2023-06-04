@@ -26,7 +26,8 @@ class FixedOrderContainer<T> {
   }
 }
 
-class Section {
+export class Section {
+  id!:number;
   origin = new Array<number>(2);
   destination = new Array<number>(2);
   polyline = "";

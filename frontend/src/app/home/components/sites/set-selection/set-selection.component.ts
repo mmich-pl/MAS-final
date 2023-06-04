@@ -14,11 +14,11 @@ import {ModalService} from "../../../../core/services/modal.service";
 type set = { cargo: Cargo, amount: number, trailer: Trailer, truck: Truck, driver: Driver };
 
 @Component({
-  selector: 'app-carriage-summary',
-  templateUrl: './carriage-summary.component.html',
-  styleUrls: ['./carriage-summary.component.css'],
+  selector: 'app-set-selection',
+  templateUrl: './set-selection.component.html',
+  styleUrls: ['./set-selection.component.css'],
 })
-export class CarriageSummaryComponent implements OnInit {
+export class SetSelectionComponent implements OnInit {
   @Input() cargo!: Map<Cargo, number>;
   @Input() route!: Route;
   @Input() startDate!: string;

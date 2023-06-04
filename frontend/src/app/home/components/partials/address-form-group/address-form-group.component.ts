@@ -8,7 +8,7 @@ import {FormGroup} from "@angular/forms";
 })
 export class AddressFormGroupComponent implements OnInit{
 @Input() form!:FormGroup;
-@Input() countries!:string[];
+@Input() countries!:Array<string>;
 
   ngOnInit(): void {
   }
