@@ -16,6 +16,8 @@ import { AddressFormGroupComponent } from './home/components/partials/address-fo
 import { SpinnerComponent } from './home/components/partials/spinner/spinner.component';
 import { ModalComponent } from './home/components/partials/modal/modal.component';
 import {ErrorInterceptor} from "./core/interceptors/error.interceptor";
+import { SidebarComponent } from './home/components/partials/navigation/sidebar/sidebar.component';
+import { LoadSectionComponent } from './home/components/partials/load-section/load-section.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -27,6 +29,8 @@ import {ErrorInterceptor} from "./core/interceptors/error.interceptor";
     AddressFormGroupComponent,
     SpinnerComponent,
     ModalComponent,
+    SidebarComponent,
+    LoadSectionComponent,
   ],
   imports: [
     CommonModule,

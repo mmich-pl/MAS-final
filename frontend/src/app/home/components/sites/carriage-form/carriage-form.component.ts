@@ -9,6 +9,7 @@ import {ModalService} from "../../../../core/services/modal.service";
 import {CargoService} from "../../../../core/services/cargo.service";
 import {MapRoutingService, MapGeocodesService} from "../../../../core/services/map.service";
 import {Client, clientAddress, clientInfo} from "../../../../core/models/client";
+import {SelectedCargoService} from "../../../../core/services/selected-cargo.service";
 
 
 @Component({
@@ -22,11 +23,10 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
   last_page = false;
 
   countries: string[] = ["Poland", "Germany", "Czech Republic"];
-  cargo = new Array<Cargo>();
   clients: Map<string, Client>;
 
   selectedCargo = new Map<Cargo, number>();
-  cargo_row = new FormArray([]);
+  cargo_row: FormArray;
 
   form: FormGroup;
   client_section: FormGroup;
@@ -41,18 +41,18 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
   route?: Observable<Route>;
   carriageStartTime = "";
 
+  private selectedCargoSubscription?: Subscription;
   private eventSubscription?: Subscription;
-
 
   getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
     return o[propertyName];
   }
 
-  constructor(private clientService: ClientService, private cargoService: CargoService,
+  constructor(private clientService: ClientService, private selectedCargoService: SelectedCargoService,
               private geocodesService: MapGeocodesService, private routeService: MapRoutingService,
               private modalService: ModalService) {
-
     this.clients_name = new Array<string>();
+    this.cargo_row = new FormArray<any>([]);
 
     this.client_address = new FormGroup({
       street: new FormControl(null),
@@ -101,10 +101,6 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
       r.forEach(client => this.clients.set(client.name, client));
       this.clients_name = r.map(c => c.name)
     })
-
-    this.cargoService.get().subscribe((t) => {
-      this.cargo = t;
-    });
   }
 
   ngOnInit() {
@@ -129,53 +125,18 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.form.get('cargo_row')?.valueChanges.subscribe(values => {
-      this.selectedCargo.clear();
-      const ctrl = <FormArray>this.form.controls['cargo_row'];
-      ctrl.controls.forEach(x => {
-        let cargo = x.get('cargo')?.value;
-        let amount = x.get('amount')?.value;
-
-        if (cargo != null && amount != null) {
-          if (this.selectedCargo.has(cargo)) {
-            this.selectedCargo.set(cargo, this.selectedCargo.get(cargo) + amount);
-          } else {
-            this.selectedCargo.set(cargo, amount);
-          }
-        }
-      })
-    });
-
     this.eventSubscription = this.modalService.eventEmitter.subscribe(() => {
       console.log("event caught in parent");
       this.cargo_row.clear();
       this.selectedCargo.clear();
       this.change_page(false);
     });
-  }
 
-  add_new_row() {
-    const cargo = new FormControl(null, Validators.required);
-    const amount = new FormControl(null, Validators.required);
-    let fg = new FormGroup({cargo: cargo, amount: amount});
-    let cargo_row = this.form.get('cargo_row') as FormArray;
-    cargo_row.push(fg);
-  }
-
-
-  delete_row(index: number) {
-    this.cargo_row.removeAt(index);
-  }
-
-  get getFormControls() {
-    return this.form.get('load')?.value as FormArray;
-  }
-
-  initiateForm(): FormGroup {
-    return new FormGroup({
-      cargo: new FormControl(null),
-      amount: new FormControl(null)
-    })
+    this.selectedCargoSubscription = this.selectedCargoService.map.subscribe(mapData => {
+      console.log("mam changed");
+      console.log(mapData);
+      this.selectedCargo = mapData;
+    });
   }
 
 
@@ -236,6 +197,10 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.eventSubscription) {
       this.eventSubscription.unsubscribe();
+    }
+
+    if (this.selectedCargoSubscription) {
+      this.selectedCargoSubscription.unsubscribe();
     }
   }
 }
