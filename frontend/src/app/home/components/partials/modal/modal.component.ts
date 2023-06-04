@@ -13,10 +13,7 @@ export class ModalComponent implements OnInit, OnDestroy {
   private contentSubscription?: Subscription;
   private headerSubscription?: Subscription;
 
-  @Output() closeMeEvent = new EventEmitter();
-
-
-  constructor(protected modalService: ModalService) {
+  constructor(private modalService: ModalService) {
   }
 
   ngOnInit(): void {
@@ -38,6 +35,11 @@ export class ModalComponent implements OnInit, OnDestroy {
       this.contentSubscription.unsubscribe();
       this.headerSubscription.unsubscribe();
     }
+  }
+
+  closeModal() {
+    this.modalService.setVisibility(false);
+    this.modalService.emitEvent();
   }
 
 }

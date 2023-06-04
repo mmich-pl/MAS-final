@@ -1,6 +1,6 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
 import {FormArray, FormControl, FormGroup, Validators} from "@angular/forms";
-import {forkJoin, Observable, tap} from "rxjs";
+import {forkJoin, Observable, Subscription, tap} from "rxjs";
 import {Cargo} from "../../../../core/models/cargo";
 import {Address} from "../../../../core/models/address";
 import {Route, RouteDTO} from "../../../../core/models/route";
@@ -16,7 +16,7 @@ import {Client, clientAddress, clientInfo} from "../../../../core/models/client"
   templateUrl: './carriage-form.component.html',
   styleUrls: ['./carriage-form.component.css'],
 })
-export class CarriageFormComponent implements OnInit {
+export class CarriageFormComponent implements OnInit, OnDestroy {
   current_step = 1;
   max_step = 5
   last_page = false;
@@ -40,6 +40,8 @@ export class CarriageFormComponent implements OnInit {
   dropAddress?: Address;
   route?: Observable<Route>;
   carriageStartTime = "";
+
+  private eventSubscription?: Subscription;
 
 
   getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
@@ -143,6 +145,13 @@ export class CarriageFormComponent implements OnInit {
         }
       })
     });
+
+    this.eventSubscription = this.modalService.eventEmitter.subscribe(() => {
+      console.log("event caught in parent");
+      this.cargo_row.clear();
+      this.selectedCargo.clear();
+      this.change_page(false);
+    });
   }
 
   add_new_row() {
@@ -169,6 +178,7 @@ export class CarriageFormComponent implements OnInit {
     })
   }
 
+
   change_page(isNextPage: boolean) {
     if (!isNextPage) {
       return this.current_step--;
@@ -177,7 +187,6 @@ export class CarriageFormComponent implements OnInit {
         return;
       }
       return this.current_step++;
-
     }
   }
 
@@ -222,6 +231,12 @@ export class CarriageFormComponent implements OnInit {
     });
 
     this.route = this.routeService.post(routeRequest);
+  }
+
+  ngOnDestroy() {
+    if (this.eventSubscription) {
+      this.eventSubscription.unsubscribe();
+    }
   }
 }
 

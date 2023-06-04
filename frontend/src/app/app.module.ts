@@ -7,7 +7,7 @@ import { DatePickerComponent } from './home/components/partials/date-picker/date
 import { MapComponent } from './home/components/partials/map/map.component';
 import { StepperComponent } from './home/components/partials/stepper/stepper.component';
 import { CarriageFormComponent } from './home/components/sites/carriage-form/carriage-form.component';
-import { TrucksetSetupComponent } from './home/components/sites/truckset-setup/truckset-setup.component';
+import { CarriageSummaryComponent } from './home/components/sites/carriage-summary/carriage-summary.component';
 import {CommonModule} from "@angular/common";
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {AutocompleteLibModule} from "angular-ng-autocomplete";
@@ -23,7 +23,7 @@ import {ErrorInterceptor} from "./core/interceptors/error.interceptor";
     MapComponent,
     StepperComponent,
     CarriageFormComponent,
-    TrucksetSetupComponent,
+    CarriageSummaryComponent,
     AddressFormGroupComponent,
     SpinnerComponent,
     ModalComponent,

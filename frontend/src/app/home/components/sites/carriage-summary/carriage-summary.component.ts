@@ -14,22 +14,20 @@ import {ModalService} from "../../../../core/services/modal.service";
 type set = { cargo: Cargo, amount: number, trailer: Trailer, truck: Truck, driver: Driver };
 
 @Component({
-  selector: 'app-truckset-setup',
-  templateUrl: './truckset-setup.component.html',
-  styleUrls: ['./truckset-setup.component.css'],
-
+  selector: 'app-carriage-summary',
+  templateUrl: './carriage-summary.component.html',
+  styleUrls: ['./carriage-summary.component.css'],
 })
-export class TrucksetSetupComponent implements OnInit {
-
+export class CarriageSummaryComponent implements OnInit {
   @Input() cargo!: Map<Cargo, number>;
   @Input() route!: Route;
   @Input() startDate!: string;
+  @Input() changePage!: (isNextPage: boolean) => number | undefined;
   endDate = "";
   trucks = new Array<Truck>();
   trailers: Array<Trailer> | undefined;
   drivers = new Map<LicencesKey, Driver[]>();
   sets = new Array<set>();
-  private bodyText = "";
 
   constructor(private driverService: DriverService, private trailerService: TrailerService,
               private truckService: TruckService, protected loaderService: LoaderService, protected modalService: ModalService) {
@@ -65,7 +63,6 @@ export class TrucksetSetupComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.bodyText = 'This text can be updated in modal 1';
     this.endDate = new Date(new Date(this.startDate).getTime() + this.route!.duration * 1000).toISOString();
 
     const truckObservable = this.truckService.getWithinDates(this.startDate, this.endDate);
@@ -89,9 +86,7 @@ export class TrucksetSetupComponent implements OnInit {
         });
         this.constructSets();
         this.loaderService.setLoading(false);
-
       });
 
   }
-
 }
