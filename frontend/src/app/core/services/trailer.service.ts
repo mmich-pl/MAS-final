@@ -25,7 +25,6 @@ export class TrailerService extends GenericCrudService<Trailer, string> {
     let body: { cargo_name: string, amount: number }[] = Array.from(load)
       .map(([cargo, amount]) => ({ cargo_name: cargo.name, amount: amount }));
 
-    console.log(body);
     return this._http
       .post<any>(`${import.meta.env['NG_APP_DATABASE_API']}trailer/filter`, body, queryString)
       .pipe(map((result) => Trailer.arrayFromJSON(result)));

@@ -1,12 +1,15 @@
 import {BaseModel} from "./base-model";
 import {CargoType, CargoTypeKey} from "./cargo";
 
-export class Truck {
+export class Truck extends BaseModel<Truck>{
   plate!: string;
   axis_number!: number;
   mileage!: number;
   brand!: string;
   purchase_date?: Date;
+  constructor(model: Partial<Truck>) {
+    super(model);
+  }
 }
 
 const TRAILER_TYPES = {
@@ -54,7 +57,6 @@ export class Trailer extends BaseModel<Trailer> {
         res.push(trailer)
       })
     })
-    console.log(res);
     return res;
   }
 
@@ -63,7 +65,6 @@ export class Trailer extends BaseModel<Trailer> {
     if (model.cargo_type_name != undefined && model.cargo_type_name!.length > 0) {
       model.cargo_type_name!.forEach((t) => {
         const cargoType = CargoType.getOrCreate(t);
-        console.log(cargoType);
         cargoType.addTrailer(this);
         this.cargo_type.push(cargoType);
       });

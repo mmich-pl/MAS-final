@@ -5,6 +5,7 @@ import {Cargo} from "../../../../core/models/cargo";
 import {Address} from "../../../../core/models/address";
 import {Route, RouteDTO} from "../../../../core/models/route";
 import {ClientService} from "../../../../core/services/client.service";
+import {ModalService} from "../../../../core/services/modal.service";
 import {CargoService} from "../../../../core/services/cargo.service";
 import {MapRoutingService, MapGeocodesService} from "../../../../core/services/map.service";
 import {Client, clientAddress, clientInfo} from "../../../../core/models/client";
@@ -46,7 +47,8 @@ export class CarriageFormComponent implements OnInit {
   }
 
   constructor(private clientService: ClientService, private cargoService: CargoService,
-              private geocodesService: MapGeocodesService, private routeService: MapRoutingService) {
+              private geocodesService: MapGeocodesService, private routeService: MapRoutingService,
+              private modalService: ModalService) {
 
     this.clients_name = new Array<string>();
 
@@ -133,7 +135,11 @@ export class CarriageFormComponent implements OnInit {
         let amount = x.get('amount')?.value;
 
         if (cargo != null && amount != null) {
-          this.selectedCargo.set(cargo, amount);
+          if (this.selectedCargo.has(cargo)) {
+            this.selectedCargo.set(cargo, this.selectedCargo.get(cargo) + amount);
+          } else {
+            this.selectedCargo.set(cargo, amount);
+          }
         }
       })
     });

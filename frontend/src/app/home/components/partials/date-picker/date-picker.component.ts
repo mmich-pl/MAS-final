@@ -37,11 +37,7 @@ export class DatePickerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.form.get('pickup_date')?.valueChanges.subscribe(date => {
-      console.log(date);
-    });
-
-    this.initDate();
+     this.initDate();
     this.getNoOfDays();
   }
 

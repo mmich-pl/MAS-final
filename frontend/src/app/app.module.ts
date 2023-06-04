@@ -9,11 +9,13 @@ import { StepperComponent } from './home/components/partials/stepper/stepper.com
 import { CarriageFormComponent } from './home/components/sites/carriage-form/carriage-form.component';
 import { TrucksetSetupComponent } from './home/components/sites/truckset-setup/truckset-setup.component';
 import {CommonModule} from "@angular/common";
-import {HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {AutocompleteLibModule} from "angular-ng-autocomplete";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { AddressFormGroupComponent } from './home/components/partials/address-form-group/address-form-group.component';
-
+import { SpinnerComponent } from './home/components/partials/spinner/spinner.component';
+import { ModalComponent } from './home/components/partials/modal/modal.component';
+import {ErrorInterceptor} from "./core/interceptors/error.interceptor";
 @NgModule({
   declarations: [
     AppComponent,
@@ -22,7 +24,9 @@ import { AddressFormGroupComponent } from './home/components/partials/address-fo
     StepperComponent,
     CarriageFormComponent,
     TrucksetSetupComponent,
-    AddressFormGroupComponent
+    AddressFormGroupComponent,
+    SpinnerComponent,
+    ModalComponent,
   ],
   imports: [
     CommonModule,
@@ -33,7 +37,13 @@ import { AddressFormGroupComponent } from './home/components/partials/address-fo
     ReactiveFormsModule,
     FormsModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ErrorInterceptor,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

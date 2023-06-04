@@ -13,7 +13,7 @@ export class DriverService extends GenericCrudService<Driver, string> {
     super(httpclient, `${import.meta.env['NG_APP_DATABASE_API']}driver`, Driver);
   }
 
-  getMatchingDrivers(start: string, end: string, licence: LicencesKey): Observable<Driver[]> {
+  getMatchingDrivers(start: string, end: string, licence: string): Observable<Driver[]> {
     const queryString = {
       params: new HttpParams()
         .set("pickup_date", start)

@@ -114,6 +114,7 @@
         </section>
         <section *ngIf="current_step === 4">
           <div *ngIf="route | async as route">
+<!--            <app-map [route]="route"></app-map>-->
             <app-truckset-setup [cargo]="selectedCargo" [route]="route" [startDate]="carriageStartTime"></app-truckset-setup>
           </div>
         </section>

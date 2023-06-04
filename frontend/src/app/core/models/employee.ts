@@ -34,7 +34,7 @@ export const Licences = {
 
 export type LicencesKey = typeof Licences[keyof typeof Licences];
 
-export class Driver extends Employee  {
+export class Driver extends Employee {
   driver_licence = {
     document_id: '',
     expiration_date: new Date(),
@@ -42,8 +42,9 @@ export class Driver extends Employee  {
   };
   owned_licences: string[] = [];
 
-  constructor(model: Partial<Driver> ) {
-    super(model);
+  constructor(model: Partial<Driver>) {
+    console.log(model);
+    super(JSON.parse(JSON.stringify(model))["employee"]);
 
     if (model.driver_licence) {
       this.driver_licence = {
@@ -55,7 +56,9 @@ export class Driver extends Employee  {
     if (model.owned_licences) {
       this.owned_licences = model.owned_licences;
     }
+  }
 
-
+  get name(): string {
+    return `${this.first_name} ${this.last_name}`;
   }
 }

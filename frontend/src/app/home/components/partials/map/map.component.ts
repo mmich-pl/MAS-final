@@ -1,9 +1,9 @@
 import {Component, ViewChild, ElementRef, Input, SimpleChanges, EventEmitter, Output, OnInit} from '@angular/core';
 
 import H from '@here/maps-api-for-javascript';
-import onResize from 'simple-element-resize-detector';
+import  onResize from 'simple-element-resize-detector';
 import {MapRoutingService} from "../../../../core/services/map.service";
-import {RouteDTO} from "../../../../core/models/route";
+import {Route} from "../../../../core/models/route";
 
 @Component({
   selector: 'app-map',
@@ -15,7 +15,7 @@ export class MapComponent implements OnInit{
   @Input() public lat = 0;
   @Input() public lng = 0;
 
-  @Input() public  routeDTO!:RouteDTO;
+  @Input() public  route!:Route;
 
   private readonly api_key = import.meta.env['NG_APP_API_KEY'];
   private map?: H.Map;
@@ -55,8 +55,8 @@ export class MapComponent implements OnInit{
         (layers as any).vector.normal.map,
         {
           pixelRatio: window.devicePixelRatio,
-          center: {lat: 0, lng: 0},
-          zoom: 2,
+          center: {lat: this.lat, lng: this.lng},
+          zoom: this.zoom,
         },
       );
       onResize(this.mapDiv.nativeElement, () => {
@@ -72,26 +72,23 @@ export class MapComponent implements OnInit{
     }
   }
   constructor(private service : MapRoutingService) {
-    this.zoom = 2;
-    this.lat = 0;
-    this.lng = 0;
-
-    console.log(this.routeDTO);
-    this.service.post(this.routeDTO).subscribe(val => {
-      console.log(val);
-      let linestrings = new Array<H.geo.LineString>()
-      val.sections.forEach(s => linestrings.push(H.geo.LineString.fromFlexiblePolyline(s.polyline)))
-
-      this.linestring = new H.geo.MultiLineString(linestrings);
-      this.lineOptions =  { data: null, style: {strokeColor:'blue', lineWidth:3}}
-
-      console.log(linestrings);
-    });
 
   }
+
   ngOnInit(): void {
+    this.zoom = 7;
+    this.lat = this.route.getCentreLat();
+    console.log(this.lat);
+    this.lng = this.route.getCentreLng();
+    console.log(this.lng);
 
+    let linestrings = new Array<H.geo.LineString>()
+    this.route.sections.forEach(s => linestrings.push(H.geo.LineString.fromFlexiblePolyline(s.polyline)))
 
+    this.linestring = new H.geo.MultiLineString(linestrings);
+    this.lineOptions =  { data: null, style: {strokeColor:'blue', lineWidth:3}}
+
+    console.log(linestrings);
   }
 
 }

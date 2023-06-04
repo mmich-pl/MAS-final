@@ -53,8 +53,6 @@ export class Route {
   sections = new FixedOrderContainer<Section>();
 
   public static fromJSON(json: any): Route {
-
-
     const route = new Route();
 
     route.origin = [json.sections[0].departure.place.location.lat, json.sections[0].departure.place.location.lng];
@@ -76,6 +74,14 @@ export class Route {
 
   get length(): number {
     return this.sections.map(c => c.length).reduce((sum, current) => sum + current);
+  }
+
+  getCentreLat() : number {
+    return (this.origin[0] + this.destination[0])/2;
+  }
+
+  getCentreLng() : number {
+    return (this.origin[1] + this.destination[1])/2;
   }
 
 }
