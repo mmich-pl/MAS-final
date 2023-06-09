@@ -133,11 +133,9 @@
             <app-load-section [formArray]="cargo_row" [form]="form"></app-load-section>
         </section>
         <section *ngIf="current_step === 4">
-          <div *ngIf="route | async as route">
             <!--            <app-map [route]="route"></app-map>-->
-            <app-set-selection [cargo]="selectedCargo" [route]="route" [startDate]="carriageStartTime"
+            <app-set-selection [cargo]="selectedCargo" [route]="route!" [addresses]="allAddresses" [startDate]="carriageStartTime"
                                   [changePage]="change_page"></app-set-selection>
-          </div>
         </section>
 
         <div class="mt-2 lg:flex justify-between border-b border-gray-200">

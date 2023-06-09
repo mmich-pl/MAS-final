@@ -1,12 +1,14 @@
 package models
 
-import "github.com/goccy/go-json"
+import (
+	"github.com/goccy/go-json"
+)
 
 type AddressRequest struct {
-	Street     string `json:"street"`
-	PostalCode string `json:"postalCode"`
-	City       string `json:"city"`
-	County     string `json:"county"`
+	Street     string `json:"street,omitempty"`
+	PostalCode string `json:"postalCode,omitempty"`
+	City       string `json:"city,omitempty"`
+	County     string `json:"county,omitempty"`
 }
 
 type Location struct {

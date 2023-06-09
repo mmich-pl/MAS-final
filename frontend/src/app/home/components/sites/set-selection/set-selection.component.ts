@@ -9,6 +9,7 @@ import {TruckService} from "../../../../core/services/truck.service";
 import {forkJoin, Observable} from "rxjs";
 import {LoaderService} from "../../../../core/services/loader.service";
 import {ModalService} from "../../../../core/services/modal.service";
+import {Address} from "../../../../core/models/address";
 
 
 type set = { cargo: Cargo, amount: number, trailer: Trailer, truck: Truck, driver: Driver };
@@ -23,6 +24,7 @@ export class SetSelectionComponent implements OnInit {
   @Input() route!: Route;
   @Input() startDate!: string;
   @Input() changePage!: (isNextPage: boolean) => number | undefined;
+  @Input() addresses!: Array<Address>;
   endDate = "";
   trucks = new Array<Truck>();
   trailers: Array<Trailer> | undefined;

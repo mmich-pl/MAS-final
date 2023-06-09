@@ -45,17 +45,39 @@ func sendGeocodingRequest(c *gin.Context, apiUrl string, address *models.Address
 	return data, nil
 }
 
-func findGeocodes(address models.AddressRequest) (*models.Geocoding, errors.ApiError) {
-	var geocodes models.Geocoding
-	index := strings.LastIndex(address.Street, " ")
-	street := address.Street[:index]
-	number := address.Street[index+1:]
-	filter := bson.M{"address.street": street, "address.housenumber": number, "address.city": address.City}
+func getMatchingAddress[T interface{}](filter bson.M) (*T, errors.ApiError) {
+	var geocodes T
 	log.Print(filter)
 	err := geocodingCollection.FindOne(context.Background(), filter).Decode(&geocodes)
 	if err != nil {
 		return nil, errors.NewInternalServerError(fmt.Sprintf("%v", err))
 	}
+	return &geocodes, nil
+}
+
+func getMatchingAddresses[T interface{}](filter bson.M) (*[]T, errors.ApiError) {
+	var geocodes []T
+	log.Print(filter)
+	col, err := geocodingCollection.Find(context.Background(), filter)
+	if err != nil {
+		return nil, errors.NewInternalServerError(fmt.Sprintf("%v", err))
+	}
+
+	for col.Next(context.Background()) {
+		var elem T
+		err = col.Decode(&elem)
+		if err != nil {
+			return nil, errors.NewInternalServerError(fmt.Sprintf("%v", err))
+		}
+		geocodes = append(geocodes, elem)
+	}
+
+	if err = col.Err(); err != nil {
+		return nil, errors.NewInternalServerError(fmt.Sprintf("%v", err))
+	}
+
+	col.Close(context.Background())
+
 	return &geocodes, nil
 }
 
@@ -75,7 +97,12 @@ func GetGeocoding(c *gin.Context) {
 		return
 	}
 
-	codes, apiErr := findGeocodes(address)
+	index := strings.LastIndex(address.Street, " ")
+	street := address.Street[:index]
+	number := address.Street[index+1:]
+	filter := bson.M{"address.street": street, "address.housenumber": number, "address.city": address.City}
+
+	codes, apiErr := getMatchingAddress[models.Geocoding](filter)
 	if codes != nil {
 		c.JSON(http.StatusOK, codes)
 		return
@@ -98,4 +125,23 @@ func GetGeocoding(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, codes)
+}
+
+func GetAddress(c *gin.Context) {
+	params, exists := c.GetQuery("street")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "street query parameters is required"})
+		return
+	}
+	filter := bson.M{"address.street": bson.M{"$regex": params, "$options": "i"}}
+
+	codes, apiErr := getMatchingAddresses[models.Geocoding](filter)
+	if codes != nil {
+		c.JSON(http.StatusOK, codes)
+		return
+	} else {
+		log.Error().Msg(apiErr.Message())
+		c.JSON(http.StatusBadRequest, apiErr.Message())
+		return
+	}
 }

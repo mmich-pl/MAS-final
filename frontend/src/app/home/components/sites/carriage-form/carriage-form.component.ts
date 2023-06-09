@@ -41,9 +41,9 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
 
   pickupAddress?: Address;
   dropAddress?: Address;
-  route?: Observable<Route>;
+  allAddresses=new Array<Address>();
+  route?: Route;
   carriageStartTime = "";
-
 
 
   private selectedCargoSubscription?: Subscription;
@@ -159,42 +159,53 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
   }
 
   getRoute() {
-    // forkJoin([
-    //   this.geocodesService.geocodesFromRaw(JSON.stringify(this.form.get('pickup_address')?.getRawValue())),
-    //   this.geocodesService.geocodesFromRaw(JSON.stringify(this.form.get('destination_address')?.getRawValue()))
-    // ]).subscribe(([pickupAddress, dropAddress]) => {
-    //   this.pickupAddress = pickupAddress;
-    //   this.dropAddress = dropAddress;
-    //
-    //   console.log(this.pickupAddress);
-    //   console.log(this.dropAddress);
-    //
-    //   let date = this.time_section.get('pickup_date')?.value;
-    //   let time = this.time_section.get('time')?.value;
-    //   let pickup_date_time = new Date(`${date} ${time}`).toISOString();
-    //
-    //   let routeRequest = new RouteDTO({
-    //     origin: [this.pickupAddress.latitude!, this.pickupAddress.longitude!],
-    //     destination: [this.dropAddress.latitude!, this.dropAddress.longitude!],
-    //     departureTime: pickup_date_time,
-    //   });
-    //
-    //   console.log(routeRequest);
-    //   this.routeService.post(routeRequest).subscribe(route => {
-    //     console.log(route);
-    //     this.route = route;
-    //   })
-    // });
+    forkJoin([
+      this.geocodesService.geocodesFromRaw(JSON.stringify(this.form.get('pickup_address')?.getRawValue())),
+      this.geocodesService.geocodesFromRaw(JSON.stringify(this.form.get('destination_address')?.getRawValue())),
+      ...this.address_row.getRawValue().map(address => this.geocodesService.geocodesFromRaw(JSON.stringify((address))))
+    ]).subscribe(([pickupAddress, dropAddress, ...allGeocodedAddresses]) => {
+      this.pickupAddress = pickupAddress;
+      this.dropAddress = dropAddress;
+      this.allAddresses = allGeocodedAddresses;
 
-    this.carriageStartTime = new Date("2023-05-31T18:20:00.000Z").toISOString()
+      console.log(this.pickupAddress);
+      console.log(this.dropAddress);
 
-    let routeRequest = new RouteDTO({
-      origin: [50.42264, 14.91633],
-      destination: [52.29238, 20.92725],
-      departureTime: this.carriageStartTime,
+      let date = this.time_section.get('pickup_date')?.value;
+      let time = this.time_section.get('time')?.value;
+      let pickup_date_time = new Date(`${date} ${time}`).toISOString();
+
+      let routeRequest = new RouteDTO({
+        origin: [this.pickupAddress.latitude!, this.pickupAddress.longitude!],
+        destination: [this.dropAddress.latitude!, this.dropAddress.longitude!],
+        departureTime: pickup_date_time,
+      });
+
+      if (allGeocodedAddresses.length > 0 ){
+        let via = new Array<[number, number]>();
+        this.allAddresses.forEach(a => via.push([a.latitude!, a.longitude!]));
+        routeRequest.via = via;
+      }
+
+      this.allAddresses.push(pickupAddress);
+      this.allAddresses.push(dropAddress);
+
+      console.log(routeRequest);
+      this.routeService.post(routeRequest).subscribe(route => {
+        console.log(route);
+        this.route = route;
+      })
     });
 
-    this.route = this.routeService.post(routeRequest);
+    // this.carriageStartTime = new Date("2023-05-31T18:20:00.000Z").toISOString()
+    //
+    // let routeRequest = new RouteDTO({
+    //   origin: [50.42264, 14.91633],
+    //   destination: [52.29238, 20.92725],
+    //   departureTime: this.carriageStartTime,
+    // });
+    //
+    // this.route = this.routeService.post(routeRequest);
   }
 
   ngOnDestroy() {

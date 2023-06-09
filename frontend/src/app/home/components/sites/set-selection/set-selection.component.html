@@ -12,6 +12,8 @@
         <th class="text-left py-3 px-4 font-semibold uppercase">Trailer</th>
         <th class="text-left py-3 px-4 font-semibold uppercase">Truck</th>
         <th class="text-left py-3 px-4 font-semibold uppercase">Driver</th>
+        <th class="text-left py-3 px-4 font-semibold uppercase">Address</th>
+        <th class="text-left py-3 px-4 font-semibold uppercase">Action</th>
       </tr>
       </thead>
       <tbody>
@@ -32,6 +34,17 @@
         <td class="border-t px-4 py-3">
           <select class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200">
             <option *ngFor="let d of this.drivers.get(s.cargo.required_licence)" [ngValue]="d">{{d.name}}</option>
+          </select>
+        </td>
+        <td class="border-t px-4 py-3">
+          <select class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200">
+            <option *ngFor="let d of this.addresses" [ngValue]="d">{{d.street}}, {{d.city}}</option>
+          </select>
+        </td>
+        <td class="border-t px-4 py-3">
+          <select class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200">
+            <option  [ngValue]="'pickup'">Pickup</option>
+            <option  [ngValue]="'drop'">Drop</option>
           </select>
         </td>
       </tr>
