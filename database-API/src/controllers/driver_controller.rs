@@ -81,6 +81,7 @@ async fn get(params: Query<HashMap<String, String>>, db: web::Data<DbClient>) ->
         let err = APIError::ParameterError(String::from("drop_date"));
         return HttpResponse::InternalServerError().json(err.to_string());
     };
+    let expected_number = params.0.get("number").unwrap().parse::<usize>().unwrap();
 
     let mut licences = Vec::new();
     if param.is_some() {
@@ -89,7 +90,15 @@ async fn get(params: Query<HashMap<String, String>>, db: web::Data<DbClient>) ->
     }
 
     match Driver::get_with_licences(&db, licences, pickup, drop).await {
-        Ok(clients) => HttpResponse::Ok().json(clients),
+        Ok(drivers) => {
+            if drivers.len() < expected_number {
+                HttpResponse::InternalServerError().json(
+                    APIError::CantMatch(format!("Not enough drivers: Now there is only {} \
+                    drivers but to realize carriage {} is necessary", drivers.len(), expected_number)).to_string())
+            } else {
+                HttpResponse::Ok().json(drivers)
+            }
+        }
         Err(e) => HttpResponse::InternalServerError().json(e.to_string()),
     }
 }
