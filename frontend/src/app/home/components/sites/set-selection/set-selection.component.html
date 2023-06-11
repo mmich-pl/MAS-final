@@ -12,12 +12,12 @@
         <th class="text-left py-3 px-4 font-semibold uppercase">Trailer</th>
         <th class="text-left py-3 px-4 font-semibold uppercase">Truck</th>
         <th class="text-left py-3 px-4 font-semibold uppercase">Driver</th>
-        <th class="text-left py-3 px-4 font-semibold uppercase">Address</th>
-        <th class="text-left py-3 px-4 font-semibold uppercase">Action</th>
+        <th class="text-left py-3 px-4 font-semibold uppercase">Pickup Address</th>
+        <th class="text-left py-3 px-4 font-semibold uppercase">Drop Address</th>
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let s of this.sets">
+      <tr *ngFor="let s of this.sets; let i = index">
 
         <td class="border-t px-4 py-3">
           <p class="text-gray-700">{{s.cargo.name}}</p>
@@ -26,25 +26,34 @@
           <p class="text-gray-700">{{s.amount}} {{s.cargo.unit}}</p>
         </td>
         <td class="border-t px-4 py-3">
-          <p class="text-gray-700">{{s.trailer.plate}} ({{s.trailer.carrying_capacity}} {{s.cargo.unit}})</p>
+          <select class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  [(ngModel)]="s.trailer">
+            <option *ngFor="let d of this.trailers" [ngValue]="d">{{d.plate}} ({{d.carrying_capacity}} {{s.cargo.unit}})</option>
+          </select>
+          <p class="text-gray-700"></p>
         </td>
         <td class="border-t px-4 py-3">
-          <p class="text-gray-700">{{s.truck.plate}}</p>
+          <select class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  [(ngModel)]="s.truck">
+            <option *ngFor="let d of this.trucks" [ngValue]="d">{{d.plate}}</option>
+          </select>
         </td>
         <td class="border-t px-4 py-3">
-          <select class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200">
+          <select class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  [(ngModel)]="s.driver">
             <option *ngFor="let d of this.drivers.get(s.cargo.required_licence)" [ngValue]="d">{{d.name}}</option>
           </select>
         </td>
         <td class="border-t px-4 py-3">
-          <select class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200">
+          <select class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  [(ngModel)]="s.pickup_address">
             <option *ngFor="let d of this.addresses" [ngValue]="d">{{d.street}}, {{d.city}}</option>
           </select>
         </td>
         <td class="border-t px-4 py-3">
-          <select class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200">
-            <option  [ngValue]="'pickup'">Pickup</option>
-            <option  [ngValue]="'drop'">Drop</option>
+          <select class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  [(ngModel)]="s.drop_address">
+            <option *ngFor="let d of this.addresses" [ngValue]="d">{{d.street}}, {{d.city}}</option>
           </select>
         </td>
       </tr>
