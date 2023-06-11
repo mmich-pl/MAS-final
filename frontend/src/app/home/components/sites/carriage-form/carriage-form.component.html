@@ -3,7 +3,7 @@
   <div class="w-full px-8">
     <form [formGroup]="form" autocomplete="off">
       <app-stepper [currentStep]="current_step"></app-stepper>
-      <div class="xl:px-24 mx-28">
+      <div class="xl:px-16 mx-12">
         <section *ngIf="current_step === 1">
           <div class="mt-8 lg:flex justify-between border-b border-gray-200 pb-12">
             <div class="w-80">
@@ -89,13 +89,15 @@
               <div class="w-full">
                 <ul class="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row">
                   <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
-                    <a class="text-xs font-bold uppercase px-5 py-3 rounded block leading-normal cursor-pointer" (click)="toggleTabs(1)"
+                    <a class="text-xs font-bold uppercase px-5 py-3 rounded block leading-normal cursor-pointer"
+                       (click)="toggleTabs(1)"
                        [ngClass]="{'text-indigo-700 bg-white border border-indigo-700': currentTab !== 1, 'text-white bg-indigo-700': currentTab === 1}">
                       <i class="fas fa-space-shuttle text-base mr-1"></i> Origin and destination
                     </a>
                   </li>
                   <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
-                    <a class="text-xs font-bold uppercase px-5 py-3 rounded block leading-normal cursor-pointer" (click)="toggleTabs(2)"
+                    <a class="text-xs font-bold uppercase px-5 py-3 rounded block leading-normal cursor-pointer"
+                       (click)="toggleTabs(2)"
                        [ngClass]="{'text-indigo-700 bg-white border border-indigo-700': currentTab !== 2, 'text-white bg-indigo-700': currentTab === 2}">
                       <i class="fas fa-cog text-base mr-1"></i> Additional stops
                     </a>
@@ -107,12 +109,15 @@
                       <div [ngClass]="{'hidden': currentTab !== 1, 'block': currentTab === 1}">
                         <div class="container mx-auto grid sm:grid-cols-1 md:grid-cols-2 pt-6 gap-8">
                           <div>
-                            <h2 tabindex="0" class="focus:outline-none text-xl mx-auto font-medium pr-2 leading-5 text-gray-800">
+                            <h2 tabindex="0"
+                                class="focus:outline-none text-xl mx-auto font-medium pr-2 leading-5 text-gray-800">
                               Pickup Address</h2>
-                            <app-address-form-group [countries]="countries" [form]="pickup_address_form"></app-address-form-group>
+                            <app-address-form-group [countries]="countries"
+                                                    [form]="pickup_address_form"></app-address-form-group>
                           </div>
                           <div>
-                            <h2 tabindex="0" class="focus:outline-none text-xl mx-auto font-medium pr-2 leading-5 text-gray-800">
+                            <h2 tabindex="0"
+                                class="focus:outline-none text-xl mx-auto font-medium pr-2 leading-5 text-gray-800">
                               Drop Address</h2>
                             <app-address-form-group [countries]="countries"
                                                     [form]="destination_address_form"></app-address-form-group>
@@ -120,7 +125,8 @@
                         </div>
                       </div>
                       <div [ngClass]="{'hidden': currentTab !== 2, 'block': currentTab === 2}">
-                        <app-address-form-array [form]="form" [formArray]="address_row" [countries]="countries"></app-address-form-array>
+                        <app-address-form-array [form]="form" [formArray]="address_row"
+                                                [countries]="countries"></app-address-form-array>
                       </div>
                     </div>
                   </div>
@@ -130,14 +136,22 @@
           </div>
         </section>
         <section *ngIf="current_step === 3">
-            <app-load-section [formArray]="cargo_row" [form]="form"></app-load-section>
+          <app-load-section [formArray]="cargo_row" [form]="form"></app-load-section>
         </section>
         <section *ngIf="current_step === 4">
-            <!--            <app-map [route]="route"></app-map>-->
-            <app-set-selection [cargo]="selectedCargo" [route]="route!" [addresses]="allAddresses" [startDate]="carriageStartTime"
-                                  [changePage]="change_page"></app-set-selection>
+          <div *ngIf="route | async as route">
+            <app-set-selection [cargo]="selectedCargo" [duration]="route!.duration" [addresses]="allAddresses"
+                               [startDate]="carriageStartTime" [changePage]="change_page"
+                               (setEmitter)="handleSets($event)"></app-set-selection>
+          </div>
         </section>
-
+        <section *ngIf="current_step === 5">
+          <div *ngIf="route | async as route">
+            <app-submit-panel [route]="route!" [pickupAddress]="pickupAddress!" [dropAddress]="dropAddress!"
+                              [startDate]="carriageStartTime" [sets]="sets" [client]="Client.fromJSON(client_section.value)"
+            ></app-submit-panel>
+          </div>
+        </section>
         <div class="mt-2 lg:flex justify-between border-b border-gray-200">
           <div class="w-80"></div>
           <div class="md:flex items-center lg:ml-24">
@@ -154,7 +168,9 @@
               <button role="button" aria-label="Next step"
                       class="flex items-center justify-center py-4 px-7 focus:outline-none bg-white border rounded border-gray-400 mt-7 md:mt-14 hover:bg-gray-100  focus:ring-2 focus:ring-offset-2 focus:ring-gray-700"
                       *ngIf="current_step < max_step"
-                      (click)="current_step ===2?[getRoute(),change_page(true)]:change_page(true)" type="button"><span
+                      (click)="current_step ===2?[getRoute(),change_page(true)]:
+                      current_step===4?[callSendDataToParent(), change_page(true)]:
+                      change_page(true)" type="button"><span
                 class="text-sm font-medium text-center text-gray-800 capitalize">Next Step</span></button>
 
               <button role="button" aria-label="Next step"

@@ -8,7 +8,7 @@ import { MapComponent } from './home/components/partials/map/map.component';
 import { StepperComponent } from './home/components/partials/stepper/stepper.component';
 import { CarriageFormComponent } from './home/components/sites/carriage-form/carriage-form.component';
 import { SetSelectionComponent } from './home/components/sites/set-selection/set-selection.component';
-import {CommonModule} from "@angular/common";
+import {CommonModule, NgOptimizedImage} from "@angular/common";
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {AutocompleteLibModule} from "angular-ng-autocomplete";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
@@ -16,9 +16,11 @@ import { AddressFormGroupComponent } from './home/components/partials/address-fo
 import { SpinnerComponent } from './home/components/partials/spinner/spinner.component';
 import { ModalComponent } from './home/components/partials/modal/modal.component';
 import {ErrorInterceptor} from "./core/interceptors/error.interceptor";
-import { SidebarComponent } from './home/components/partials/navigation/sidebar/sidebar.component';
 import { LoadSectionComponent } from './home/components/partials/load-section/load-section.component';
 import { AddressFormArrayComponent } from './home/components/partials/address-form-array/address-form-array.component';
+import { SubmitPanelComponent } from './home/components/sites/submit-panel/submit-panel.component';
+import { HeaderComponent } from './home/components/partials/navigation/header/header.component';
+import { SidebarComponent } from './home/components/partials/navigation/sidebar/sidebar.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -30,9 +32,11 @@ import { AddressFormArrayComponent } from './home/components/partials/address-fo
     AddressFormGroupComponent,
     SpinnerComponent,
     ModalComponent,
-    SidebarComponent,
     LoadSectionComponent,
     AddressFormArrayComponent,
+    SubmitPanelComponent,
+    HeaderComponent,
+    SidebarComponent,
   ],
   imports: [
     CommonModule,
@@ -42,6 +46,7 @@ import { AddressFormArrayComponent } from './home/components/partials/address-fo
     AutocompleteLibModule,
     ReactiveFormsModule,
     FormsModule,
+    NgOptimizedImage,
   ],
   providers: [
     {

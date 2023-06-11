@@ -5,7 +5,7 @@ import {BehaviorSubject} from 'rxjs';
   providedIn: 'root'
 })
 export class ModalService {
-  private show: boolean = true;
+  private show: boolean = false;
   private headerSource = new BehaviorSubject<string>('Initial Header');
   currentHeader = this.headerSource.asObservable();
   private contentSource = new BehaviorSubject<string>('Initial Content');
@@ -15,8 +15,8 @@ export class ModalService {
   constructor() {
   }
 
-  setVisibility(loading: boolean) {
-    this.show = loading;
+  setVisibility(visible: boolean) {
+    this.show = visible;
   }
 
   getVisibility(): boolean {

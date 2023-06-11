@@ -11,6 +11,10 @@ export class Client extends BaseModel<Client> {
   constructor(model: Partial<Client>) {
     super(model);
   }
+
+ static fromJSON(value: any): Client {
+    return new Client(JSON.parse(JSON.stringify(value)));
+  }
 }
 
 export type clientInfo = Omit<Client, "name" | "Address">

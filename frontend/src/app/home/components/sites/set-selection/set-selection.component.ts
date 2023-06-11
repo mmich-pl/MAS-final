@@ -11,7 +11,7 @@ import {LoaderService} from "../../../../core/services/loader.service";
 import {ModalService} from "../../../../core/services/modal.service";
 import {Address} from "../../../../core/models/address";
 
-type set = {
+export type set = {
   cargo: Cargo,
   amount: number,
   trailer?: Trailer,
@@ -32,7 +32,7 @@ export class SetSelectionComponent implements OnInit {
   @Input() duration!: number;
   @Input() changePage!: (isNextPage: boolean) => number | undefined;
   @Input() addresses!: Array<Address>;
-  @Output() setEmitter: EventEmitter<any> = new EventEmitter<any>();
+  @Output() setEmitter: EventEmitter<Array<set>> = new EventEmitter<Array<set>>();
 
   endDate = "";
   trucks = new Array<Truck>();

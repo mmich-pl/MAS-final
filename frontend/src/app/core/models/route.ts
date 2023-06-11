@@ -1,4 +1,5 @@
 import {BaseModel} from "./base-model";
+import {Address} from "./address";
 
 class FixedOrderContainer<T> {
   private readonly _items: Array<T>;
@@ -24,10 +25,14 @@ class FixedOrderContainer<T> {
   forEach(callback: (item: T, index: number, array: ReadonlyArray<T>) => void): void {
     this._items.forEach(callback);
   }
+
+  filter(callback: (item: T, index: number, array: ReadonlyArray<T>) => boolean): T[] {
+    return this._items.filter(callback);
+  }
 }
 
 export class Section {
-  id!:number;
+  id!: number;
   origin = new Array<number>(2);
   destination = new Array<number>(2);
   polyline = "";
@@ -73,16 +78,35 @@ export class Route {
     return this.sections.map(c => c.duration).reduce((sum, current) => sum + current);
   }
 
+  get formatted_duration(): string {
+    let seconds = this.duration;
+    let h = Math.floor(seconds / 3600);
+    let m = Math.floor(seconds % 3600 / 60);
+    let hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
+    let mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
+    return hDisplay + mDisplay
+  }
+
   get length(): number {
     return this.sections.map(c => c.length).reduce((sum, current) => sum + current);
   }
 
-  getCentreLat() : number {
-    return (this.origin[0] + this.destination[0])/2;
+  get centreLat(): number {
+    return (this.origin[0] + this.destination[0]) / 2;
   }
 
-  getCentreLng() : number {
-    return (this.origin[1] + this.destination[1])/2;
+  get centreLng(): number {
+    return (this.origin[1] + this.destination[1]) / 2;
+  }
+
+  findSection(address: Address, action: string): Section[] {
+    let equal = (arr1: any[], arr2: any[]) => {
+      return (arr1.length !== arr2.length) ? false :
+        arr1.every((value, index) => value === arr2[index]);
+    }
+    return this.sections.filter(a => (action == "Drop") ?
+      equal(a.destination, [address.latitude, address.longitude]) :
+      equal(a.origin, [address.latitude, address.longitude]))
   }
 
 }

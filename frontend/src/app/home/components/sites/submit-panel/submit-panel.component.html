@@ -1,0 +1,128 @@
+<div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 items-center gap-12">
+    <div class="bg-white dark:bg-gray-800 rounded py-5 pl-6 flex items-start shadow">
+      <div class="text-gray-700 dark:text-gray-400">
+        <img class="dark:hidden"
+             src="https://tuk-cdn.s3.amazonaws.com/can-uploader/medium_stat_cards_alternate_style-svg1.svg" alt="icon"/>
+        <img class="hidden dark:block"
+             src="https://tuk-cdn.s3.amazonaws.com/can-uploader/medium_stat_cards_alternate_style-svg1dark.svg"
+             alt="icon"/>
+      </div>
+      <div class="pl-3 pr-10 mt-1">
+        <h3 tabindex="0" class="focus:outline-none font-normal leading-4 text-gray-800 dark:text-gray-100 text-base">
+          Pickup From</h3>
+        <div class="flex items-end mt-2">
+          <div class="mt-3">
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{pickupAddress.street}}</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{pickupAddress.state}}</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{pickupAddress.postalCode}}, {{pickupAddress.city}}</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{pickupAddress.country}}</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded py-5 pl-6 flex items-start shadow">
+      <div class="text-gray-700 dark:text-gray-400">
+        <img class="dark:hidden"
+             src="https://tuk-cdn.s3.amazonaws.com/can-uploader/medium_stat_cards_alternate_style-svg1.svg" alt="icon"/>
+        <img class="hidden dark:block"
+             src="https://tuk-cdn.s3.amazonaws.com/can-uploader/medium_stat_cards_alternate_style-svg1dark.svg"
+             alt="icon"/>
+      </div>
+      <div class="pl-3 pr-10 mt-1">
+        <h3 tabindex="0" class="focus:outline-none font-normal leading-4 text-gray-800 dark:text-gray-100 text-base">
+          Ship To</h3>
+        <div class="flex items-end mt-2">
+          <div class="mt-3">
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{dropAddress.street}}</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{dropAddress.state}}</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{dropAddress.postalCode}}, {{dropAddress.city}}</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{dropAddress.country}}</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded py-5 pl-6 flex items-start shadow">
+      <div class="text-gray-700 dark:text-gray-400">
+        <img class="dark:hidden"
+             src="https://tuk-cdn.s3.amazonaws.com/can-uploader/medium_stat_cards_alternate_style-svg1.svg" alt="icon"/>
+      </div>
+      <div class="pl-3 pr-10 mt-1">
+        <h3 tabindex="0" class="focus:outline-none font-normal leading-4 text-gray-800 dark:text-gray-100 text-base">
+          Pickup and Delivery</h3>
+        <div class="flex items-end mt-2">
+          <div class="mt-3">
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{startDate}}</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{endDate}}</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{route.formatted_duration}}</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400"> </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded py-5 pl-6 flex items-start shadow">
+      <div class="text-gray-700 dark:text-gray-400">
+        <img class="dark:hidden"
+             src="https://tuk-cdn.s3.amazonaws.com/can-uploader/medium_stat_cards_alternate_style-svg1.svg" alt="icon"/>
+
+      </div>
+      <div class="pl-3 pr-10 mt-1">
+        <h3 tabindex="0" class="focus:outline-none font-normal leading-4 text-gray-800 dark:text-gray-100 text-base">
+          Client Data</h3>
+        <div class="flex items-end mt-2">
+          <div class="mt-3">
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{client.name}}</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{client.phone}}</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{client.email}}</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400"> </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+  <div class="grid md:grid-cols-2 gap-4 md:gap-8 xl:gap-20 md:items-center">
+    <div>
+      <table class="w-full whitespace-nowrap">
+        <tbody class="w-full">
+        <tr *ngFor="let s of sets"
+            tabindex="0"
+            class="focus:outline-none h-20 text-sm leading-none text-gray-800 dark:text-white  bg-white dark:bg-gray-800  border-b border-t border-gray-100 dark:border-gray-700 ">
+          <td class="pl-4 cursor-pointer">
+            <div class="flex items-center">
+              <div class="w-10 h-10">
+                <img class="w-full h-full" src="https://cdn.tuk.dev/assets/templates/olympus/projects.png"
+                     alt="UX Design and Visual Strategy"/>
+              </div>
+              <div class="pl-4">
+                <p class="font-medium">Trailer: {{s.trailer?.type}} ({{s.trailer?.plate}})</p>
+                <p class="text-xs leading-3 text-gray-600 dark:text-gray-200  pt-2">Truck: {{s.truck?.brand}}
+                  ({{s.truck?.plate}})</p>
+              </div>
+            </div>
+          </td>
+          <td class="pl-12">
+            <p class="text-sm font-medium leading-none text-gray-800 dark:text-white ">
+              Driver: {{s.driver?.name}}</p>
+
+          </td>
+          <td class="pl-12">
+            <p class="font-medium">Phone: {{s.driver?.phone}}</p>
+          </td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    <div class="relative ml-4">
+      <app-map [route]="route!"></app-map>
+    </div>
+  </div>
+</div>

@@ -91,6 +91,7 @@ func (c *Client) AddRoutingParams(q *url.Values, route *models.RouteRequest) {
 
 func (c *Client) AddGeocodingParams(q *url.Values, address *models.AddressRequest) {
 	q.Add("apiKey", c.key)
+	q.Add("lang", "en-US")
 	q.Add("q", fmt.Sprintf("%s, %s %s, %s",
 		address.Street, address.PostalCode, address.City, address.County))
 }

@@ -43,7 +43,6 @@ export class Driver extends Employee {
   owned_licences: string[] = [];
 
   constructor(model: Partial<Driver>) {
-    console.log(model);
     super(JSON.parse(JSON.stringify(model))["employee"]);
 
     if (model.driver_licence) {

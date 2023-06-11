@@ -11,11 +11,11 @@ import {Route} from "../../../../core/models/route";
   styleUrls: ['./map.component.css']
 })
 export class MapComponent implements OnInit{
-  @Input() public zoom = 2;
-  @Input() public lat = 0;
-  @Input() public lng = 0;
+  @Input()  zoom = 2;
+  @Input()  lat = 0;
+  @Input()  lng = 0;
 
-  @Input() public  route!:Route;
+  @Input()  route!:Route;
 
   private readonly api_key = import.meta.env['NG_APP_API_KEY'];
   private map?: H.Map;
@@ -71,24 +71,20 @@ export class MapComponent implements OnInit{
       this.map = map;
     }
   }
-  constructor(private service : MapRoutingService) {
+  constructor() {
 
   }
 
   ngOnInit(): void {
     this.zoom = 7;
-    this.lat = this.route.getCentreLat();
-    console.log(this.lat);
-    this.lng = this.route.getCentreLng();
-    console.log(this.lng);
+    this.lat = this.route.centreLat;
+    this.lng = this.route.centreLng;
 
     let linestrings = new Array<H.geo.LineString>()
     this.route.sections.forEach(s => linestrings.push(H.geo.LineString.fromFlexiblePolyline(s.polyline)))
 
     this.linestring = new H.geo.MultiLineString(linestrings);
     this.lineOptions =  { data: null, style: {strokeColor:'blue', lineWidth:3}}
-
-    console.log(linestrings);
   }
 
 }
