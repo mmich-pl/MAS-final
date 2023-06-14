@@ -2,13 +2,26 @@ import {BaseModel} from "./base-model";
 import {CargoType, CargoTypeKey} from "./cargo";
 
 export class Truck extends BaseModel<Truck>{
-  plate!: string;
+  static alreadyReservedPlates = new Map<string, Truck>();
+
+  readonly plate!: string;
   axis_number!: number;
   mileage!: number;
   brand!: string;
   purchase_date?: Date;
   constructor(model: Partial<Truck>) {
     super(model);
+
+    if (Trailer.alreadyReservedPlates.has(model.plate!) || Truck.alreadyReservedPlates.has(model.plate!) ) {
+      throw new Error("plate is not unique");
+    } else {
+      Truck.alreadyReservedPlates.set(model.plate!, this);
+    }
+  }
+
+  override toJSON(): any {
+    console.log("truck");
+    return super.toJSON();
   }
 }
 
@@ -17,7 +30,7 @@ const TRAILER_TYPES = {
   FLATBED: "Flatbed",
   LOGGER: "Logger",
   TANK: "Tank",
-  DRY_FREIGHTER: "Freighter",
+  DRY_FREIGHTER: "Dry Freighter",
   SILO: "Silo",
   Refrigerated: "Refrigerated",
   LIVESTOCK_TRAILER: "Livestock"
@@ -26,9 +39,9 @@ const TRAILER_TYPES = {
 type TrailerType = keyof typeof TRAILER_TYPES;
 
 export class Trailer extends BaseModel<Trailer> {
+  static alreadyReservedPlates = new Map<string, Trailer>();
 
-
-  plate!: string;
+  readonly plate!: string;
   axis_number!: number;
   carrying_capacity!: number;
   brand!: string;
@@ -52,7 +65,6 @@ export class Trailer extends BaseModel<Trailer> {
             break;
           }
         }
-
         type?.addTrailer(trailer);
         res.push(trailer)
       })
@@ -62,6 +74,13 @@ export class Trailer extends BaseModel<Trailer> {
 
   constructor(model: Partial<Trailer>) {
     super(model);
+
+    if (Trailer.alreadyReservedPlates.has(model.plate!) || Truck.alreadyReservedPlates.has(model.plate!) ) {
+      throw new Error("plate is not unique");
+    } else {
+      Trailer.alreadyReservedPlates.set(model.plate!, this);
+    }
+
     if (model.cargo_type_name != undefined && model.cargo_type_name!.length > 0) {
       model.cargo_type_name!.forEach((t) => {
         const cargoType = CargoType.getOrCreate(t);
@@ -69,7 +88,5 @@ export class Trailer extends BaseModel<Trailer> {
         this.cargo_type.push(cargoType);
       });
     }
-
-
   }
 }

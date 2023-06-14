@@ -21,7 +21,7 @@ export class CargoType {
   static cargoTypes = new Array<CargoType>();
 
   type: CargoTypeKey;
-  private _cargo = new Array<Cargo>();
+  private _cargo = new Map<String, Cargo>();
   private _trailers = new Array<Trailer>();
 
   constructor(type: CargoTypeKey) {
@@ -33,18 +33,15 @@ export class CargoType {
 
   static getOrCreate(type: CargoTypeKey): CargoType {
     let exist = CargoType.cargoTypes.find((t) => t.type == type);
-    if (exist) {
-      return exist
-    }
-    return new CargoType(type)
+    return (exist) ? exist : new CargoType(type);
   }
 
-  addCargo(cargo: Cargo) {
-    this._cargo.push(cargo)
+  addCargo(name: string, cargo: Cargo) {
+    if (!this._cargo.has(name)) this._cargo.set(name, cargo);
   }
 
   addTrailer(trailer: Trailer) {
-    this._trailers.push(trailer)
+    if (!this._trailers.includes(trailer)) this._trailers.push(trailer)
   }
 
   getTrailers(): Array<Trailer> {
@@ -52,7 +49,7 @@ export class CargoType {
   }
 
   mapCargoNameToType(cargo_name: string): CargoType | null | undefined {
-    return this._cargo.find((cargo) => cargo.name === cargo_name)?.type;
+    return this._cargo.get(cargo_name)?.type;
   }
 }
 
@@ -62,14 +59,14 @@ export class Cargo extends BaseModel<Cargo> {
   unit!: string;
   required_licence!: LicencesKey;
   type_name!: CargoTypeKey;
-  type: CargoType | null;
+  type!: CargoType;
 
   constructor(model: Partial<Cargo>) {
     super(model);
-
-    this.type = (model.type_name != undefined) ?
-      CargoType.getOrCreate(model.type_name) : null;
-    this.type?.addCargo(this);
+    if (model.type_name != undefined) {
+      this.type = CargoType.getOrCreate(model.type_name);
+      this.type.addCargo(this.name, this);
+    }
 
     this.required_licence = (model.required_licence) ? model.required_licence : Licences.NotRequired;
     console.log(this);

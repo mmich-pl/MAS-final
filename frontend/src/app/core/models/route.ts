@@ -32,28 +32,33 @@ class FixedOrderContainer<T> {
 }
 
 export class Section {
-  id!: number;
+  id!: string;
   origin = new Array<number>(2);
   destination = new Array<number>(2);
   polyline = "";
   duration!: number;
   length!: number;
 
-  static newSection(route: Route, origin: number[], destination: number[], polyline: string, duration: number, length: number): Section {
+  private constructor() {}
+
+  static newSection(route: Route, id: string, origin: number[], destination: number[], polyline: string, duration: number, length: number): Section {
     if (route == null) {
       throw new TypeError("route is null");
     }
     let section = new Section();
+    section.id = id;
     section.origin = origin;
     section.destination = destination;
     section.polyline = polyline;
     section.duration = duration;
     section.length = length;
+    route.addSection(section);
     return section
   }
 }
 
 export class Route {
+  private static allSections = new Set<Section>();
   origin!: [number, number];
   destination!: [number, number];
   sections = new FixedOrderContainer<Section>();
@@ -66,9 +71,9 @@ export class Route {
       json.sections[json.sections.length - 1].arrival.place.location.lng];
 
     for (const section of json.sections) {
-      route.sections.push(Section.newSection(route, [section.departure.place.location.lat, section.departure.place.location.lng],
+      Section.newSection(route, section.id, [section.departure.place.location.lat, section.departure.place.location.lng],
         [section.arrival.place.location.lat, section.arrival.place.location.lng],
-        section.polyline, section.summary.duration, section.summary.length));
+        section.polyline, section.summary.duration, section.summary.length);
     }
 
     return route;
@@ -102,11 +107,18 @@ export class Route {
   findSection(address: Address, action: string): Section[] {
     let equal = (arr1: any[], arr2: any[]) => {
       return (arr1.length !== arr2.length) ? false :
-        arr1.every((value, index) => value === arr2[index]);
+        arr1.every((value, index) => value.toFixed(3) === arr2[index].toFixed(3));
     }
-    return this.sections.filter(a => (action == "Drop") ?
+    return this.sections.filter(a => (action == "drop") ?
       equal(a.destination, [address.latitude, address.longitude]) :
       equal(a.origin, [address.latitude, address.longitude]))
+  }
+
+  addSection(section: Section) {
+    if (!Route.allSections.has(section)){
+      this.sections.push(section);
+      Route.allSections.add(section);
+    }
   }
 
 }
