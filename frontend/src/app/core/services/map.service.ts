@@ -43,7 +43,7 @@ export class MapRoutingService {
 
   public post(route: RouteDTO): Observable<Route> {
     return this.httpclient
-      .post<Route>(`${import.meta.env['NG_APP_ROUTING_API']}route`, route.toJson())
+      .post<Route>(`${import.meta.env['NG_APP_ROUTING_API']}route`, JSON.stringify(route.toPartial()))
       .pipe(map((result) => Route.fromJSON(result)));
   }
 

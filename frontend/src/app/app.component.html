@@ -2,6 +2,7 @@
 <app-header></app-header>
 <app-sidebar></app-sidebar>
 <div class="w-full pt-10 px-4 sm:px-6 md:px-8 lg:pl-72">
-  <app-carriage-form></app-carriage-form>
+  <app-main *ngIf="!mainPage"></app-main>
+  <app-carriage-form *ngIf="mainPage"></app-carriage-form>
 </div>
 </body>

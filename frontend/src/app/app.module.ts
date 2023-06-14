@@ -21,6 +21,7 @@ import { AddressFormArrayComponent } from './home/components/partials/address-fo
 import { SubmitPanelComponent } from './home/components/sites/submit-panel/submit-panel.component';
 import { HeaderComponent } from './home/components/partials/navigation/header/header.component';
 import { SidebarComponent } from './home/components/partials/navigation/sidebar/sidebar.component';
+import { MainComponent } from './home/components/sites/main/main.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -37,6 +38,7 @@ import { SidebarComponent } from './home/components/partials/navigation/sidebar/
     SubmitPanelComponent,
     HeaderComponent,
     SidebarComponent,
+    MainComponent,
   ],
   imports: [
     CommonModule,

@@ -2,6 +2,9 @@ import {BaseModel} from "./base-model";
 import {Address} from "./address";
 
 export class Client extends BaseModel<Client> {
+  static tax_numbers = new Map<string, Client>();
+
+
   name!: string;
   tax_number!: string;
   phone!: string;
@@ -10,10 +13,11 @@ export class Client extends BaseModel<Client> {
 
   constructor(model: Partial<Client>) {
     super(model);
-  }
-
- static fromJSON(value: any): Client {
-    return new Client(JSON.parse(JSON.stringify(value)));
+    if (!Client.tax_numbers.has(model.tax_number!)){
+      Client.tax_numbers.set(model.tax_number!, this);
+    } else {
+      throw new Error ("tax number mus be unique");
+    }
   }
 }
 

@@ -1,16 +1,19 @@
-import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
-import {FormArray, FormControl, FormGroup, Validators} from "@angular/forms";
-import {forkJoin, Observable, Subscription, tap} from "rxjs";
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {FormArray, FormControl, FormGroup} from "@angular/forms";
+import {forkJoin, Observable, Subscription} from "rxjs";
 import {Cargo} from "../../../../core/models/cargo";
 import {Address} from "../../../../core/models/address";
 import {Route, RouteDTO} from "../../../../core/models/route";
 import {ClientService} from "../../../../core/services/client.service";
 import {ModalService} from "../../../../core/services/modal.service";
-import {CargoService} from "../../../../core/services/cargo.service";
-import {MapRoutingService, MapGeocodesService} from "../../../../core/services/map.service";
+import {MapGeocodesService, MapRoutingService} from "../../../../core/services/map.service";
 import {Client, clientAddress, clientInfo} from "../../../../core/models/client";
 import {SelectedCargoService} from "../../../../core/services/selected-cargo.service";
 import {set, SetSelectionComponent} from "../set-selection/set-selection.component";
+import {CarriageService} from "../../../../core/services/carriage.service";
+import {Carriage} from "../../../../core/models/carriage";
+import {BaseModel} from "../../../../core/models/base-model";
+import {Router} from "@angular/router";
 
 
 @Component({
@@ -56,9 +59,9 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
     return o[propertyName];
   }
 
-  constructor(private clientService: ClientService, private selectedCargoService: SelectedCargoService,
+  constructor(private router:Router, private clientService: ClientService, private selectedCargoService: SelectedCargoService,
               private geocodesService: MapGeocodesService, private routeService: MapRoutingService,
-              private modalService: ModalService) {
+              private modalService: ModalService, private carriageService: CarriageService) {
     this.clients_name = new Array<string>();
     this.cargo_row = new FormArray<any>([]);
     this.address_row = new FormArray<any>([]);
@@ -155,7 +158,40 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
   }
 
   submitForm() {
-    console.log(this.form);
+    this.route?.subscribe(route => {
+
+      let pickup_time = new Date(this.time_section.get("pickup_date")?.value);
+      const [hour, minute] = this.time_section.get("time")?.value.split(':').map(Number);
+      pickup_time.setUTCHours(hour, minute);
+      let drop_time = new Date(new Date(pickup_time).getTime() + route!.duration * 1000);
+
+      let client = BaseModel.fromJSON(this.client_section.getRawValue(), Client);
+      client.address = BaseModel.fromJSON(this.client_address.getRawValue(), Address);
+
+      let carriage = new Carriage({
+        client: client,
+        all_stops: [this.pickupAddress!, this.dropAddress!],
+        pickup_time: pickup_time,
+        drop_time: drop_time,
+        pickup_address: this.pickupAddress!,
+        drop_address: this.dropAddress!,
+      });
+      let sections = new Array<string[]>();
+
+      this.sets.forEach(s => {
+        console.log(route.destination);
+        console.log(s.drop_address);
+        console.log(s.pickup_address);
+        sections.push(route.findSection(s.drop_address!, "drop").map(s => s.id));
+      });
+      carriage.add_sets(this.sets, sections)
+      this.carriageService.create(carriage);
+
+      this.modalService.updateHeader("Success");
+      this.modalService.updateContent("created")
+      this.modalService.setVisibility(true);
+      this.router.navigate(['']);
+    });
   }
 
   getRoute() {
@@ -202,8 +238,6 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
   }
 
   handleSets(data: Array<set>) {
-    let formData = this.form.value;
-    console.log(formData);
     this.sets = data;
   }
 
@@ -211,6 +245,9 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
     this.childComponent.sendDataToParent();
   }
 
-    protected readonly Client = Client;
+  protected createClientInstance() {
+    return new Client(BaseModel.fromJSON(this.client_section.value, Client));
+  }
+
 }
 

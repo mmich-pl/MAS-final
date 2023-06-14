@@ -24,9 +24,9 @@ export class GenericCrudService<T extends BaseModel<T>, ID> implements CrudOpera
       .pipe(map((result) => new this.tConstructor(result)));
   }
 
-  create(t: Partial<T> & { toJson: () => T }): Observable<T> {
+  create(t: Partial<T> & { toJSON: () => T }): Observable<T> {
     return this._http
-      .post<T>(`${this.apiUrl}`, t.toJson())
+      .post<T>(`${this.apiUrl}`, t.toJSON())
       .pipe(map((result) => new this.tConstructor(result)));
   }
 }

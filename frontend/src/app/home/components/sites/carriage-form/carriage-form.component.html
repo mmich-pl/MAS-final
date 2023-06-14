@@ -148,7 +148,7 @@
         <section *ngIf="current_step === 5">
           <div *ngIf="route | async as route">
             <app-submit-panel [route]="route!" [pickupAddress]="pickupAddress!" [dropAddress]="dropAddress!"
-                              [startDate]="carriageStartTime" [sets]="sets" [client]="Client.fromJSON(client_section.value)"
+                              [startDate]="carriageStartTime" [sets]="sets" [client]="createClientInstance()"
             ></app-submit-panel>
           </div>
         </section>
