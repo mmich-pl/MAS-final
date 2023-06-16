@@ -13,6 +13,7 @@ import {clientAddress} from "../../../../core/models/client";
 export class AddressFormGroupComponent implements OnInit, OnDestroy {
   @Input() form!: FormGroup;
   @Input() countries!: Array<string>;
+  @Input() is_updatable: boolean = true;
   addresses = new Array<Address>();
   private subscription?: Subscription;
 
@@ -24,13 +25,11 @@ export class AddressFormGroupComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.subscription = this.form.get("street")?.valueChanges
-      .pipe(
-        distinctUntilChanged(),
+    if (this.is_updatable) {
+      this.subscription = this.form.get("street")?.valueChanges.pipe(distinctUntilChanged(),
         filter(inputValue => inputValue.length > 3),
         switchMap(inputValue => this.mapService.getSaved(inputValue))
-      )
-      .subscribe(addr => {
+      ).subscribe(addr => {
         this.addresses = addr;
         const selectedStreet = this.addresses.find(addr => addr.street === this.form.get("street")?.value);
         if (selectedStreet) {
@@ -43,6 +42,7 @@ export class AddressFormGroupComponent implements OnInit, OnDestroy {
           });
         }
       });
+    }
   }
 
   ngOnDestroy() {

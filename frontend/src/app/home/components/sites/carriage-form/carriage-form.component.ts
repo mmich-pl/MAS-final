@@ -59,7 +59,7 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
     return o[propertyName];
   }
 
-  constructor(private router:Router, private clientService: ClientService, private selectedCargoService: SelectedCargoService,
+  constructor(private router: Router, private clientService: ClientService, private selectedCargoService: SelectedCargoService,
               private geocodesService: MapGeocodesService, private routeService: MapRoutingService,
               private modalService: ModalService, private carriageService: CarriageService) {
     this.clients_name = new Array<string>();
@@ -159,17 +159,15 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
 
   submitForm() {
     this.route?.subscribe(route => {
-
       let pickup_time = new Date(this.time_section.get("pickup_date")?.value);
       const [hour, minute] = this.time_section.get("time")?.value.split(':').map(Number);
       pickup_time.setUTCHours(hour, minute);
       let drop_time = new Date(new Date(pickup_time).getTime() + route!.duration * 1000);
 
-      let client = BaseModel.fromJSON(this.client_section.getRawValue(), Client);
-      client.address = BaseModel.fromJSON(this.client_address.getRawValue(), Address);
+      let client = Client.tax_numbers.get(this.client_section.get("tax_number")!.value);
 
       let carriage = new Carriage({
-        client: client,
+        client: client!,
         all_stops: [this.pickupAddress!, this.dropAddress!],
         pickup_time: pickup_time,
         drop_time: drop_time,
@@ -179,16 +177,15 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
       let sections = new Array<string[]>();
 
       this.sets.forEach(s => {
-        console.log(route.destination);
-        console.log(s.drop_address);
-        console.log(s.pickup_address);
         sections.push(route.findSection(s.drop_address!, "drop").map(s => s.id));
       });
-      carriage.add_sets(this.sets, sections)
-      this.carriageService.create(carriage);
 
-      this.modalService.updateHeader("Success");
-      this.modalService.updateContent("created")
+      carriage.add_sets(this.sets, sections);
+      console.log(carriage.toJSON());
+      this.carriageService.post(carriage);
+
+      this.modalService.updateHeader("Successfully Created");
+      this.modalService.updateContent("New carriage was created.")
       this.modalService.setVisibility(true);
       this.router.navigate(['']);
     });
@@ -223,6 +220,7 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
       this.allAddresses.push(pickupAddress);
       this.allAddresses.push(dropAddress);
 
+      console.log(routeRequest.toJSON());
       this.route = this.routeService.post(routeRequest);
     });
   }
@@ -245,8 +243,9 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
     this.childComponent.sendDataToParent();
   }
 
-  protected createClientInstance() {
-    return new Client(BaseModel.fromJSON(this.client_section.value, Client));
+  protected getClientOrCreate() {
+    let client = Client.tax_numbers.get(this.client_section.get("tax_number")!.value);
+    return (client) ? client : new Client(BaseModel.fromJSON(this.client_section.value, Client));
   }
 
 }

@@ -8,7 +8,7 @@
           <div class="mt-8 lg:flex justify-between border-b border-gray-200 pb-12">
             <div class="w-80">
               <div class="flex items-center">
-                <h1 tabindex="0" class="focus:outline-none text-xl font-medium pr-2 leading-5 text-gray-800">Personal
+                <h1 tabindex="0" class="focus:outline-none text-xl font-medium pr-2 leading-5 text-gray-800">Client
                   Information</h1>
               </div>
               <p tabindex="0" class="focus:outline-none mt-4 text-sm leading-5 text-gray-600">Information about the
@@ -53,8 +53,7 @@
           <div class="mt-8  lg:flex justify-between border-b border-gray-200 pb-12">
             <div class="w-80">
               <div class="flex items-center">
-                <h1 tabindex="0" class="focus:outline-none text-xl font-medium pr-2 leading-5 text-gray-800">Personal
-                  Information</h1>
+                <h1 tabindex="0" class="focus:outline-none text-xl font-medium pr-2 leading-5 text-gray-800">Client address</h1>
               </div>
               <p tabindex="0" class="focus:outline-none mt-4 text-sm leading-5 text-gray-600">Information about the
                 section could go here and a brief description of how this might be used.</p>
@@ -65,11 +64,9 @@
           </div>
         </section>
         <section *ngIf="current_step === 2">
-
           <div>
             <div class="flex items-center">
-              <h1 tabindex="0" class="focus:outline-none text-xl font-medium pr-2 leading-5 text-gray-800">Personal
-                Information</h1>
+              <h1 tabindex="0" class="focus:outline-none text-xl font-medium pr-2 leading-5 text-gray-800">Pickup Time</h1>
             </div>
             <div>
               <app-date-picker [form]="time_section"></app-date-picker>
@@ -77,8 +74,7 @@
           </div>
           <div>
             <div class="flex items-center">
-              <h1 tabindex="0" class="focus:outline-none text-xl font-medium pr-2 leading-5 text-gray-800">Personal
-                Information</h1>
+              <h1 tabindex="0" class="focus:outline-none text-xl font-medium pr-2 leading-5 text-gray-800">Pickup & Drop Address</h1>
             </div>
             <p tabindex="0" class="focus:outline-none mt-4 text-sm leading-5 text-gray-600">Information about the
               section could go here and a brief description of how this might be used.</p>
@@ -148,7 +144,7 @@
         <section *ngIf="current_step === 5">
           <div *ngIf="route | async as route">
             <app-submit-panel [route]="route!" [pickupAddress]="pickupAddress!" [dropAddress]="dropAddress!"
-                              [startDate]="carriageStartTime" [sets]="sets" [client]="createClientInstance()"
+                              [startDate]="carriageStartTime" [sets]="sets" [client]="getClientOrCreate()"
             ></app-submit-panel>
           </div>
         </section>

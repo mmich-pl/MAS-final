@@ -11,7 +11,6 @@ export class GenericCrudService<T extends BaseModel<T>, ID> implements CrudOpera
     private tConstructor: { new (m: Partial<T>, ...args: any[]): T },
   ) { }
 
-
   public get(): Observable<T[]> {
     return this._http
       .get<T[]>(`${this.apiUrl}`)
