@@ -55,10 +55,6 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
   @ViewChild(SetSelectionComponent) childComponent!: SetSelectionComponent;
   sets!: Array<set>;
 
-  getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
-    return o[propertyName];
-  }
-
   constructor(private router: Router, private clientService: ClientService, private selectedCargoService: SelectedCargoService,
               private geocodesService: MapGeocodesService, private routeService: MapRoutingService,
               private modalService: ModalService, private carriageService: CarriageService) {
@@ -111,22 +107,18 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.form.get("client_section")?.get("name")?.valueChanges.subscribe(client => {
       let c = this.clients.get(client);
+      let setToObject = (obj: any, data: any, set_empty = false) => {
+        Object.keys(obj).forEach(key => {
+          if (key != "name") obj[key].setValue((set_empty) ? "" : data[key]);
+        })
+      };
+
       if (c != undefined) {
-        Object.keys(this.client_section.controls).forEach(key => {
-          if (key != "name") {
-            this.client_section.controls[key].setValue(this.getProperty(c!, key as keyof clientInfo));
-          }
-        });
-        Object.keys(this.client_address.controls).forEach(key => {
-          this.client_address.controls[key].setValue(this.getProperty(c!.address, key as keyof clientAddress));
-        });
+        setToObject(this.client_section.controls, c!);
+        setToObject(this.client_address.controls, c!.address);
       } else {
-        Object.keys(this.client_section.controls).forEach(key => {
-          if (key != "name") this.client_section.controls[key].setValue('');
-        });
-        Object.keys(this.client_address.controls).forEach(key => {
-          this.client_address.controls[key].setValue('');
-        });
+        setToObject(this.client_section.controls, null, true);
+        setToObject(this.client_address.controls, null, true);
       }
     });
 
@@ -146,9 +138,7 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
     if (!isNextPage) {
       return this.current_step--;
     } else {
-      if (this.current_step === this.max_step) {
-        return;
-      }
+      if (this.current_step === this.max_step)return;
       return this.current_step++;
     }
   }
@@ -181,7 +171,6 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
       });
 
       carriage.add_sets(this.sets, sections);
-      console.log(carriage.toJSON());
       this.carriageService.post(carriage);
 
       this.modalService.updateHeader("Successfully Created");
@@ -220,7 +209,6 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
       this.allAddresses.push(pickupAddress);
       this.allAddresses.push(dropAddress);
 
-      console.log(routeRequest.toJSON());
       this.route = this.routeService.post(routeRequest);
     });
   }
