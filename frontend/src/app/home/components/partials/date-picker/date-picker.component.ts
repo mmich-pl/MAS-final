@@ -49,15 +49,11 @@ export class DatePickerComponent implements OnInit {
   }
 
   isToday(date: any) {
-    const today = new Date();
-    const d = new Date(this.year, this.month, date);
-    return today.toDateString() === d.toDateString();
+    return new Date().toDateString() === new Date(this.year, this.month, date).toDateString();
   }
 
   alreadyPassed(date: any) {
-    const today = new Date();
-    const d = new Date(this.year, this.month, date);
-    return  d < today;
+    return  new Date(this.year, this.month, date) < new Date();
   }
 
   getDateValue(date: any) {
