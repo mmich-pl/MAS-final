@@ -12,16 +12,9 @@ export class Truck extends BaseModel<Truck>{
   constructor(model: Partial<Truck>) {
     super(model);
 
-    if (Trailer.alreadyReservedPlates.has(model.plate!) || Truck.alreadyReservedPlates.has(model.plate!) ) {
-      throw new Error("plate is not unique");
-    } else {
+    if (!Trailer.alreadyReservedPlates.has(model.plate!) || !Truck.alreadyReservedPlates.has(model.plate!) ) {
       Truck.alreadyReservedPlates.set(model.plate!, this);
     }
-  }
-
-  override toJSON(): any {
-    console.log("truck");
-    return super.toJSON();
   }
 }
 
@@ -55,6 +48,7 @@ export class Trailer extends BaseModel<Trailer> {
     let obj = JSON.parse(JSON.stringify(json))
     Object.keys(obj).forEach(key => {
       obj[key].forEach((d: Partial<Trailer>) => {
+        if (Trailer.alreadyReservedPlates.has(d.plate!)) {return;}
         let trailer = new Trailer(d);
         let type: CargoType | null = null;
 
@@ -75,9 +69,7 @@ export class Trailer extends BaseModel<Trailer> {
   constructor(model: Partial<Trailer>) {
     super(model);
 
-    if (Trailer.alreadyReservedPlates.has(model.plate!) || Truck.alreadyReservedPlates.has(model.plate!) ) {
-      throw new Error("plate is not unique");
-    } else {
+    if (!Trailer.alreadyReservedPlates.has(model.plate!) || !Truck.alreadyReservedPlates.has(model.plate!) ) {
       Trailer.alreadyReservedPlates.set(model.plate!, this);
     }
 

@@ -28,10 +28,7 @@ export class SubmitPanelComponent implements OnInit {
   }
 
   findInSets(address: Address, action: string): set[] {
-    console.log(address);
-    let a= this.sets.filter(s => (action === "drop") ? s.drop_address === address : s.pickup_address === address);
-  console.log(a);
-  return a;
+    return this.sets.filter(s => (action === "drop") ? s.drop_address === address : s.pickup_address === address);
   }
 
   protected readonly Address = Address;

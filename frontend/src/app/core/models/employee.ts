@@ -27,10 +27,10 @@ export abstract class Employee extends BaseModel<Employee> {
 
   constructor(model: Partial<Employee>) {
     super(model);
-    if (!Employee.ids.has(model.personal_id_number!)){
+    if(model.address)this.address = new Address(model.address);
+
+    if (!Employee.ids.has(model.personal_id_number!)) {
       Employee.ids.set(model.personal_id_number!, this);
-    }else {
-      throw new Error ("personal identity number mus be unique");
     }
   }
 
@@ -91,6 +91,15 @@ export const Licences = {
 
 export type LicencesKey = typeof Licences[keyof typeof Licences];
 
+export const DriverStates = {
+  Available: "Available",
+  OnVacation: "On vacation",
+  OnTheRoad: "On the road",
+  Unavailable: "Unavailable",
+}
+
+export type StateKey = typeof DriverStates[keyof typeof DriverStates];
+
 export class Driver extends Employee {
   driver_licence = {
     document_id: '',
@@ -98,10 +107,11 @@ export class Driver extends Employee {
     categories: [] as string[],
   };
   owned_licences: string[] = [];
+  driver_state!: StateKey;
 
   constructor(model: Partial<Driver>) {
     super(JSON.parse(JSON.stringify(model))["employee"]);
-
+    if (!model.driver_state) this.driver_state = DriverStates.Available;
     if (model.driver_licence) {
       this.driver_licence = {
         document_id: model.driver_licence.document_id || '',

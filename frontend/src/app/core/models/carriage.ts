@@ -2,12 +2,11 @@ import {Address} from "./address";
 import {Cargo} from "./cargo";
 import {Trailer, Truck} from "./truck";
 import {Driver} from "./employee";
-import {Route, Section} from "./route";
 import {BaseModel} from "./base-model";
 import {set} from "../../home/components/sites/set-selection/set-selection.component";
 import {Client} from "./client";
 
-class TruckSet {
+class TruckSet extends BaseModel<TruckSet> {
   trailer!: Trailer;
   truck!: Truck;
   load!: [Cargo, number];
@@ -26,6 +25,12 @@ class TruckSet {
     set.sections = sections;
     set.driver = driver;
     return set;
+  }
+
+  override toJSON(): any {
+    const { truck, trailer, driver, sections, load } = this;
+    const [cargo, amount] = load;
+    return {truck, trailer, driver, sections, load: {cargo_name: cargo.name, amount}};
   }
 }
 
@@ -87,5 +92,16 @@ export class Carriage extends BaseModel<Carriage> {
 
   get drop_address(): Address {
     return this._drop_address;
+  }
+
+  override toJSON(): any {
+    return JSON.stringify(this.toPartial(), (key, value) => {
+      if (key === "truck_sets") {
+        return value.map((t: TruckSet) => {
+          return t.toJSON();
+        });
+      }
+      return value;
+    });
   }
 }

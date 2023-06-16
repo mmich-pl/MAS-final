@@ -67,8 +67,6 @@ export class Cargo extends BaseModel<Cargo> {
       this.type = CargoType.getOrCreate(model.type_name);
       this.type.addCargo(this.name, this);
     }
-
     this.required_licence = (model.required_licence) ? model.required_licence : Licences.NotRequired;
-    console.log(this);
   }
 }

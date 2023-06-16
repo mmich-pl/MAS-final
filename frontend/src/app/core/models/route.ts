@@ -132,4 +132,13 @@ export class RouteDTO extends BaseModel<RouteDTO> {
   constructor(model: Partial<RouteDTO>) {
     super(model);
   }
+
+  override toJSON(): any {
+    return JSON.parse(JSON.stringify({
+      origin: this.origin,
+      destination: this.destination,
+      departureTime: this.departureTime,
+      via: this.via,
+    }));
+  }
 }
