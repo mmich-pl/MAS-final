@@ -1,6 +1,4 @@
 export abstract class BaseModel<T> {
-  public id?: any;
-
   protected constructor(model?: Partial<T>) {
     if (model) {
       Object.assign(this, model)
@@ -27,10 +25,12 @@ export abstract class BaseModel<T> {
 
   public toPartial<T extends this>(): Partial<T> {
     const partial: Partial<T> = {};
-    const keys = Object.keys(this) as Array<keyof T>;
-
-    keys.forEach((key) => {
-      partial[key] = (this as T)[key];
+    (Object.keys(this) as Array<keyof T>).forEach((key) => {
+      if (typeof ((this as T)[key]) === "object") {
+        let val = (this as T)[key];
+        partial[key] = (val instanceof BaseModel<T>) ? val.toPartial() as typeof val : val;
+      }
+      if (key !== "id") partial[key] = (this as T)[key];
     });
 
     return partial;
