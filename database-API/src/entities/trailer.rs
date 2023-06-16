@@ -56,12 +56,12 @@ impl TrailerType {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct Trailer {
-    pub carrying_capacity: u8,
     pub plate: String,
     pub axis_number: u8,
     pub brand: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub purchase_date: Option<DateTime<Utc>>,
+    pub carrying_capacity: u8,
     pub trailer_type: String,
 }
 

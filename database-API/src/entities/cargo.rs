@@ -82,7 +82,10 @@ pub struct Cargo {
 
 impl Cargo {
     pub fn new(name: String, unit: String, required_licences: Option<String>) -> Cargo {
-        let licences = AdditionalLicence::map_single(required_licences);
+        let mut licences:Option<AdditionalLicence> = None;
+        if required_licences.is_some() {
+            licences = AdditionalLicence::map_single(required_licences);
+        }
         Cargo { id: None, name, unit, required_licence: licences }
     }
 
@@ -109,7 +112,7 @@ impl Cargo {
             Ok(mut response) => {
                 let ret: Vec<CreateCargoRequest> = response.take(0)?;
                 Ok(ret)
-            },
+            }
             Err(e) => Err(APIError::Surreal(e)),
         }
     }
