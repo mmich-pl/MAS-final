@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"github.com/goccy/go-json"
 )
 
@@ -31,14 +32,13 @@ type Geocoding struct {
 
 func (g Geocoding) MarshalJSON() ([]byte, error) {
 	flattened := map[string]interface{}{
-		"city":        g.Address.City,
-		"houseNumber": g.Address.HouseNumber,
-		"postalCode":  g.Address.PostalCode,
-		"state":       g.Address.State,
-		"street":      g.Address.Street,
-		"countryName": g.Address.Country,
-		"latitude":    g.Location.Lat,
-		"longitude":   g.Location.Lng,
+		"city":       g.Address.City,
+		"postalCode": g.Address.PostalCode,
+		"state":      g.Address.State,
+		"street":     fmt.Sprintf("%s %s", g.Address.Street, g.Address.HouseNumber),
+		"country":    g.Address.Country,
+		"latitude":   g.Location.Lat,
+		"longitude":  g.Location.Lng,
 	}
 	return json.Marshal(flattened)
 }

@@ -22,6 +22,7 @@ type Route struct {
 	Origin      *Location `json:"-"`
 	Destination *Location `json:"-"`
 	Sections    []struct {
+		Id        string    `json:"id"`
 		Departure *Waypoint `json:"departure"`
 		Arrival   *Waypoint `json:"arrival"`
 		Polyline  string    `json:"polyline"`

@@ -22,7 +22,6 @@ import { SubmitPanelComponent } from './home/components/sites/submit-panel/submi
 import { HeaderComponent } from './home/components/partials/navigation/header/header.component';
 import { SidebarComponent } from './home/components/partials/navigation/sidebar/sidebar.component';
 import { MainComponent } from './home/components/sites/main/main.component';
-import { CarriageListComponent } from './home/components/sites/carriage-list/carriage-list.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -40,7 +39,6 @@ import { CarriageListComponent } from './home/components/sites/carriage-list/car
     HeaderComponent,
     SidebarComponent,
     MainComponent,
-    CarriageListComponent,
   ],
   imports: [
     CommonModule,
