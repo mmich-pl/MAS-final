@@ -48,13 +48,9 @@ async fn main() -> std::io::Result<()> {
               .wrap(
                   Cors::default()
                       .allowed_origin_fn(|origin, _req_head| {
-                          origin.as_bytes().starts_with(b"http://127.0.0.1")
+                          origin.as_bytes().starts_with(b"http://localhost")
                       })
                       .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
-                      .allowed_headers(&[header::AUTHORIZATION, header::ACCEPT])
-                      .allowed_header(header::CONTENT_TYPE)
-                      .expose_headers(&[header::CONTENT_DISPOSITION])
-                      .block_on_origin_mismatch(false)
                       .max_age(3600),
               )
             .app_data(Data::new(DbClient {
