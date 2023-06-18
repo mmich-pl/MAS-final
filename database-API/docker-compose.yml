@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  db:
+  surreal:
     image: surrealdb/surrealdb:latest
     container_name: surrealdb
     restart: always
@@ -9,7 +9,20 @@ services:
     ports:
       - '8000:8000'
     volumes:
-      - db:/var/lib/surrealdb/data
+      - surreal:/var/lib/surrealdb/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+    env_file:
+      - .env
+    depends_on:
+      - surreal
+    restart: always
+
 volumes:
-  db:
+  surreal:
     driver: local

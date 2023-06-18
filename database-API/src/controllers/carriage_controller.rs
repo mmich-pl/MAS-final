@@ -7,7 +7,6 @@ use crate::database::DbClient;
 use crate::entities::address::Address;
 use crate::entities::carriage::{Carriage, CarriageItems, TruckSet};
 use crate::entities::client::Client;
-use crate::entities::driver::Driver;
 use crate::entities::trailer::Trailer;
 use crate::entities::truck::Truck;
 

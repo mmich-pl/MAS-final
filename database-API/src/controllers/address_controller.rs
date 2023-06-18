@@ -1,5 +1,4 @@
 use actix_web::{HttpResponse, Responder, Scope, web};
-use serde::{Serialize, Deserialize};
 
 use crate::database::DbClient;
 use crate::entities::address::Address;

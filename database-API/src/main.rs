@@ -1,6 +1,6 @@
 use std::sync::Arc;
-use actix_cors::Cors;
 
+use actix_cors::Cors;
 use actix_web::{App, get, HttpResponse, HttpServer, Responder};
 use actix_web::http::header;
 use actix_web::middleware::Logger;
@@ -48,7 +48,7 @@ async fn main() -> std::io::Result<()> {
               .wrap(
                   Cors::default()
                       .allowed_origin_fn(|origin, _req_head| {
-                          origin.as_bytes().starts_with(b"http://localhost")
+                          origin.as_bytes().starts_with(b"http://127.0.0.1")
                       })
                       .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
                       .allowed_headers(&[header::AUTHORIZATION, header::ACCEPT])
@@ -60,17 +60,17 @@ async fn main() -> std::io::Result<()> {
             .app_data(Data::new(DbClient {
                 surreal: Arc::new(db_client.clone())
             }))
-            .service(health_checker_handler)
-            .service(address_controller::routes())
-            .service(cargo_controller::routes())
-            .service(carriage_controller::routes())
-            .service(client_controller::routes())
-            .service(driver_controller::routes())
-            .service(trailer_controller::routes())
-            .service(truck_controller::routes())
-            .wrap(Logger::default())
+              .service(health_checker_handler)
+              .service(address_controller::routes())
+              .service(cargo_controller::routes())
+              .service(carriage_controller::routes())
+              .service(client_controller::routes())
+              .service(driver_controller::routes())
+              .service(trailer_controller::routes())
+              .service(truck_controller::routes())
+              .wrap(Logger::default())
     })
-        .bind(("127.0.0.1", 8080))?
+        .bind(("0.0.0.0", 8080))?
         .run()
         .await
 }
