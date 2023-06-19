@@ -2,6 +2,11 @@
   <div class="md:flex items-center mt-4">
     <div class="md:w-64">
       <label class="text-sm leading-none text-gray-800" for="street">Address / Street</label>
+      <div class="form-control-feedback"
+           *ngIf="street?.errors && (street?.dirty || street?.touched)">
+        <p class="text-sm text-red-700" *ngIf="street?.hasError('required')">Street is required</p>
+        <p class="text-sm text-red-700" *ngIf="street?.hasError('pattern')">Street is in wrong format</p>
+      </div>
       <input type="text" tabindex="0" formControlName="street" list="streets-datalist" name="street" id="street"
              placeholder="ul. Nowa 23"
              class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800"/>
@@ -11,13 +16,22 @@
     </div>
     <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
       <label class="text-sm leading-none text-gray-800" for="city">City</label>
+      <div class="form-control-feedback"
+           *ngIf="city?.errors && (city?.dirty || city?.touched)">
+        <p class="text-sm text-red-700" *ngIf="city?.hasError('required')">Email is required</p>
+      </div>
       <input type="text" tabindex="0" formControlName="city" name="city" id="city" placeholder="Warsaw"
              class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800"/>
     </div>
   </div>
   <div class="md:flex items-center  mt-8">
     <div class="md:w-64">
-      <label class="text-sm leading-none text-gray-800" for="postalCode">Zipcode</label>
+      <label class="text-sm leading-none text-gray-800" for="postalCode">Postal Code</label>
+      <div class="form-control-feedback"
+           *ngIf="postalCode?.errors && (postalCode?.dirty || postalCode?.touched)">
+        <p class="text-sm text-red-700" *ngIf="postalCode?.hasError('required')">Email is required</p>
+        <p class="text-sm text-red-700" *ngIf="postalCode?.hasError('pattern')">The email address must contain at least the @ character</p>
+      </div>
       <input type="text" tabindex="0" name="postalCode" id="postalCode" placeholder="00-000"
              class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800"
              formControlName="postalCode"/>
@@ -25,6 +39,10 @@
     <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
       <label
         class=" text-sm leading-none text-gray-800" for="country">Country</label>
+      <div class="form-control-feedback"
+           *ngIf="country?.errors && (country?.dirty || country?.touched)">
+        <p class="text-sm text-red-700" *ngIf="country?.hasError('required')">Country is required</p>
+      </div>
       <select tabindex="0" formControlName="country" name="country" id="country"
               class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800">
         <option *ngFor="let country of countries" [ngValue]="country">{{country}}</option>

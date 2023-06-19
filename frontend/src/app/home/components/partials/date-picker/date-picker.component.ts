@@ -85,4 +85,11 @@ export class DatePickerComponent implements OnInit {
 
   trackByIdentity = (index: number, item: any) => item;
 
+  get pickup_date(){
+    return this.form.get("pickup_date");
+  }
+
+  get pickup_time(){
+    return this.form.get("time");
+  }
 }

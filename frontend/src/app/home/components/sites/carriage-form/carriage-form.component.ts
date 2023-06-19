@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {FormArray, FormControl, FormGroup} from "@angular/forms";
+import {FormArray, FormControl, FormGroup, Validators} from "@angular/forms";
 import {forkJoin, Observable, Subscription} from "rxjs";
 import {Cargo} from "../../../../core/models/cargo";
 import {Address} from "../../../../core/models/address";
@@ -63,10 +63,24 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
     this.address_row = new FormArray<any>([]);
 
     this.client_section = new FormGroup({
-      name: new FormControl(null),
-      tax_number: new FormControl(null),
-      email: new FormControl(null),
-      phone: new FormControl(null),
+      name: new FormControl(null, [
+        Validators.required,
+        Validators.minLength(10),
+        Validators.pattern(/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/),
+      ]),
+      tax_number: new FormControl(null, [
+        Validators.required,
+        Validators.minLength(10),
+        Validators.maxLength(10),
+        Validators.pattern(/^[0-9]{10}$/)
+      ]),
+      email: new FormControl(null, [Validators.required, Validators.email]),
+      phone: new FormControl(null, [
+        Validators.required,
+        Validators.minLength(9),
+        Validators.maxLength(12),
+        Validators.pattern(/^(?:\+48|48)?\s?\d{3}[-\s]?\d{3}[-\s]?\d{3}$/)
+      ])
     });
 
     this.client_address = this.createAddressFormGroup();
@@ -97,10 +111,12 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
 
   createAddressFormGroup(): FormGroup {
     return new FormGroup({
-      street: new FormControl(null),
-      city: new FormControl(null),
-      postalCode: new FormControl(null),
-      country: new FormControl(null),
+      street: new FormControl(null, [Validators.required,
+        Validators.pattern(/^[\p{Letter}\p{Mark}]+(\s[\p{Letter}\p{Mark}]+)*\s\d+(\/\d+)?$/u)]),
+      city: new FormControl(null, [Validators.required]),
+      postalCode: new FormControl(null, [Validators.required,
+        Validators.pattern(/^(?:(\\d{2}-\\d{3})|(\\d{5})|(\\d{3}\\s?\\d{2}))$/)]),
+      country: new FormControl(null, [Validators.required]),
     });
   }
 
@@ -246,5 +262,20 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
     return (client) ? client : new Client(BaseModel.fromJSON(this.client_section.value, Client));
   }
 
+  get email() {
+    return this.client_section.get('email');
+  }
+
+  get name() {
+    return this.client_section.get('name');
+  }
+
+  get tax_number() {
+    return this.client_section.get('tax_number');
+  }
+
+  get phone() {
+    return this.client_section.get('phone');
+  }
 }
 

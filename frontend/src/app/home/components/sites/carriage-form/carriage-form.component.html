@@ -18,6 +18,11 @@
               <div class="md:flex items-center lg:ml-24 lg:mt-0 mt-4">
                 <div class="md:w-64">
                   <label class="text-sm leading-none text-gray-800" for="name">Company name</label>
+                  <div class="form-control-feedback"
+                       *ngIf="name?.errors && (name?.dirty || name?.touched)">
+                    <p class="text-sm text-red-700" *ngIf="name?.hasError('required')">Company name is required</p>
+                    <p class="text-sm text-red-700" *ngIf="name?.hasError('pattern')">Wrong name format</p>
+                  </div>
                   <ng-autocomplete id="name" [data]="clients_name" [initialValue]="" formControlName="name"
                                    placeholder="Type Company Name" notFoundText="Not found"
                                    [itemTemplate]="itemTemplateStatic"
@@ -29,6 +34,11 @@
                 </div>
                 <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
                   <label class="text-sm leading-none text-gray-800" for="tax_number">Tax Number</label>
+                  <div class="form-control-feedback"
+                       *ngIf="tax_number?.errors && (tax_number?.dirty || tax_number?.touched)">
+                    <p class="text-sm text-red-700" *ngIf="tax_number?.hasError('required')">Tax number is required</p>
+                    <p class="text-sm text-red-700" *ngIf="tax_number?.hasError('pattern')">Tax number hast to contain only numbers</p>
+                  </div>
                   <input type="text" tabindex="0"
                          class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800"
                          formControlName="tax_number" name="tax_number" id="tax_number" placeholder="0000000000"/>
@@ -37,12 +47,22 @@
               <div class="md:flex items-center lg:ml-24 mt-8">
                 <div class="md:w-64">
                   <label class="text-sm leading-none text-gray-800" for="email">Email address</label>
+                  <div class="form-control-feedback"
+                       *ngIf="email?.errors && (email?.dirty || email?.touched)">
+                    <p class="text-sm text-red-700" *ngIf="email?.hasError('required')">Email is required</p>
+                    <p class="text-sm text-red-700" *ngIf="email?.hasError('email')">The email address must contain at least the @ character</p>
+                  </div>
                   <input type="email" tabindex="0"
                          class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800"
                          formControlName="email" name="email" id="email" placeholder="youremail@example.com"/>
                 </div>
                 <div class="md:w-64 md:ml-12 md:mt-0 mt-4">
                   <label class="text-sm leading-none text-gray-800" for="phone">Phone number</label>
+                  <div class="form-control-feedback"
+                       *ngIf="phone?.errors && (phone?.dirty || phone?.touched)">
+                    <p class="text-sm text-red-700" *ngIf="phone?.hasError('required')">Phone is required</p>
+                    <p class="text-sm text-red-700" *ngIf="phone?.hasError('pattern')">Wrong pattern number</p>
+                  </div>
                   <input type="text" tabindex="0"
                          class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800"
                          formControlName="phone" name="phone" id="phone" placeholder="123-1234567"/>
@@ -172,7 +192,7 @@
               <button role="button" aria-label="Next step"
                       class="flex items-center justify-center py-4 px-7 focus:outline-none bg-white border rounded border-gray-400 mt-7 md:mt-14 hover:bg-gray-100  focus:ring-2 focus:ring-offset-2 focus:ring-gray-700"
                       *ngIf="current_step === max_step" type="submit" (click)="submitForm()"><span
-                class="text-sm font-medium text-center text-gray-800 capitalize">Confirm</span></button>
+                class="text-sm font-medium text-center text-gray-800 capitalize" >Confirm</span></button>
             </div>
           </div>
         </div>

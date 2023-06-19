@@ -1,9 +1,8 @@
 import {Component, OnInit, OnDestroy, Input} from '@angular/core';
 import {FormGroup} from "@angular/forms";
 import {MapGeocodesService} from "../../../../core/services/map.service";
-import {distinctUntilChanged, filter, Subscription, switchMap, tap} from "rxjs";
+import {filter, Subscription, switchMap} from "rxjs";
 import {Address} from "../../../../core/models/address";
-import {clientAddress} from "../../../../core/models/client";
 
 @Component({
   selector: 'app-address-form-group',
@@ -18,10 +17,6 @@ export class AddressFormGroupComponent implements OnInit, OnDestroy {
   private subscription?: Subscription;
 
   constructor(private mapService: MapGeocodesService) {
-  }
-
-  getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
-    return o[propertyName];
   }
 
   ngOnInit() {
@@ -51,5 +46,21 @@ export class AddressFormGroupComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+  }
+
+  get street() {
+    return this.form.get('street');
+  }
+
+  get city() {
+    return this.form.get('city');
+  }
+
+  get postalCode() {
+    return this.form.get('postalCode');
+  }
+
+  get country() {
+    return this.form.get('country');
   }
 }
