@@ -22,6 +22,7 @@ import { SubmitPanelComponent } from './home/components/sites/submit-panel/submi
 import { HeaderComponent } from './home/components/partials/navigation/header/header.component';
 import { SidebarComponent } from './home/components/partials/navigation/sidebar/sidebar.component';
 import { MainComponent } from './home/components/sites/main/main.component';
+import {NgSelectModule} from "@ng-select/ng-select";
 @NgModule({
   declarations: [
     AppComponent,
@@ -40,16 +41,17 @@ import { MainComponent } from './home/components/sites/main/main.component';
     SidebarComponent,
     MainComponent,
   ],
-  imports: [
-    CommonModule,
-    BrowserModule,
-    AppRoutingModule,
-    HttpClientModule,
-    AutocompleteLibModule,
-    ReactiveFormsModule,
-    FormsModule,
-    NgOptimizedImage,
-  ],
+    imports: [
+        CommonModule,
+        BrowserModule,
+        AppRoutingModule,
+        HttpClientModule,
+        AutocompleteLibModule,
+        ReactiveFormsModule,
+        FormsModule,
+        NgOptimizedImage,
+        NgSelectModule,
+    ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,

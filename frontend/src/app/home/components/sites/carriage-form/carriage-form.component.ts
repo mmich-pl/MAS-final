@@ -138,7 +138,7 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
     if (!isNextPage) {
       return this.current_step--;
     } else {
-      if (this.current_step === this.max_step)return;
+      if (this.current_step === this.max_step) return;
       return this.current_step++;
     }
   }
@@ -170,11 +170,21 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
         sections.push(route.findSection(s.drop_address!, "drop").map(s => s.id));
       });
 
-      carriage.add_sets(this.sets, sections);
-      this.carriageService.post(carriage);
+      carriage.all_stops.forEach(a => this.geocodesService.geocodesFromRaw(a.toJSON()));
 
-      this.modalService.updateHeader("Successfully Created");
-      this.modalService.updateContent("New carriage was created.")
+      carriage.add_sets(this.sets, sections);
+      this.carriageService.post(carriage).subscribe({
+          next: (carriage) => {
+            this.modalService.updateHeader("Successfully Created");
+            this.modalService.updateContent("New carriage was created.")
+          },
+          error: (error) => {
+            this.modalService.updateHeader("Error Occurred");
+            this.modalService.updateContent(error.toString());
+          }
+        }
+      )
+
       this.modalService.setVisibility(true);
       this.router.navigate(['']);
     });

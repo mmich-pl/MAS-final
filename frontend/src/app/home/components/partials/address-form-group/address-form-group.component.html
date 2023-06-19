@@ -6,8 +6,7 @@
              placeholder="ul. Nowa 23"
              class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800"/>
       <datalist id="streets-datalist">
-        <option *ngFor="let address of addresses" [value]="address.street">{{ address.street }}
-          , {{address.city}} </option>
+        <option *ngFor="let address of addresses" [value]="address.street">{{ address.street }}, {{address.city}} </option>
       </datalist>
     </div>
     <div class="md:w-64 md:ml-12 md:mt-0 mt-4">

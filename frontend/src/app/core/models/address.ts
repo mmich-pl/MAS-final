@@ -10,5 +10,7 @@ export class Address extends BaseModel<Address> {
 
   constructor(model: Partial<Address>) {
     super(model)
+    if (model.latitude) this.latitude = parseFloat(model.latitude.toFixed(3));
+    if (model.longitude) this.longitude = parseFloat(model.longitude.toFixed(3));
   }
 }

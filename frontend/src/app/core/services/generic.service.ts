@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core';
 import {BaseModel} from "../models/base-model";
 import {CrudOperations} from "./crud-operations";
 import {HttpClient} from "@angular/common/http";
@@ -11,7 +10,7 @@ export class GenericCrudService<T extends BaseModel<T>, ID> implements CrudOpera
     private tConstructor: { new (m: Partial<T>, ...args: any[]): T },
   ) { }
 
-  public get(): Observable<T[]> {
+  public get(queries?:any[]): Observable<T[]> {
     return this._http
       .get<T[]>(`${this.apiUrl}`)
       .pipe(map((result) => result.map((i) => new this.tConstructor(i))));
