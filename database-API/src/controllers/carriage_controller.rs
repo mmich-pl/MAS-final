@@ -67,7 +67,6 @@ async fn create(body: web::Json<CreateCarriageRequest>, db: web::Data<DbClient>)
     let mut pickup_address: Option<Thing>=None;
     let mut all = Vec::new();
 
-
     for a in body.0.all_stops {
         let address = match Address::get_or_create(&db, a.postal_code, a.city,
                                                    a.country, a.street, a.state, a.latitude, a.longitude).await {

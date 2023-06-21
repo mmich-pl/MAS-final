@@ -35,7 +35,7 @@ clients = [
             "state":"Woj. Śląskie"
         }
     },
-     {"name": "Tamsack Harbor", "tax_number": "7976065223", "phone": "694025155 ", "email": "tamsack@gmail.com",
+     {"name": "Tamsack Harbor", "tax_number": "7976065223", "phone": "694025155", "email": "tamsack@gmail.com",
      "address": {"postalCode": "80-014", "city": "Gdańsk", "country": "Poland", "street": "ul. Radwańska 97", "state":"Woj. Pomorskie"}}
 ]
 
