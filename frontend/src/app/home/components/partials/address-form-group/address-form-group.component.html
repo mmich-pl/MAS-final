@@ -5,7 +5,6 @@
       <div class="form-control-feedback"
            *ngIf="street?.errors && (street?.dirty || street?.touched)">
         <p class="text-sm text-red-700" *ngIf="street?.hasError('required')">Street is required</p>
-        <p class="text-sm text-red-700" *ngIf="street?.hasError('pattern')">Street is in wrong format</p>
       </div>
       <input type="text" tabindex="0" formControlName="street" list="streets-datalist" name="street" id="street"
              placeholder="ul. Nowa 23"
@@ -18,7 +17,7 @@
       <label class="text-sm leading-none text-gray-800" for="city">City</label>
       <div class="form-control-feedback"
            *ngIf="city?.errors && (city?.dirty || city?.touched)">
-        <p class="text-sm text-red-700" *ngIf="city?.hasError('required')">Email is required</p>
+        <p class="text-sm text-red-700" *ngIf="city?.hasError('required')">City is required</p>
       </div>
       <input type="text" tabindex="0" formControlName="city" name="city" id="city" placeholder="Warsaw"
              class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800"/>
@@ -29,8 +28,8 @@
       <label class="text-sm leading-none text-gray-800" for="postalCode">Postal Code</label>
       <div class="form-control-feedback"
            *ngIf="postalCode?.errors && (postalCode?.dirty || postalCode?.touched)">
-        <p class="text-sm text-red-700" *ngIf="postalCode?.hasError('required')">Email is required</p>
-        <p class="text-sm text-red-700" *ngIf="postalCode?.hasError('pattern')">The email address must contain at least the @ character</p>
+        <p class="text-sm text-red-700" *ngIf="postalCode?.hasError('required')">Postal code is required</p>
+        <p class="text-sm text-red-700" *ngIf="postalCode?.hasError('pattern')">Wrong format of postal code</p>
       </div>
       <input type="text" tabindex="0" name="postalCode" id="postalCode" placeholder="00-000"
              class="w-full p-3 mt-3 bg-gray-100 border rounded border-gray-200 focus:outline-none focus:border-gray-600 text-sm font-medium leading-none text-gray-800"

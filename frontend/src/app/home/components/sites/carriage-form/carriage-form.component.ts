@@ -66,21 +66,21 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
       name: new FormControl(null, [
         Validators.required,
         Validators.minLength(10),
-        Validators.pattern(/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/),
+        Validators.pattern("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$"),
       ]),
       tax_number: new FormControl(null, [
         Validators.required,
         Validators.minLength(10),
         Validators.maxLength(10),
-        Validators.pattern(/^[0-9]{10}$/)
+        Validators.pattern("^[0-9]{10}$")
       ]),
       email: new FormControl(null, [Validators.required, Validators.email]),
       phone: new FormControl(null, [
         Validators.required,
         Validators.minLength(9),
         Validators.maxLength(12),
-        Validators.pattern(/^(?:\+48|48)?\s?\d{3}[-\s]?\d{3}[-\s]?\d{3}$/)
-      ])
+        Validators.pattern("(?<!\\w)(\\(?(\\+|00)?48\\)?)?[ -]?\\d{3}[ -]?\\d{3}[ -]?\\d{3}(?!\\w)"), // polish number
+        ])
     });
 
     this.client_address = this.createAddressFormGroup();
@@ -111,11 +111,10 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
 
   createAddressFormGroup(): FormGroup {
     return new FormGroup({
-      street: new FormControl(null, [Validators.required,
-        Validators.pattern(/^[\p{Letter}\p{Mark}]+(\s[\p{Letter}\p{Mark}]+)*\s\d+(\/\d+)?$/u)]),
+      street: new FormControl(null, [Validators.required]),
       city: new FormControl(null, [Validators.required]),
       postalCode: new FormControl(null, [Validators.required,
-        Validators.pattern(/^(?:(\\d{2}-\\d{3})|(\\d{5})|(\\d{3}\\s?\\d{2}))$/)]),
+        Validators.pattern("^(?:(\\d{2}-\\d{3})|(\\d{5})|(\\d{3}\\s?\\d{2}))$")]),
       country: new FormControl(null, [Validators.required]),
     });
   }
@@ -189,6 +188,7 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
       carriage.all_stops.forEach(a => this.geocodesService.geocodesFromRaw(a.toJSON()));
 
       carriage.add_sets(this.sets, sections);
+      console.log(carriage.toJSON());
       this.carriageService.post(carriage).subscribe({
           next: (carriage) => {
             this.modalService.updateHeader("Successfully Created");
@@ -258,8 +258,7 @@ export class CarriageFormComponent implements OnInit, OnDestroy {
   }
 
   protected getClientOrCreate() {
-    let client = Client.tax_numbers.get(this.client_section.get("tax_number")!.value);
-    return (client) ? client : new Client(BaseModel.fromJSON(this.client_section.value, Client));
+    return new Client(BaseModel.fromJSON(this.client_section.value, Client));
   }
 
   get email() {

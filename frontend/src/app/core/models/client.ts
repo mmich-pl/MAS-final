@@ -2,20 +2,29 @@ import {BaseModel} from "./base-model";
 import {Address} from "./address";
 
 export class Client extends BaseModel<Client> {
-  static tax_numbers = new Map<string, Client>();
+ private static _tax_numbers = new Map<string, Client>();
 
   name!: string;
-  tax_number!: string;
+  readonly tax_number!: string;
   phone!: string;
   email!: string;
   address!: Address;
 
   constructor(model: Partial<Client>) {
     super(model);
-    if(model.address)this.address = new Address(model.address);
-    if (!Client.tax_numbers.has(model.tax_number!)){
-      Client.tax_numbers.set(model.tax_number!, this);
+    const { tax_number } = model;
+    if (tax_number && Client._tax_numbers.has(tax_number)) {
+      return Client._tax_numbers.get(tax_number)!;
     }
+
+    if(model.address)this.address = new Address(model.address);
+    this.tax_number = tax_number!;
+    Client._tax_numbers.set(tax_number!, this);
+  }
+
+
+  static get tax_numbers(): Map<string, Client> {
+    return this._tax_numbers;
   }
 }
 

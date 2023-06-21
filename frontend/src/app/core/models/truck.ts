@@ -1,20 +1,33 @@
 import {BaseModel} from "./base-model";
 import {CargoType, CargoTypeKey} from "./cargo";
 
-export class Truck extends BaseModel<Truck>{
-  static alreadyReservedPlates = new Map<string, Truck>();
+export class Truck extends BaseModel<Truck> {
+  private static _alreadyReservedPlates = new Map<string, Truck>();
 
   readonly plate!: string;
   axis_number!: number;
   mileage!: number;
   brand!: string;
   purchase_date?: Date;
+
   constructor(model: Partial<Truck>) {
     super(model);
 
-    if (!Trailer.alreadyReservedPlates.has(model.plate!) || !Truck.alreadyReservedPlates.has(model.plate!) ) {
-      Truck.alreadyReservedPlates.set(model.plate!, this);
+    const {plate} = model;
+    if (plate && Truck._alreadyReservedPlates.has(plate)) {
+      return Truck._alreadyReservedPlates.get(plate)!;
     }
+
+    if (Trailer.alreadyReservedPlates.has(plate!)) {
+      throw new Error("plate already assigned to other trailer");
+    }
+
+    this.plate = plate!;
+    Truck._alreadyReservedPlates.set(model.plate!, this);
+  }
+
+  static get alreadyReservedPlates(): Map<string, Truck> {
+    return this._alreadyReservedPlates;
   }
 }
 
@@ -32,7 +45,7 @@ const TRAILER_TYPES = {
 type TrailerType = keyof typeof TRAILER_TYPES;
 
 export class Trailer extends BaseModel<Trailer> {
-  static alreadyReservedPlates = new Map<string, Trailer>();
+  private static _alreadyReservedPlates = new Map<string, Trailer>();
 
   readonly plate!: string;
   axis_number!: number;
@@ -48,7 +61,6 @@ export class Trailer extends BaseModel<Trailer> {
     let obj = JSON.parse(JSON.stringify(json))
     Object.keys(obj).forEach(key => {
       obj[key].forEach((d: Partial<Trailer>) => {
-        if (Trailer.alreadyReservedPlates.has(d.plate!)) {return;}
         let trailer = new Trailer(d);
         let type: CargoType | null = null;
 
@@ -69,8 +81,13 @@ export class Trailer extends BaseModel<Trailer> {
   constructor(model: Partial<Trailer>) {
     super(model);
 
-    if (!Trailer.alreadyReservedPlates.has(model.plate!) || !Truck.alreadyReservedPlates.has(model.plate!) ) {
-      Trailer.alreadyReservedPlates.set(model.plate!, this);
+    const {plate} = model;
+    if (plate && Trailer._alreadyReservedPlates.has(plate)) {
+      return Trailer._alreadyReservedPlates.get(plate)!;
+    }
+
+    if (Truck.alreadyReservedPlates.has(plate!)) {
+      throw new Error("plate already assigned to other truck");
     }
 
     if (model.cargo_type_name != undefined && model.cargo_type_name!.length > 0) {
@@ -80,5 +97,12 @@ export class Trailer extends BaseModel<Trailer> {
         this.cargo_type.push(cargoType);
       });
     }
+
+    this.plate = plate!;
+    Trailer._alreadyReservedPlates.set(model.plate!, this);
+  }
+
+  static get alreadyReservedPlates(): Map<string, Trailer> {
+    return this._alreadyReservedPlates;
   }
 }

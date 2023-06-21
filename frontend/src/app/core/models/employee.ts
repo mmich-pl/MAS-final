@@ -9,7 +9,7 @@ export const Genders = {
 export type GenderKey = typeof Genders[keyof typeof Genders];
 
 export abstract class Employee extends BaseModel<Employee> {
-  static ids = new Map<string, Employee>();
+  private static ids = new Map<string, Employee>();
 
   readonly personal_id_number!: string;
   readonly first_name!: string;
@@ -27,11 +27,16 @@ export abstract class Employee extends BaseModel<Employee> {
 
   constructor(model: Partial<Employee>) {
     super(model);
-    if(model.address)this.address = new Address(model.address);
+    const { personal_id_number } = model;
 
-    if (!Employee.ids.has(model.personal_id_number!)) {
-      Employee.ids.set(model.personal_id_number!, this);
+    if (personal_id_number && Employee.ids.has(personal_id_number)) {
+      return Employee.ids.get(personal_id_number)!;
     }
+
+    if(model.address) this.address = new Address(model.address);
+
+    this.personal_id_number = personal_id_number!;
+    Employee.ids.set(personal_id_number!, this);
   }
 
   get salary(): number {
