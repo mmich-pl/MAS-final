@@ -3,7 +3,7 @@ import sys
 import requests
 from dotenv import dotenv_values
 
-BASE_API_URL = "http://127.0.0.1:8080/api"
+BASE_API_URL = "http://localhost:8080/api"
 
 cargo = [
     {"name": "Apples", "unit": "psc.", "type_name": "Pallet"},
@@ -270,7 +270,7 @@ def drop():
                'NS': config.get("DATABASE_NAMESPACE"),
                'DB': config.get("DATABASE_NAME")}
 
-    db_url = f'http://{config.get("DATABASE_URL")}/sql'
+    db_url = f'http://localhost:8000/sql'
     username = config.get("DATABASE_USER")
     password = config.get("DATABASE_PASSWORD")
 
